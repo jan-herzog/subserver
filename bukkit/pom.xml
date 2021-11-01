@@ -33,18 +33,24 @@
             <groupId>net.pl3x.purpur</groupId>
             <artifactId>purpur-api</artifactId>
             <version>1.17.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>dev.alangomes</groupId>
             <artifactId>spigot-spring-boot-starter</artifactId>
-            <version>0.20.4</version>
+            <version>0.20.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>2.6.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.4.2</version>
+            <version>2.5.6</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -59,7 +65,6 @@
             <version>1.2.0</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>de.nebelniek</groupId>
             <artifactId>commons</artifactId>
@@ -98,11 +103,26 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>2.5.5</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
-                    <minimizeJar>false</minimizeJar>
-                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml
-                    </dependencyReducedPomLocation>
+                    <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
@@ -110,6 +130,26 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                    <resource>META-INF/spring.factories</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>shaded</shadedClassifierName>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

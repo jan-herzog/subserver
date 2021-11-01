@@ -34,14 +34,14 @@ public class BukkitConfiguration {
     private PaperCommandManager commandManager;
 
     @Bean
-    private TwitchClient buildTwitchClient() {
+    public TwitchClient buildTwitchClient() {
         return TwitchClientBuilder.builder()
                 .withEnableHelix(true)
                 .build();
     }
 
     @Bean
-    private OAuth2IdentityProvider buildOAuth2IdentityProvider() {
+    public OAuth2IdentityProvider buildOAuth2IdentityProvider() {
         final CredentialManager credentialManager = CredentialManagerBuilder.builder().build();
         credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback/"));
         return credentialManager.getOAuth2IdentityProviderByName("twitch").get();

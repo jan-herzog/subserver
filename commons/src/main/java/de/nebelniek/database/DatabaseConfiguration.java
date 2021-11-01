@@ -13,7 +13,7 @@ public class DatabaseConfiguration {
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setDriverClassName("org.mariadb.jdbc.Driver");
         dataSource.setUsername("out");
         dataSource.setPassword("polen1hzg");
         dataSource.setUrl("jdbc:mariadb://notecho.de:3306/backend?createDatabaseIfNotExist=true");
