@@ -1,4 +1,4 @@
-package de.nebelniek.hashcode;
+package de.nebelniek.services.hashcode;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -26,6 +26,8 @@ public class HashcodeService {
     }
 
     public void storeHash(UUID key) {
+        if (cache.asMap().containsKey(key))
+            cache.invalidate(key);
         cache.put(key, generateHash(16));
     }
 

@@ -22,7 +22,7 @@ public class Subserver extends JavaPlugin {
         application.addInitializers(new SpringSpigotInitializer(this));
         context = application.run();
         bukkitConfiguration = context.getBean(BukkitConfiguration.class);
-        bukkitConfiguration.startMinecraftPlugin();
+        bukkitConfiguration.startMinecraftPlugin(context, this);
     }
 
     @Override

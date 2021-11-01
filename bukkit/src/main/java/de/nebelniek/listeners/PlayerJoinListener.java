@@ -1,6 +1,9 @@
 package de.nebelniek.listeners;
 
-import de.nebelniek.hashcode.HashcodeService;
+import de.nebelniek.database.user.CloudUserRepository;
+import de.nebelniek.services.hashcode.HashcodeService;
+import de.nebelniek.services.twitch.TwitchSubscriptionService;
+import de.nebelniek.services.verify.VerifyService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,14 +16,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class PlayerJoinListener implements Listener {
 
-    private final HashcodeService hashcodeService;
+    private final VerifyService verifyService;
+    private final TwitchSubscriptionService twitchSubscriptionService;
+    private final CloudUserRepository cloudUserRepository;
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        hashcodeService.storeHash(player.getUniqueId());
-        player.sendMessage("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId()));
-        System.out.println("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId()));
+        cloudUserRepository.findByUuidAsync(player.getUniqueId()).thenAccept(cloudUser -> {
+            if (!cloudUser.isSubbed())
+                verifyService.showVerifySuggestion(player);
+        });
     }
 
 }

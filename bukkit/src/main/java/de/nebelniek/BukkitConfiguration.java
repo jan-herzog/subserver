@@ -1,8 +1,8 @@
 package de.nebelniek;
 
+import co.aikar.commands.PaperCommandManager;
 import com.github.philippheuer.credentialmanager.CredentialManager;
 import com.github.philippheuer.credentialmanager.CredentialManagerBuilder;
-import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
@@ -10,12 +10,14 @@ import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import de.nebelniek.registration.BukkitPluginEnableEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 
 @Getter
 @Configuration
@@ -24,9 +26,12 @@ public class BukkitConfiguration {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    public void startMinecraftPlugin() {
-        this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(null, null, null));
+    public void startMinecraftPlugin(ApplicationContext context, JavaPlugin plugin) {
+        this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
     }
+
+    @Setter
+    private PaperCommandManager commandManager;
 
     @Bean
     private TwitchClient buildTwitchClient() {
@@ -41,5 +46,4 @@ public class BukkitConfiguration {
         credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback/"));
         return credentialManager.getOAuth2IdentityProviderByName("twitch").get();
     }
-
 }

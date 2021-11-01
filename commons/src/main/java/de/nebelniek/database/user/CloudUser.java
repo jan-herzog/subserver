@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,5 +27,6 @@ public class CloudUser {
     private String lastUserName;
     private Date lastLogin;
     private String twitchId;
+    private boolean subbed;
 
 }

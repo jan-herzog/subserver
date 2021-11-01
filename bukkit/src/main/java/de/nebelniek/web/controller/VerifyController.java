@@ -4,13 +4,11 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.User;
-import de.nebelniek.BukkitConfiguration;
 import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.CloudUserRepository;
-import de.nebelniek.hashcode.HashcodeService;
+import de.nebelniek.services.hashcode.HashcodeService;
+import de.nebelniek.services.verify.VerifyService;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 public class VerifyController {
 
     private final HashcodeService hashcodeService;
+
+    private final VerifyService verifyService;
 
     private final CloudUserRepository repository;
 
@@ -57,6 +57,7 @@ public class VerifyController {
         User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null,null).execute().getUsers().get(0);
         cloudUser.setTwitchId(twitchUser.getId());
         repository.save(cloudUser);
+        verifyService.notifyPlayerIfOnline(cloudUser.getUuid());
         return "redirect:/?ref=success";
     }
 
