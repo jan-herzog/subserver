@@ -28,7 +28,7 @@ public class TwitchSubscriptionService {
     private CloudUserRepository cloudUserRepository;
 
     public CompletableFuture<Boolean> isSubbed(UUID uuid) {
-        return this.isSubbed(cloudUserRepository.findByUuid(uuid));
+        return this.isSubbed(cloudUserRepository.findByUuidIs(uuid));
     }
 
     public CompletableFuture<Boolean> isSubbed(CloudUser cloudUser) {

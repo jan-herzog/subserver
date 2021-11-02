@@ -24,7 +24,7 @@ public class VerifyCommand extends BaseCommand {
     @Default
     @CatchUnknown
     public void onDefault(Player sender) {
-        cloudUserRepository.findByUuidAsync(sender.getUniqueId()).thenAccept(cloudUser -> {
+        cloudUserRepository.findByUuidEquals(sender.getUniqueId()).thenAccept(cloudUser -> {
             if(cloudUser.getTwitchId() == null)
                 verifyService.showVerify(sender);
             else sender.sendMessage(Prefix.TWITCH + "Du bist bereits §averifiziert§7!");

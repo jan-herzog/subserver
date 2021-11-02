@@ -52,7 +52,7 @@ public class VerifyController {
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
-        CloudUser cloudUser = repository.findByUuid(hashcodeService.deleteHash(hash));
+        CloudUser cloudUser = repository.findByUuidIs(hashcodeService.deleteHash(hash));
         OAuth2Credential credential = oAuth2IdentityProvider.getCredentialByCode(code);
         User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null,null).execute().getUsers().get(0);
         cloudUser.setTwitchId(twitchUser.getId());

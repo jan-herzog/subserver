@@ -24,9 +24,9 @@ public class Subserver extends JavaPlugin {
     @SneakyThrows
     @Override
     public void onEnable() {
-        defaultClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
+        System.out.println("DIOUSHAIDHIOAWDHWHODIWWAD_§PÜI§)$I)=U=?DKC(M?=MC");
         context = SpringSpigotBootstrapper.initialize(this, BukkitSpringApplication.class);
+        System.out.println("DIOUSHAIDHIOAWDHWHODIWWAD_§PÜI§)$I)=U=?DKC(M?=MadDSADASC");
         bukkitConfiguration = context.getBean(BukkitConfiguration.class);
         bukkitConfiguration.startMinecraftPlugin(context, this);
 

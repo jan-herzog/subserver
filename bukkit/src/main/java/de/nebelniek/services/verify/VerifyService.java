@@ -83,7 +83,7 @@ public class VerifyService {
             LOGGER.debug("Notify cancelled because player (" + uuid + ") was not online!");
             return;
         }
-        CloudUser cloudUser = cloudUserRepository.findByUuid(uuid);
+        CloudUser cloudUser = cloudUserRepository.findByUuidIs(uuid);
         User user = twitchClient.getHelix().getUsers(TwitchTokens.HELIXTOKEN.getToken(), Collections.singletonList(cloudUser.getTwitchId()), null).execute().getUsers().get(0);
         player.sendMessage(Prefix.TWITCH + "Du wurdest §aerfolgreich§7 mit deinem Twitch-Account §5" + user.getLogin() + "§7 verbunden!");
         twitchSubscriptionService.notifyPlayer(player);

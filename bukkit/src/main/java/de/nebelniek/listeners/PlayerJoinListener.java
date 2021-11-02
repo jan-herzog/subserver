@@ -24,7 +24,7 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        cloudUserRepository.findByUuidAsync(player.getUniqueId()).thenAccept(cloudUser -> {
+        cloudUserRepository.findByUuidEquals(player.getUniqueId()).thenAccept(cloudUser -> {
             if(cloudUser == null) {
                 CloudUser newCloudUser = CloudUser.builder().uuid(player.getUniqueId()).lastUserName(player.getName()).subbed(false).build();
                 cloudUserRepository.save(newCloudUser);
