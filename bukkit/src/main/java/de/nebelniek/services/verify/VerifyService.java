@@ -7,6 +7,7 @@ import de.nebelniek.database.user.CloudUserRepository;
 import de.nebelniek.services.hashcode.HashcodeService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.utils.Prefix;
+import de.nebelniek.utils.TwitchTokens;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -83,7 +84,7 @@ public class VerifyService {
             return;
         }
         CloudUser cloudUser = cloudUserRepository.findByUuid(uuid);
-        User user = twitchClient.getHelix().getUsers("", Collections.singletonList(cloudUser.getTwitchId()), null).execute().getUsers().get(0);
+        User user = twitchClient.getHelix().getUsers(TwitchTokens.HELIXTOKEN.getToken(), Collections.singletonList(cloudUser.getTwitchId()), null).execute().getUsers().get(0);
         player.sendMessage(Prefix.TWITCH + "Du wurdest §aerfolgreich§7 mit deinem Twitch-Account §5" + user.getLogin() + "§7 verbunden!");
         twitchSubscriptionService.notifyPlayer(player);
     }

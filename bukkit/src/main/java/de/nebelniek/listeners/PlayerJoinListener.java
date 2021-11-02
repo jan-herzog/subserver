@@ -1,5 +1,6 @@
 package de.nebelniek.listeners;
 
+import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.CloudUserRepository;
 import de.nebelniek.services.hashcode.HashcodeService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
@@ -24,7 +25,13 @@ public class PlayerJoinListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         cloudUserRepository.findByUuidAsync(player.getUniqueId()).thenAccept(cloudUser -> {
-            if (!cloudUser.isSubbed())
+            if(cloudUser == null) {
+                CloudUser newCloudUser = CloudUser.builder().uuid(player.getUniqueId()).lastUserName(player.getName()).subbed(false).build();
+                cloudUserRepository.save(newCloudUser);
+                verifyService.showVerifySuggestion(player);
+                return;
+            }
+            if (cloudUser.getTwitchId() == null)
                 verifyService.showVerifySuggestion(player);
         });
     }
