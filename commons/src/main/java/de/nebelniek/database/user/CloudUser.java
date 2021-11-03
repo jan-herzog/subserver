@@ -1,7 +1,6 @@
 package de.nebelniek.database.user;
 
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

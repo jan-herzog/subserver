@@ -12,9 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import static spark.Spark.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -33,32 +32,33 @@ public class VerifyController {
 
     private final OAuth2IdentityProvider oAuth2IdentityProvider;
 
-    @GetMapping("/auth")
-    public String auth(@RequestParam(name = "hash", defaultValue = "null") String hash, Model model, HttpServletResponse response) {
-        if(hashcodeService.isHashPresent(hash))
-            return "redirect:/error";
-        Cookie cookie = new Cookie("res", hash);
-        cookie.setPath("/");
-        cookie.setMaxAge(3600);
-        response.addCookie(cookie);
-        return "redirect:https://id.twitch.tv/oauth2/authorize?client_id=7suv1m3ae2vbiqjpbn5n2ovlnta440&redirect_uri=https://verify.nebelniek.de/callback/&response_type=code&scope=user:read:email";
-    }
+    public void setupRoutes() {
+        get("/auth", (request, response) -> {
+            String hash = request.queryParams("hash");
+            if(hashcodeService.isHashPresent(hash))
+                return "redirect:/error";
+            response.cookie("res", hash,1000);
+            response.redirect("redirect:https://id.twitch.tv/oauth2/authorize?client_id=7suv1m3ae2vbiqjpbn5n2ovlnta440&redirect_uri=https://verify.nebelniek.de/callback/&response_type=code&scope=user:read:email");
+            return "";
+        });
 
-    @GetMapping("/callback")
-    public String twitchCallback(@CookieValue(name = "res", defaultValue = "null") String hash, @RequestParam(name = "code", defaultValue = "null") String code, Model model, HttpServletResponse response) {
-        if(hashcodeService.isHashPresent(hash))
-            return "redirect:/error";
-        Cookie cookie = new Cookie("res", hash);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-        CloudUser cloudUser = repository.findByUuidIs(hashcodeService.deleteHash(hash));
-        OAuth2Credential credential = oAuth2IdentityProvider.getCredentialByCode(code);
-        User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null,null).execute().getUsers().get(0);
-        cloudUser.setTwitchId(twitchUser.getId());
-        repository.save(cloudUser);
-        verifyService.notifyPlayerIfOnline(cloudUser.getUuid());
-        return "redirect:/?ref=success";
-    }
+        get("/callback", ((request, response) -> {
+            String hash = request.queryParams("hash");
+            String code = request.queryParams("code");
 
+            if(hashcodeService.isHashPresent(hash)) {
+                response.redirect("/error");
+                return "";
+            }
+            response.removeCookie("res");
+            CloudUser cloudUser = repository.findByUuidIs(hashcodeService.deleteHash(hash));
+            OAuth2Credential credential = oAuth2IdentityProvider.getCredentialByCode(code);
+            User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null,null).execute().getUsers().get(0);
+            cloudUser.setTwitchId(twitchUser.getId());
+            repository.save(cloudUser);
+            verifyService.notifyPlayerIfOnline(cloudUser.getUuid());
+            response.redirect("/?ref=success");
+            return "";
+        }));
+    }
 }

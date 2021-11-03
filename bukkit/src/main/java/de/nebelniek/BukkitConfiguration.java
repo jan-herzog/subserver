@@ -8,6 +8,8 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import de.nebelniek.registration.BukkitPluginEnableEvent;
+import de.nebelniek.web.controller.HomeController;
+import de.nebelniek.web.controller.VerifyController;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -32,10 +34,15 @@ public class BukkitConfiguration {
 
     private final ApplicationEventPublisher eventPublisher;
 
+    private final HomeController homeController;
+    private final VerifyController verifyController;
+
     private CredentialManager credentialManager;
 
     public void startMinecraftPlugin(ApplicationContext context, JavaPlugin plugin) {
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
+        this.homeController.setupRoutes();
+        this.verifyController.setupRoutes();
     }
 
     @Setter
@@ -46,6 +53,7 @@ public class BukkitConfiguration {
     public TwitchClient buildTwitchClient() {
         return TwitchClientBuilder.builder()
                 .withEnableHelix(true)
+                .withCredentialManager(credentialManager)
                 .build();
     }
 
