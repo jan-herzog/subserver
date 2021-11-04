@@ -13,22 +13,15 @@ import de.nebelniek.web.controller.VerifyController;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.*;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.Database;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import java.util.Properties;
+import static spark.Spark.port;
 
 @Getter
 @Configuration
@@ -41,6 +34,7 @@ public class BukkitConfiguration {
 
     public void startMinecraftPlugin(ApplicationContext context, JavaPlugin plugin) {
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
+        port(4556);
         context.getBean(VerifyController.class).setupRoutes();
         context.getBean(HomeController.class).setupRoutes();
     }
@@ -60,51 +54,8 @@ public class BukkitConfiguration {
     @Bean
     public OAuth2IdentityProvider buildOAuth2IdentityProvider() {
         this.credentialManager = CredentialManagerBuilder.builder().build();
-        credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback/"));
+        credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback"));
         return credentialManager.getOAuth2IdentityProviderByName("twitch").get();
     }
 
-    @Bean(name = "entityManagerFactory")
-    public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
-        Properties properties = new Properties();
-        properties.put("hibernate.dialect", "org.hibernate.dialect.MariaDB103Dialect");
-        sessionFactory.setHibernateProperties(properties);
-        sessionFactory.setPackagesToScan("de.nebelniek.database.user");
-        return sessionFactory;
-    }
-
-    public EntityManagerFactory entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-        factory.setPackagesToScan("de.nebelniek.database.user");
-        return factory.getNativeEntityManagerFactory();
-    }
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(JpaVendorAdapter jpaVendorAdapter) {
-        LocalContainerEntityManagerFactoryBean lef = new LocalContainerEntityManagerFactoryBean();
-        lef.setDataSource(dataSource());
-        lef.setJpaVendorAdapter(jpaVendorAdapter);
-        lef.setPackagesToScan("com.spring.domain");
-        return lef;
-    }
-
-    @Bean
-    public JpaVendorAdapter jpaVendorAdapter() {
-        HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-        hibernateJpaVendorAdapter.setShowSql(true);
-        hibernateJpaVendorAdapter.setGenerateDdl(true); //Auto creating scheme when true
-        hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);//Database type
-        return hibernateJpaVendorAdapter;
-    }
-
-    private DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.mariadb.jdbc.Driver");
-        dataSource.setUsername("out");
-        dataSource.setPassword("polen1hzg");
-        dataSource.setUrl("jdbc:mariadb://notecho.de:3306/backend?createDatabaseIfNotExist=true");
-        return dataSource;
-    }
 }

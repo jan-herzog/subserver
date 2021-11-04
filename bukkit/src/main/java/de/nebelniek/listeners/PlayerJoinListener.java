@@ -1,8 +1,7 @@
 package de.nebelniek.listeners;
 
 import de.nebelniek.database.user.CloudUser;
-import de.nebelniek.database.user.CloudUserRepository;
-import de.nebelniek.services.hashcode.HashcodeService;
+import de.nebelniek.database.user.CloudUserManagingService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.services.verify.VerifyService;
 import lombok.RequiredArgsConstructor;
@@ -19,20 +18,18 @@ public class PlayerJoinListener implements Listener {
 
     private final VerifyService verifyService;
     private final TwitchSubscriptionService twitchSubscriptionService;
-    private final CloudUserRepository cloudUserRepository;
+    private final CloudUserManagingService cloudUserRepository;
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        cloudUserRepository.findByUuidEquals(player.getUniqueId()).thenAccept(cloudUser -> {
-            if(cloudUser == null) {
-                CloudUser newCloudUser = CloudUser.builder().uuid(player.getUniqueId()).lastUserName(player.getName()).subbed(false).build();
-                cloudUserRepository.save(newCloudUser);
-                verifyService.showVerifySuggestion(player);
-                return;
-            }
+        event.setJoinMessage(player.getName() + " joined!");
+        cloudUserRepository.createUserIfNotExists(player.getUniqueId(), player.getName()).thenAccept(cloudUser -> {
             if (cloudUser.getTwitchId() == null)
                 verifyService.showVerifySuggestion(player);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 

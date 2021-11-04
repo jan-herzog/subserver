@@ -3,7 +3,8 @@ package de.nebelniek.services.twitch;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.Subscription;
 import de.nebelniek.database.user.CloudUser;
-import de.nebelniek.database.user.CloudUserRepository;
+import de.nebelniek.database.user.CloudUserManagingService;
+import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.Prefix;
 import de.nebelniek.utils.TwitchTokens;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +25,14 @@ public class TwitchSubscriptionService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private TwitchClient twitchClient;
-    private CloudUserRepository cloudUserRepository;
+    private final TwitchClient twitchClient;
+    private final CloudUserManagingService cloudUserRepository;
 
     public CompletableFuture<Boolean> isSubbed(UUID uuid) {
-        return this.isSubbed(cloudUserRepository.findByUuidIs(uuid));
+        return this.isSubbed(cloudUserRepository.loadUserSync(uuid));
     }
 
-    public CompletableFuture<Boolean> isSubbed(CloudUser cloudUser) {
+    public CompletableFuture<Boolean> isSubbed(ICloudUser cloudUser) {
         return CompletableFuture.supplyAsync(() -> {
             if (cloudUser.getTwitchId() == null)
                 return false;
@@ -41,7 +42,7 @@ public class TwitchSubscriptionService {
             if (subscriptions.size() == 0)
                 return false;
             cloudUser.setSubbed(subscriptions.get(0) != null);
-            cloudUserRepository.save(cloudUser);
+            cloudUser.saveAsync();
             return subscriptions.get(0) != null;
         });
     }

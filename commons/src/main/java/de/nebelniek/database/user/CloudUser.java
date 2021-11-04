@@ -1,30 +1,75 @@
 package de.nebelniek.database.user;
 
+import de.nebelniek.database.user.interfaces.ICloudUser;
+import de.nebelniek.database.user.model.CloudUserModel;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
-@Entity
-@Getter
-@Setter
+
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class CloudUser {
+public class CloudUser implements ICloudUser {
 
-    @Id
-    @GeneratedValue/*generator = "clouduser_id_gen"*/
-    //@SequenceGenerator(name = "clouduser_id_gen", initialValue = 1500, allocationSize = 1)
-    private long id;
+    @Getter
+    @Setter
     private UUID uuid;
+    @Getter
+    @Setter
     private String lastUserName;
+
+    @Getter
+    @Setter
     private Date lastLogin;
+    @Getter
+    @Setter
     private String twitchId;
+    @Getter
+    @Setter
     private boolean subbed;
 
+    @Getter
+    private final CloudUserModel model;
+
+    private final CloudUserManagingService service;
+
+    @SneakyThrows
+    public CloudUser(CloudUserManagingService service, Long databaseId) {
+        this.service = service;
+        this.model = service.getDatabaseProvider().getPlayerDao().queryForId(databaseId);
+    }
+
+
+    public CompletableFuture<Void> loadAsync() {
+        return CompletableFuture.runAsync(this::load);
+    }
+
+    @SneakyThrows
+    @Override
+    public void load() {
+        this.service.getDatabaseProvider().getPlayerDao().refresh(this.model);
+        this.uuid = this.model.getUuid();
+        this.lastLogin = this.model.getLastLogin();
+        this.lastUserName = this.model.getLastUserName();
+        this.twitchId = this.model.getTwitchId();
+        this.subbed = this.model.isSubbed();
+    }
+
+
+    public CompletableFuture<Void> saveAsync() {
+        return CompletableFuture.runAsync(this::save);
+    }
+
+    @SneakyThrows
+    @Override
+    public void save() {
+        this.model.setUuid(this.uuid);
+        this.model.setLastLogin(this.lastLogin);
+        this.model.setLastUserName(this.lastUserName);
+        this.model.setTwitchId(this.twitchId);
+        this.model.setSubbed(this.subbed);
+        this.service.getDatabaseProvider().getPlayerDao().update(this.model);
+    }
 }

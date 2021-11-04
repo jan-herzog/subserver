@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TwitchTokens {
-    HELIXTOKEN("",""),
-    NEBELNIEK("","")
+    HELIXTOKEN("jc4gms5xf1bqpxqen366fftr0n0if1",""),
+    NEBELNIEK("norgxs79btnhlyrwav4kc48jl0imj5","final ")
     ;
 
     private String token;

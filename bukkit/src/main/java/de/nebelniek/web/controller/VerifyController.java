@@ -5,7 +5,8 @@ import com.github.philippheuer.credentialmanager.identityprovider.OAuth2Identity
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.User;
 import de.nebelniek.database.user.CloudUser;
-import de.nebelniek.database.user.CloudUserRepository;
+import de.nebelniek.database.user.CloudUserManagingService;
+import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.services.hashcode.HashcodeService;
 import de.nebelniek.services.verify.VerifyService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class VerifyController {
 
     private final VerifyService verifyService;
 
-    private final CloudUserRepository repository;
+    private final CloudUserManagingService repository;
 
     private final TwitchClient twitchClient;
 
@@ -36,25 +37,25 @@ public class VerifyController {
                 return "";
             }
             response.cookie("res", hash,1000);
-            response.redirect("https://id.twitch.tv/oauth2/authorize?client_id=7suv1m3ae2vbiqjpbn5n2ovlnta440&redirect_uri=https://verify.nebelniek.de/callback/&response_type=code&scope=user:read:email");
+            response.redirect("https://id.twitch.tv/oauth2/authorize?client_id=7suv1m3ae2vbiqjpbn5n2ovlnta440&redirect_uri=https://verify.nebelniek.de/callback&response_type=code&scope=user:read:email");
             return "";
         });
 
         get("/callback", ((request, response) -> {
-            String hash = request.queryParams("hash");
+            String hash = request.cookie("res");
             String code = request.queryParams("code");
 
-            if(hashcodeService.isHashPresent(hash)) {
+            if(!hashcodeService.isHashPresent(hash)) {
                 response.redirect("/error");
                 return "";
             }
             response.removeCookie("res");
-            CloudUser cloudUser = repository.findByUuidIs(hashcodeService.deleteHash(hash));
+            ICloudUser cloudUser = repository.loadUserSync(hashcodeService.deleteHash(hash));
             OAuth2Credential credential = oAuth2IdentityProvider.getCredentialByCode(code);
             User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null,null).execute().getUsers().get(0);
             cloudUser.setTwitchId(twitchUser.getId());
-            repository.save(cloudUser);
-            verifyService.notifyPlayerIfOnline(cloudUser.getUuid());
+            cloudUser.saveAsync();
+            verifyService.notifyPlayerIfOnline(cloudUser.getUuid(), credential);
             response.redirect("/?ref=success");
             return "";
         }));

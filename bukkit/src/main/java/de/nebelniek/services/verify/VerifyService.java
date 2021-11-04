@@ -1,9 +1,11 @@
 package de.nebelniek.services.verify;
 
+import com.github.philippheuer.credentialmanager.domain.Credential;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.User;
 import de.nebelniek.database.user.CloudUser;
-import de.nebelniek.database.user.CloudUserRepository;
+import de.nebelniek.database.user.CloudUserManagingService;
 import de.nebelniek.services.hashcode.HashcodeService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.utils.Prefix;
@@ -14,10 +16,8 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,25 +33,25 @@ public class VerifyService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private CloudUserRepository cloudUserRepository;
+    private final CloudUserManagingService cloudUserRepository;
 
-    private TwitchSubscriptionService twitchSubscriptionService;
+    private final TwitchSubscriptionService twitchSubscriptionService;
 
-    private HashcodeService hashcodeService;
+    private final HashcodeService hashcodeService;
 
-    private TwitchClient twitchClient;
+    private final TwitchClient twitchClient;
 
     public void showVerifySuggestion(Player player) {
         hashcodeService.storeHash(player.getUniqueId());
         final TextComponent component = Component
-                .text(Prefix.TWITCH + "Du bist noch nicht mit einem §5Twitch Account§7 verbunden!")
+                .text(Prefix.TWITCH + "Du bist noch nicht mit einem §5Twitch Account§7 verbunden! ")
                 .append(
                         Component.text("Verbinde")
                                 .color(NamedTextColor.YELLOW)
                                 .style(Style.style(TextDecoration.BOLD))
+                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
                                 .hoverEvent(
                                         Component.text("§a§lKlick!")
-                                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
                                                 .asHoverEvent()
                                 )
                 )
@@ -77,16 +77,20 @@ public class VerifyService {
         player.sendMessage(component);
     }
 
-    public void notifyPlayerIfOnline(UUID uuid) {
+    public void notifyPlayerIfOnline(UUID uuid, OAuth2Credential credential) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) {
             LOGGER.debug("Notify cancelled because player (" + uuid + ") was not online!");
             return;
         }
-        CloudUser cloudUser = cloudUserRepository.findByUuidIs(uuid);
-        User user = twitchClient.getHelix().getUsers(TwitchTokens.HELIXTOKEN.getToken(), Collections.singletonList(cloudUser.getTwitchId()), null).execute().getUsers().get(0);
-        player.sendMessage(Prefix.TWITCH + "Du wurdest §aerfolgreich§7 mit deinem Twitch-Account §5" + user.getLogin() + "§7 verbunden!");
-        twitchSubscriptionService.notifyPlayer(player);
+        cloudUserRepository.loadUser(uuid).thenAccept(cloudUser -> {
+            User user = twitchClient.getHelix().getUsers(credential.getAccessToken(), Collections.singletonList(cloudUser.getTwitchId()), null).execute().getUsers().get(0);
+            player.sendMessage(Prefix.TWITCH + "Du wurdest §aerfolgreich§7 mit deinem Twitch-Account §5" + user.getLogin() + "§7 verbunden!");
+            twitchSubscriptionService.notifyPlayer(player);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
 }
