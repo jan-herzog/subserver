@@ -1,35 +1,37 @@
 package de.nebelniek;
 
-import de.nebelniek.web.BukkitSpringApplication;
+import de.nebelniek.database.user.CloudUserRepository;
+import de.nebelniek.listeners.PlayerJoinListener;
+import de.nebelniek.registration.BukkitListenerRegistry;
+import de.nebelniek.registration.CommandRegistry;
+import de.nebelniek.services.hashcode.HashcodeService;
+import de.nebelniek.services.twitch.TwitchSubscriptionService;
+import de.nebelniek.services.verify.VerifyService;
+import de.nebelniek.web.controller.HomeController;
+import de.nebelniek.web.controller.VerifyController;
 import lombok.SneakyThrows;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.IOException;
 import java.util.Properties;
 
 public class Subserver extends JavaPlugin {
 
-    private ClassLoader defaultClassLoader;
-    private ConfigurableApplicationContext context;
+    private AnnotationConfigApplicationContext context;
 
     @SneakyThrows
     @Override
     public void onEnable() {
+        Thread.currentThread().setContextClassLoader(getClassLoader());
         context = new AnnotationConfigApplicationContext(BukkitSpringApplication.class);
+        System.out.println(context.getBeanDefinitionCount());
+        for (String beanName : context.getBeanDefinitionNames()) {
+            System.out.println(beanName);
+        }
         BukkitConfiguration bukkitConfiguration = context.getBean(BukkitConfiguration.class);
         bukkitConfiguration.startMinecraftPlugin(context, this);
         context.registerShutdownHook();
-    }
-
-    private void init() throws IOException {
-        Properties props = new Properties();
-        props.load(getClassLoader().getResourceAsStream("application.properties"));
-
-        SpringApplication application = new SpringApplication(BukkitSpringApplication.class);
-        application.setDefaultProperties(props);
     }
 
     @Override

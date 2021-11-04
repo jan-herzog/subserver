@@ -4,12 +4,14 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CatchUnknown;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
+import de.nebelniek.BukkitSpringApplication;
 import de.nebelniek.database.user.CloudUserRepository;
 import de.nebelniek.services.verify.VerifyService;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -18,11 +18,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.Database;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -34,15 +36,12 @@ public class BukkitConfiguration {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    private final HomeController homeController;
-    private final VerifyController verifyController;
-
     private CredentialManager credentialManager;
 
     public void startMinecraftPlugin(ApplicationContext context, JavaPlugin plugin) {
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
-        this.homeController.setupRoutes();
-        this.verifyController.setupRoutes();
+        context.getBean(VerifyController.class).setupRoutes();
+        context.getBean(HomeController.class).setupRoutes();
     }
 
     @Setter
@@ -68,11 +67,28 @@ public class BukkitConfiguration {
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan("de.nebelniek.database.user");
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.MariaDB103Dialect");
         sessionFactory.setHibernateProperties(properties);
         return sessionFactory;
+    }
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(JpaVendorAdapter jpaVendorAdapter) {
+        LocalContainerEntityManagerFactoryBean lef = new LocalContainerEntityManagerFactoryBean();
+        lef.setDataSource(dataSource());
+        lef.setJpaVendorAdapter(jpaVendorAdapter);
+        lef.setPackagesToScan("com.spring.domain");
+        return lef;
+    }
+
+    @Bean
+    public JpaVendorAdapter jpaVendorAdapter() {
+        HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+        hibernateJpaVendorAdapter.setShowSql(true);
+        hibernateJpaVendorAdapter.setGenerateDdl(true); //Auto creating scheme when true
+        hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);//Database type
+        return hibernateJpaVendorAdapter;
     }
 
     private DataSource dataSource() {
