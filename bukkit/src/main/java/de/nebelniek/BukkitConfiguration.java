@@ -26,6 +26,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -70,7 +71,14 @@ public class BukkitConfiguration {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.MariaDB103Dialect");
         sessionFactory.setHibernateProperties(properties);
+        sessionFactory.setPackagesToScan("de.nebelniek.database.user");
         return sessionFactory;
+    }
+
+    public EntityManagerFactory entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setPackagesToScan("de.nebelniek.database.user");
+        return factory.getNativeEntityManagerFactory();
     }
 
     @Bean
