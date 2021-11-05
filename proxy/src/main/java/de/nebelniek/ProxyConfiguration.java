@@ -1,19 +1,20 @@
 package de.nebelniek;
 
-import co.aikar.commands.PaperCommandManager;
+import co.aikar.commands.BungeeCommandManager;
 import com.github.philippheuer.credentialmanager.CredentialManager;
 import com.github.philippheuer.credentialmanager.CredentialManagerBuilder;
 import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
-import de.nebelniek.registration.BukkitPluginEnableEvent;
-import de.nebelniek.web.controller.HomeController;
-import de.nebelniek.web.controller.VerifyController;
+import de.nebelniek.registration.ProxyPluginEnableEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.bukkit.plugin.java.JavaPlugin;
+import de.nebelniek.web.controller.HomeController;
+import de.nebelniek.web.controller.VerifyController;
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
+import net.md_5.bungee.api.plugin.Plugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,21 +27,24 @@ import static spark.Spark.port;
 @Getter
 @Configuration
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class BukkitConfiguration {
+public class ProxyConfiguration {
 
     private final ApplicationEventPublisher eventPublisher;
 
     private CredentialManager credentialManager;
 
-    public void startMinecraftPlugin(ApplicationContext context, JavaPlugin plugin) {
-        this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
+    private BungeeAudiences adventure;
+
+    public void startProxyPlugin(ApplicationContext context, Plugin plugin) {
+        this.eventPublisher.publishEvent(new ProxyPluginEnableEvent(context, plugin));
         port(4556);
         context.getBean(VerifyController.class).setupRoutes();
         context.getBean(HomeController.class).setupRoutes();
+        this.adventure = BungeeAudiences.create(plugin);
     }
 
     @Setter
-    private PaperCommandManager commandManager;
+    private BungeeCommandManager commandManager;
 
     @Bean
     @DependsOn("buildOAuth2IdentityProvider")

@@ -4,7 +4,6 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.User;
-import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.services.hashcode.HashcodeService;

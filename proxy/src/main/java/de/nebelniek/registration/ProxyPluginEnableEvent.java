@@ -1,21 +1,20 @@
 package de.nebelniek.registration;
 
 import lombok.Getter;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import net.md_5.bungee.api.plugin.Plugin;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 
 
 @Getter
-public class BukkitPluginEnableEvent extends ApplicationEvent {
+public class ProxyPluginEnableEvent extends ApplicationEvent {
 
     private final ApplicationContext applicationContext;
-    private final JavaPlugin javaPlugin;
+    private final Plugin plugin;
 
-    public BukkitPluginEnableEvent(ApplicationContext applicationContext, JavaPlugin javaPlugin) {
+    public ProxyPluginEnableEvent(ApplicationContext applicationContext, Plugin plugin) {
         super(applicationContext);
         this.applicationContext = applicationContext;
-        this.javaPlugin = javaPlugin;
+        this.plugin = plugin;
     }
 }

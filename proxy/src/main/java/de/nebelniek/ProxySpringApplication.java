@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan(basePackages = "de.nebelniek")
-public class BukkitSpringApplication {
+public class ProxySpringApplication {
     public static void main(String[] args) {
-        new AnnotationConfigApplicationContext(BukkitSpringApplication.class);
+        new AnnotationConfigApplicationContext(ProxySpringApplication.class);
     }
 }

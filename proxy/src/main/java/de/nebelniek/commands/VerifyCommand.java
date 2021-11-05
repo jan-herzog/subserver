@@ -8,7 +8,7 @@ import de.nebelniek.database.user.CloudUserManagingService;
 import de.nebelniek.services.verify.VerifyService;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.entity.Player;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class VerifyCommand extends BaseCommand {
 
     @Default
     @CatchUnknown
-    public void onDefault(Player sender) {
+    public void onDefault(ProxiedPlayer sender) {
         cloudUserRepository.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
             if(cloudUser.getTwitchId() == null)
                 verifyService.showVerify(sender);

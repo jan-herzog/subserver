@@ -2,13 +2,12 @@ package de.nebelniek.services.twitch;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.Subscription;
-import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.Prefix;
 import de.nebelniek.utils.TwitchTokens;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.entity.Player;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ public class TwitchSubscriptionService {
         });
     }
 
-    public void notifyPlayer(Player player) {
+    public void notifyPlayer(ProxiedPlayer player) {
         if (player == null) {
             LOGGER.debug("Notify cancelled because player was not online!");
             return;

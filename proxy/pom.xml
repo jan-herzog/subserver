@@ -28,6 +28,12 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+        <!-- ... -->
+        <repository> <!-- for development builds -->
+            <id>sonatype-oss-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+        <!-- ... -->
     </repositories>
 
     <dependencies>
@@ -100,7 +106,11 @@
             <artifactId>guava</artifactId>
             <version>31.0.1-jre</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-platform-bungeecord</artifactId>
+            <version>4.0.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -117,7 +127,7 @@
             <groupId>io.github.waterfallmc</groupId>
             <artifactId>waterfall-api</artifactId>
             <version>1.17-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>

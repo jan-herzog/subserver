@@ -1,8 +1,8 @@
 package de.nebelniek.registration;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.PaperCommandManager;
-import de.nebelniek.BukkitConfiguration;
+import co.aikar.commands.BungeeCommandManager;
+import de.nebelniek.ProxyConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +16,13 @@ public class CommandRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandRegistry.class);
 
-    private final BukkitConfiguration bukkitConfiguration;
+    private final ProxyConfiguration proxyConfiguration;
 
     @EventListener
-    public void loadOnEnable(BukkitPluginEnableEvent event) {
-        bukkitConfiguration.setCommandManager(new PaperCommandManager(event.getJavaPlugin()));
+    public void loadOnEnable(ProxyPluginEnableEvent event) {
+        proxyConfiguration.setCommandManager(new BungeeCommandManager(event.getPlugin()));
         event.getApplicationContext().getBeansOfType(BaseCommand.class).forEach((s, command) -> {
-            bukkitConfiguration.getCommandManager().registerCommand(command);
+            proxyConfiguration.getCommandManager().registerCommand(command);
             LOGGER.info("Command of bean " + s + " has been enabled!");
         });
     }

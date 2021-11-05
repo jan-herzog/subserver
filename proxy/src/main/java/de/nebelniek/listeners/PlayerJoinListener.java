@@ -1,14 +1,13 @@
 package de.nebelniek.listeners;
 
-import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.CloudUserManagingService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.services.verify.VerifyService;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +20,8 @@ public class PlayerJoinListener implements Listener {
     private final CloudUserManagingService cloudUserRepository;
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        event.setJoinMessage(player.getName() + " joined!");
+    public void onPlayerJoin(PostLoginEvent event) {
+        ProxiedPlayer player = event.getPlayer();
         cloudUserRepository.createUserIfNotExists(player.getUniqueId(), player.getName()).thenAccept(cloudUser -> {
             if (cloudUser.getTwitchId() == null)
                 verifyService.showVerifySuggestion(player);

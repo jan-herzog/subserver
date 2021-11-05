@@ -1,24 +1,24 @@
 package de.nebelniek;
 
 import lombok.SneakyThrows;
-import org.bukkit.plugin.java.JavaPlugin;
+import net.md_5.bungee.api.plugin.Plugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-public class Subserver extends JavaPlugin {
+public class ProxyPlugin extends Plugin {
 
     private AnnotationConfigApplicationContext context;
 
     @SneakyThrows
     @Override
     public void onEnable() {
-        Thread.currentThread().setContextClassLoader(getClassLoader());
-        context = new AnnotationConfigApplicationContext(BukkitSpringApplication.class);
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        context = new AnnotationConfigApplicationContext(ProxySpringApplication.class);
         System.out.println(context.getBeanDefinitionCount());
         for (String beanName : context.getBeanDefinitionNames()) {
             System.out.println(beanName);
         }
-        BukkitConfiguration bukkitConfiguration = context.getBean(BukkitConfiguration.class);
-        bukkitConfiguration.startMinecraftPlugin(context, this);
+        ProxyConfiguration proxyConfiguration = context.getBean(ProxyConfiguration.class);
+        proxyConfiguration.startProxyPlugin(context, this);
         context.registerShutdownHook();
     }
 
