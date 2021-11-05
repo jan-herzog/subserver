@@ -11,6 +11,8 @@ public interface ICloudUser extends Loadable, Saveable {
 
     String getLastUserName();
 
+    long getCoins();
+
     Date getLastLogin();
 
     String getTwitchId();
@@ -20,6 +22,8 @@ public interface ICloudUser extends Loadable, Saveable {
     CloudUserModel getModel();
 
     void setLastUserName(String lastUserName);
+
+    void setCoins(long coins);
 
     void setUuid(UUID uuid);
 

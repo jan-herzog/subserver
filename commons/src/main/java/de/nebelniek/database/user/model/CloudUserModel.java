@@ -24,6 +24,8 @@ public class CloudUserModel {
     @DatabaseField
     private String lastUserName;
     @DatabaseField
+    private long coins;
+    @DatabaseField
     private Date lastLogin;
     @DatabaseField
     private String twitchId;
@@ -35,6 +37,7 @@ public class CloudUserModel {
         this.lastUserName = lastUserName;
         this.lastLogin = new Date();
         this.twitchId = null;
+        this.coins = 0;
         this.subbed = false;
     }
 }

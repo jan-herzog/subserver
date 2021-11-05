@@ -19,7 +19,9 @@ public class CloudUser implements ICloudUser {
     @Getter
     @Setter
     private String lastUserName;
-
+    @Getter
+    @Setter
+    private long coins;
     @Getter
     @Setter
     private Date lastLogin;
@@ -55,6 +57,7 @@ public class CloudUser implements ICloudUser {
         this.lastUserName = this.model.getLastUserName();
         this.twitchId = this.model.getTwitchId();
         this.subbed = this.model.isSubbed();
+        this.coins = this.model.getCoins();
     }
 
 
@@ -70,6 +73,7 @@ public class CloudUser implements ICloudUser {
         this.model.setLastUserName(this.lastUserName);
         this.model.setTwitchId(this.twitchId);
         this.model.setSubbed(this.subbed);
+        this.model.setCoins(this.coins);
         this.service.getDatabaseProvider().getPlayerDao().update(this.model);
     }
 }
