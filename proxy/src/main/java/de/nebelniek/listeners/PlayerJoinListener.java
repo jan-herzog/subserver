@@ -1,6 +1,6 @@
 package de.nebelniek.listeners;
 
-import de.nebelniek.database.user.CloudUserManagingService;
+import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.services.verify.VerifyService;
 import lombok.RequiredArgsConstructor;

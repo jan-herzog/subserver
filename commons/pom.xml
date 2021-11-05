@@ -45,7 +45,6 @@
             <groupId>com.j256.ormlite</groupId>
             <artifactId>ormlite-jdbc</artifactId>
             <version>5.6</version>
-            <scope>compile</scope>
         </dependency>
 
     </dependencies>

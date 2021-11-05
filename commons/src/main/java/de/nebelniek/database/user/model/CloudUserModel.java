@@ -2,6 +2,7 @@ package de.nebelniek.database.user.model;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import de.nebelniek.database.guild.model.GuildModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +32,10 @@ public class CloudUserModel {
     private String twitchId;
     @DatabaseField
     private boolean subbed;
+    @DatabaseField
+    private String guildRole;
+    @DatabaseField(columnName = "guild_id", foreign = true, foreignAutoRefresh = true)
+    private GuildModel guildModel;
 
     public CloudUserModel(UUID uuid, String lastUserName) {
         this.uuid = uuid;
@@ -39,5 +44,6 @@ public class CloudUserModel {
         this.twitchId = null;
         this.coins = 0;
         this.subbed = false;
+        this.guildModel = null;
     }
 }

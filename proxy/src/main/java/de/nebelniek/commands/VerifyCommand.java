@@ -4,7 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CatchUnknown;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
-import de.nebelniek.database.user.CloudUserManagingService;
+import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.services.verify.VerifyService;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;

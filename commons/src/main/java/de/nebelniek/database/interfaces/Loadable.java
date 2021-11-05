@@ -1,4 +1,4 @@
-package de.nebelniek.database.user.interfaces;
+package de.nebelniek.database.interfaces;
 
 import java.util.concurrent.CompletableFuture;
 

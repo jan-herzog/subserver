@@ -4,7 +4,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.User;
 import de.nebelniek.ProxyConfiguration;
-import de.nebelniek.database.user.CloudUserManagingService;
+import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.services.hashcode.HashcodeService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.utils.Prefix;

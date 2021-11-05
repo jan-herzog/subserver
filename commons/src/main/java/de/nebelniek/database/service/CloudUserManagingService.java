@@ -1,12 +1,14 @@
-package de.nebelniek.database.user;
+package de.nebelniek.database.service;
 
 import de.nebelniek.database.DatabaseProvider;
+import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.database.user.model.CloudUserModel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -16,11 +18,19 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class CloudUserManagingService {
 
     @Getter
+    private final GuildManagingService guildManagingService;
+
+    @Getter
     private final DatabaseProvider databaseProvider;
+
+    @Autowired
+    public CloudUserManagingService(@Lazy GuildManagingService guildManagingService, DatabaseProvider databaseProvider) {
+        this.guildManagingService = guildManagingService;
+        this.databaseProvider = databaseProvider;
+    }
 
     private final Map<UUID, ICloudUser> cloudUsers = new HashMap<>();
 

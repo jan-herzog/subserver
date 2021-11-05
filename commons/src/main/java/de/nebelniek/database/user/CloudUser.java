@@ -1,5 +1,9 @@
 package de.nebelniek.database.user;
 
+import de.nebelniek.database.guild.Guild;
+import de.nebelniek.database.guild.interfaces.IGuild;
+import de.nebelniek.database.guild.util.GuildRole;
+import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.database.user.model.CloudUserModel;
 import lombok.*;
@@ -31,6 +35,12 @@ public class CloudUser implements ICloudUser {
     @Getter
     @Setter
     private boolean subbed;
+    @Getter
+    @Setter
+    private GuildRole guildRole;
+    @Getter
+    @Setter
+    private IGuild guild;
 
     @Getter
     private final CloudUserModel model;
@@ -58,6 +68,8 @@ public class CloudUser implements ICloudUser {
         this.twitchId = this.model.getTwitchId();
         this.subbed = this.model.isSubbed();
         this.coins = this.model.getCoins();
+        this.guildRole = this.guildRole != null ? GuildRole.valueOf(this.model.getGuildRole()) : null;
+        this.guild = service.getGuildManagingService().getGuildByUser(this);
     }
 
 
@@ -74,6 +86,8 @@ public class CloudUser implements ICloudUser {
         this.model.setTwitchId(this.twitchId);
         this.model.setSubbed(this.subbed);
         this.model.setCoins(this.coins);
+        this.model.setGuildRole(this.guildRole == null ? null : this.guildRole.name());
+        this.model.setGuildModel(this.guild == null ? null : this.guild.getModel());
         this.service.getDatabaseProvider().getPlayerDao().update(this.model);
     }
 }

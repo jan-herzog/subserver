@@ -2,7 +2,7 @@ package de.nebelniek.services.twitch;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.Subscription;
-import de.nebelniek.database.user.CloudUserManagingService;
+import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.Prefix;
 import de.nebelniek.utils.TwitchTokens;
@@ -43,6 +43,9 @@ public class TwitchSubscriptionService {
             cloudUser.setSubbed(subscriptions.get(0) != null);
             cloudUser.saveAsync();
             return subscriptions.get(0) != null;
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
@@ -56,6 +59,9 @@ public class TwitchSubscriptionService {
                 player.sendMessage(Prefix.TWITCH + "Du bist §5Twitch-Abonnent§7 und kannst somit dem Server beitreten!");
             else
                 player.sendMessage(Prefix.TWITCH + "Du bist §ckein §5Twitch-Abonnent§7 und kannst dementsprechend dem Server §cnicht beitreten§7!");
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
