@@ -28,6 +28,8 @@ public interface IGuild extends Loadable, Saveable {
 
     IRegion getRegion();
 
+    void setRegion(IRegion region);
+
     IGuildSettings getSettings();
 
     List<ICloudUser> getMember();

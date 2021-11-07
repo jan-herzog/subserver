@@ -20,22 +20,21 @@ public class RegionModel {
     private long id;
 
     @DatabaseField
-    private double centerX;
+    private double aX;
 
     @DatabaseField
-    private double centerY;
+    private double aZ;
 
     @DatabaseField
-    private double centerZ;
+    private double bX;
 
     @DatabaseField
-    private int range;
+    private double bZ;
 
-    public RegionModel(double centerX, double centerY, double centerZ, int range) {
-        this.centerX = centerX;
-        this.centerY = centerY;
-        this.centerZ = centerZ;
-        this.range = range;
+    public RegionModel(double aX, double aZ, double bX, double bZ) {
+        this.aX = aX;
+        this.aZ = aZ;
+        this.bX = bX;
+        this.bZ = bZ;
     }
-
 }

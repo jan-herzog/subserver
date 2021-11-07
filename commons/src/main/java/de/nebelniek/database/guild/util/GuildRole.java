@@ -16,6 +16,11 @@ public enum GuildRole {
     private final String color;
     private final int power;
 
+    public boolean isHigherOrEquals(GuildRole other) {
+        return this.getPower() >= other.getPower();
+    }
+
+
     @Override
     public String toString() {
         return this.name();

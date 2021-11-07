@@ -75,7 +75,7 @@ public class Guild implements IGuild {
         this.color = this.model.getColor();
         this.prefix = this.model.getPrefix();
         this.balance = this.model.getBalance();
-        if (this.region == null)
+        if (this.model.getRegionModel() != null)
             this.region = this.service.modelToRegion(this.model.getRegionModel());
         this.region.load();
         if (this.settings == null)
@@ -103,7 +103,11 @@ public class Guild implements IGuild {
         this.model.setColor(this.color);
         this.model.setPrefix(this.prefix);
         this.model.setBalance(this.balance);
-        this.model.setRegionModel(this.region.getModel());
+        if (this.region != null) {
+            this.region.saveAsync();
+            this.model.setRegionModel(this.region.getModel());
+        }
+        this.settings.saveAsync();
         this.model.setSettingsModel(this.settings.getModel());
         this.model.getMember().clear();
         for (ICloudUser iCloudUser : this.member)

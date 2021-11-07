@@ -12,8 +12,10 @@ import de.nebelniek.database.guild.model.GuildSettingsModel;
 import de.nebelniek.database.guild.model.RegionModel;
 import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.interfaces.ICloudUser;
+import de.nebelniek.database.user.model.CloudUserModel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 @Service
 public class GuildManagingService {
@@ -51,6 +54,49 @@ public class GuildManagingService {
                 }
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
+            }
+        });
+    }
+
+    public CompletableFuture<IGuild> createGuild(ICloudUser creator, String name) {
+        return CompletableFuture.supplyAsync(new Supplier<IGuild>() {
+            @SneakyThrows
+            @Override
+            public IGuild get() {
+                GuildModel model = new GuildModel(name);
+                databaseProvider.getGuildDao().create(model);
+                databaseProvider.getGuildDao().refresh(model);
+                databaseProvider.getGuildDao().assignEmptyForeignCollection(model, "member");
+                databaseProvider.getGuildDao().assignEmptyForeignCollection(model, "allies");
+                model.getMember().add(creator.getModel());
+                Guild guild = new Guild(GuildManagingService.this, model.getId());
+                guild.load();
+                guilds.add(guild);
+                return guild;
+            }
+        });
+    }
+
+    public IGuild getGuild(double x, double z) {
+        for (IGuild guild : guilds) {
+            IRegion region = guild.getRegion();
+            if (x > region.getBX() && x < region.getAX() && z > region.getAZ() && z < region.getBZ())
+                return guild;
+        }
+        return null;
+    }
+
+    public CompletableFuture<IRegion> createRegion(double aX, double aZ, double bX, double bZ) {
+        return CompletableFuture.supplyAsync(new Supplier<IRegion>() {
+            @SneakyThrows
+            @Override
+            public IRegion get() {
+                RegionModel model = new RegionModel(aX, aZ, bX, bZ);
+                databaseProvider.getRegionDao().create(model);
+                databaseProvider.getRegionDao().refresh(model);
+                Region region = new Region(GuildManagingService.this, model);
+                region.load();
+                return region;
             }
         });
     }

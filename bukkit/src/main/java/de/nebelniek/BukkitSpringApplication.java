@@ -7,5 +7,4 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = "de.nebelniek")
 public class BukkitSpringApplication {
 
-
 }

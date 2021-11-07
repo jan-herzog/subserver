@@ -49,7 +49,7 @@ public class GuildModel {
     public GuildModel(String name) {
         this.name = name;
         this.color = "§a";
-        this.prefix = "§7";
+        this.prefix = null;
         this.balance = 0L;
         this.regionModel = null;
         this.settingsModel = new GuildSettingsModel();
