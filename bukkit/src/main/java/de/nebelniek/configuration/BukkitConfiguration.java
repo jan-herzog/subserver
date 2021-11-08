@@ -41,6 +41,7 @@ public class BukkitConfiguration {
     public TwitchClient buildTwitchClient() {
         return TwitchClientBuilder.builder()
                 .withEnableHelix(true)
+                .withEnablePubSub(true)
                 .withCredentialManager(credentialManager)
                 .build();
     }

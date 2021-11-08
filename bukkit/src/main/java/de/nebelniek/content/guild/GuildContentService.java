@@ -62,7 +62,8 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guild.getColor() + guild.getName() + "§a betreten§7!");
     }
 
-    public GuildContentResponse renameGuild(ICloudUser cloudUser, IGuild guild, String name) {
+    public GuildContentResponse renameGuild(ICloudUser cloudUser, String name) {
+        IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
@@ -78,7 +79,8 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Namen §aerfolgreich §7geändert!");
     }
 
-    public GuildContentResponse changeColor(ICloudUser cloudUser, IGuild guild, String color) {
+    public GuildContentResponse changeColor(ICloudUser cloudUser, String color) {
+        IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
@@ -94,7 +96,8 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Farbe §aerfolgreich §7geändert!");
     }
 
-    public GuildContentResponse changePrefix(ICloudUser cloudUser, IGuild guild, String prefix) {
+    public GuildContentResponse changePrefix(ICloudUser cloudUser, String prefix) {
+        IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
@@ -112,7 +115,8 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Prefix §aerfolgreich §7geändert!");
     }
 
-    public GuildContentResponse changeBalance(ICloudUser cloudUser, IGuild guild, long value, BalanceAction action) {
+    public GuildContentResponse changeBalance(ICloudUser cloudUser, long value, BalanceAction action) {
+        IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageBankAccountRole()))
@@ -127,7 +131,8 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "§c ausgezahlt§7!");
     }
 
-    public GuildContentResponse expandRegion(ICloudUser cloudUser, IGuild guild, Direction direction) {
+    public GuildContentResponse expandRegion(ICloudUser cloudUser, Direction direction) {
+        IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageRegionRole()))
@@ -147,7 +152,8 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich  ausgezahlt§7!");
     }
 
-    public GuildContentResponse claimRegion(ICloudUser cloudUser, IGuild guild, Location location) {
+    public GuildContentResponse claimRegion(ICloudUser cloudUser, Location location) {
+        IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageRegionRole()))

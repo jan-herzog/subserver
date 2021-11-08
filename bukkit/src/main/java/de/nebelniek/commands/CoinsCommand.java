@@ -35,8 +35,7 @@ public class CoinsCommand extends BaseCommand {
                 sender.sendMessage(Prefix.COINS + "§cDieser Spieler existiert nicht in der Datenbank!");
                 return;
             }
-            cloudUser.setCoins(value);
-            cloudUser.saveAsync();
+            coinsContentService.setCoins(cloudUser, value);
             sender.sendMessage(Prefix.COINS + "Du hast die §eCoins§7 von §a" + playerName + "§7 auf §e" + value + " §7gesetzt!");
         });
     }
