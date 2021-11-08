@@ -32,6 +32,9 @@ public class GuildModel {
     private String prefix;
 
     @DatabaseField
+    private String home;
+
+    @DatabaseField
     private long balance;
 
     @DatabaseField(columnName = "region_id", foreign = true, foreignAutoRefresh = true, foreignAutoCreate = true)
@@ -40,8 +43,8 @@ public class GuildModel {
     @DatabaseField(columnName = "settings_id", foreign = true, foreignAutoRefresh = true, foreignAutoCreate = true)
     private GuildSettingsModel settingsModel;
 
-    @ForeignCollectionField(columnName = "member_id", eager = true)
-    private ForeignCollection<CloudUserModel> member;
+    @DatabaseField(columnName = "member")
+    private String member;
 
     @DatabaseField(columnName = "allies")
     private String allies;

@@ -8,6 +8,7 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import de.nebelniek.registration.event.BukkitPluginEnableEvent;
+import de.notecho.inventory.InventoryManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -28,13 +29,19 @@ public class BukkitConfiguration {
 
     private CredentialManager credentialManager;
 
+    @Getter
+    private JavaPlugin plugin;
 
     public void startBukkitPlugin(ApplicationContext context, JavaPlugin plugin) {
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
+        this.plugin = plugin;
     }
 
     @Setter
     private PaperCommandManager commandManager;
+
+    @Setter
+    private InventoryManager inventoryManager;
 
     @Bean
     @DependsOn("buildOAuth2IdentityProvider")

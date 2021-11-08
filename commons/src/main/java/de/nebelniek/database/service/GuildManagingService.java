@@ -55,6 +55,9 @@ public class GuildManagingService {
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
             }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
@@ -64,18 +67,26 @@ public class GuildManagingService {
             @Override
             public IGuild get() {
                 GuildModel model = new GuildModel(name);
+                model.setMember(String.valueOf(creator.getModel().getId()));
                 databaseProvider.getGuildDao().create(model);
                 databaseProvider.getGuildDao().refresh(model);
-                databaseProvider.getGuildDao().assignEmptyForeignCollection(model, "member");
-                databaseProvider.getGuildDao().assignEmptyForeignCollection(model, "allies");
-                model.getMember().add(creator.getModel());
                 Guild guild = new Guild(GuildManagingService.this, model.getId());
                 guild.load();
                 guilds.add(guild);
                 return guild;
             }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
+
+    @SneakyThrows
+    public void deleteGuild(IGuild guild) {
+        guilds.remove(guild);
+        databaseProvider.getGuildDao().delete(guild.getModel());
+    }
+
 
     public IGuild getGuild(double x, double z) {
         for (IGuild guild : guilds) {
@@ -98,6 +109,9 @@ public class GuildManagingService {
                 region.load();
                 return region;
             }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 

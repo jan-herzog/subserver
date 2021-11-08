@@ -19,12 +19,12 @@ public class PayCommand extends BaseCommand {
 
     private final CoinsContentService coinsContentService;
 
+    @Default
     @CatchUnknown
-    @HelpCommand
     public void onHelp(Player sender) {
         sender.sendMessage(Prefix.COINS + "Hilfe für §e/pay§7:");
-        sender.sendMessage(Prefix.GUILD + "/pay §e[Spieler] [Wert]");
-        sender.sendMessage(Prefix.GUILD + "Sende jemandem Geld");
+        sender.sendMessage(Prefix.COINS + "/pay §e[Spieler] [Wert]");
+        sender.sendMessage(Prefix.COINS + "Sende jemandem Geld");
     }
 
     @Default

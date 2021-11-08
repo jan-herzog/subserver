@@ -4,6 +4,7 @@ import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.guild.interfaces.IGuildSettings;
 import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.guild.model.GuildModel;
+import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.interfaces.Loadable;
 import de.nebelniek.database.interfaces.Saveable;
 import de.nebelniek.database.service.GuildManagingService;
@@ -30,6 +31,10 @@ public class Guild implements IGuild {
     @Getter
     @Setter
     private String prefix;
+
+    @Getter
+    @Setter
+    private HomePoint home;
 
     @Getter
     @Setter
@@ -72,24 +77,35 @@ public class Guild implements IGuild {
     public void load() {
         this.service.getDatabaseProvider().getGuildDao().refresh(this.model);
         this.name = this.model.getName();
+        if (this.model.getHome() != null)
+            this.home = new HomePoint(
+                    this.model.getHome().split(";")[0],
+                    Double.parseDouble(this.model.getHome().split(";")[1]),
+                    Double.parseDouble(this.model.getHome().split(";")[2]),
+                    Double.parseDouble(this.model.getHome().split(";")[3])
+            );
+        else this.home = null;
         this.color = this.model.getColor();
         this.prefix = this.model.getPrefix();
         this.balance = this.model.getBalance();
-        if (this.model.getRegionModel() != null)
+        if (this.model.getRegionModel() != null) {
             this.region = this.service.modelToRegion(this.model.getRegionModel());
-        this.region.load();
+            this.region.load();
+        }
         if (this.settings == null)
             this.settings = this.service.modelToSettings(this.model.getSettingsModel());
         this.settings.load();
         this.member = new ArrayList<>();
-        for (CloudUserModel cloudUserModel : this.model.getMember())
-            this.member.add(service.getCloudUserManagingService().loadUserSync(cloudUserModel.getUuid()));
+        for (String id : this.model.getMember().split(";"))
+            this.member.add(service.getCloudUserManagingService().loadUserByIdSync(Long.parseLong(id)));
         this.allies = new ArrayList<>();
-        for (String id : this.model.getAllies().split(";")) {
-            IGuild guild = service.getGuildById(Long.parseLong(id));
-            if (guild != null)
-                this.allies.add(guild);
-        }
+        if (this.model.getAllies() != null)
+            if (!this.model.getAllies().equals(""))
+                for (String id : this.model.getAllies().split(";")) {
+                    IGuild guild = service.getGuildById(Long.parseLong(id));
+                    if (guild != null)
+                        this.allies.add(guild);
+                }
     }
 
     public CompletableFuture<Void> saveAsync() {
@@ -103,15 +119,22 @@ public class Guild implements IGuild {
         this.model.setColor(this.color);
         this.model.setPrefix(this.prefix);
         this.model.setBalance(this.balance);
+        if (this.home != null)
+            this.model.setHome(this.home.world() + ";" + this.home.x() + ";" + this.home.y() + ";" + this.home.z() + ";");
         if (this.region != null) {
             this.region.saveAsync();
             this.model.setRegionModel(this.region.getModel());
         }
         this.settings.saveAsync();
         this.model.setSettingsModel(this.settings.getModel());
-        this.model.getMember().clear();
-        for (ICloudUser iCloudUser : this.member)
-            this.model.getMember().add(iCloudUser.getModel());
+        StringBuilder memberBuilder = new StringBuilder();
+        for (ICloudUser cloudUser : this.member) {
+            if (!memberBuilder.isEmpty())
+                memberBuilder.append(";");
+            memberBuilder.append(cloudUser.getModel().getId());
+        }
+        this.model.setMember(memberBuilder.toString());
+
         StringBuilder stringBuilder = new StringBuilder();
         for (IGuild iGuild : this.allies) {
             if (!stringBuilder.isEmpty())

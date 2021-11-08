@@ -41,6 +41,9 @@ public class CloudUser implements ICloudUser {
     @Getter
     @Setter
     private IGuild guild;
+    @Getter
+    @Setter
+    private String textureHash;
 
     @Getter
     private final CloudUserModel model;
@@ -67,8 +70,9 @@ public class CloudUser implements ICloudUser {
         this.lastUserName = this.model.getLastUserName();
         this.twitchId = this.model.getTwitchId();
         this.subbed = this.model.isSubbed();
+        this.textureHash = this.model.getTextureHash();
         this.coins = this.model.getCoins();
-        this.guildRole = this.guildRole != null ? GuildRole.valueOf(this.model.getGuildRole()) : null;
+        this.guildRole = this.model.getGuildRole() != null ? GuildRole.valueOf(this.model.getGuildRole()) : null;
         this.guild = service.getGuildManagingService().getGuildByUser(this);
     }
 
@@ -83,6 +87,7 @@ public class CloudUser implements ICloudUser {
         this.model.setUuid(this.uuid);
         this.model.setLastLogin(this.lastLogin);
         this.model.setLastUserName(this.lastUserName);
+        this.model.setTextureHash(this.textureHash);
         this.model.setTwitchId(this.twitchId);
         this.model.setSubbed(this.subbed);
         this.model.setCoins(this.coins);

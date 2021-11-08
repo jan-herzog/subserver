@@ -28,6 +28,8 @@ public interface ICloudUser extends Loadable, Saveable {
 
     GuildRole getGuildRole();
 
+    String getTextureHash();
+
     CloudUserModel getModel();
 
     void setLastUserName(String lastUserName);
@@ -45,4 +47,6 @@ public interface ICloudUser extends Loadable, Saveable {
     void setGuild(IGuild guild);
 
     void setGuildRole(GuildRole guildRole);
+
+    void setTextureHash(String textureHash);
 }

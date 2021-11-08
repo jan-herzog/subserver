@@ -2,3 +2,4 @@ name: Subserver-bukkit
 version: 1.0
 author: Kexesser
 main: de.nebelniek.Subserver
+api-version: 1.17

@@ -1,19 +1,19 @@
 package de.nebelniek.inventory;
 
-import de.notecho.inventory.click.OptionHandler;
+import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
 import de.notecho.inventory.inventories.BaseInventory;
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.Inventory;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class GuildMainMenu extends BaseInventory {
+
     public GuildMainMenu() {
-        super(Bukkit.createInventory(null, 27, "§8» §2§lGilden §r§8«"));
+        super(TemplateInventoryBackgroundProvider.fivexnine("§8» §2§lGilden §r§8«"));
     }
 
     @Override
     public void setup() {
-
-
 
     }
 

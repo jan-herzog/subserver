@@ -26,7 +26,10 @@ public class ScoreboardManagementService implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        cloudUserManagingService.loadUser(player.getUniqueId()).thenAccept(cloudUser -> fastBoards.put(cloudUser, createBoard(cloudUser, player)));
+        cloudUserManagingService.loadUser(player.getUniqueId()).thenAccept(cloudUser -> fastBoards.put(cloudUser, createBoard(cloudUser, player))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @EventHandler
@@ -40,18 +43,23 @@ public class ScoreboardManagementService implements Listener {
 
     private FastBoard createBoard(ICloudUser cloudUser, Player player) {
         FastBoard board = new FastBoard(player);
-        board.updateTitle("§8» §5§lSubserver §r§8«");
+        board.updateTitle("§5§lSubserver");
         board.updateLines(
                 "",
                 "§8● §dProfil",
                 " §7➥ " + (cloudUser.getGuildRole() != null ? cloudUser.getGuildRole().getColor() : "§7") + player.getName(),
+                "",
                 "§8● §dCoins",
-                " §7➥ " + cloudUser.getCoins(),
+                " §7➥ " + cloudUser.getCoins() + "$",
                 "",
                 "§8● §dGilde",
                 " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde")
-                );
+        );
         return board;
+    }
+
+    public void updateCoins(ICloudUser cloudUser) {
+        fastBoards.get(cloudUser).updateLine(5, " §7➥ " + cloudUser.getCoins() + "$");
     }
 
 }

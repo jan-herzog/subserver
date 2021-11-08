@@ -1,5 +1,6 @@
 package de.nebelniek.content.guild;
 
+import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.configuration.Prices;
 import de.nebelniek.content.coins.CoinsContentService;
 import de.nebelniek.content.guild.chat.GuildChatService;
@@ -10,11 +11,15 @@ import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.guild.util.Direction;
 import de.nebelniek.database.guild.util.GuildRole;
+import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
+import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +28,10 @@ import org.springframework.stereotype.Service;
 public class GuildContentService {
 
     private final GuildManagingService guildManagingService;
+
     private final CoinsContentService coinsContentService;
+
+    private final BukkitConfiguration bukkitConfiguration;
 
     private final GuildChatService chatService;
 
@@ -35,8 +43,12 @@ public class GuildContentService {
         if (guildManagingService.getGuilds().stream().anyMatch(iGuild -> iGuild.getName().equalsIgnoreCase(name)))
             return new GuildContentResponse(GuildResponseState.ERROR, "Es ist bereits eine Gilde mit diesem Namen vorhanden!");
         coinsContentService.removeCoins(creator, Prices.GUILD_CREATE.getPrice());
-        guildManagingService.createGuild(creator, name);
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Deine Gilde §d" + name + "§7  wurde §aerfolgreich§7 erstellt!");
+        guildManagingService.createGuild(creator, name).thenAccept(guild -> {
+            creator.setGuild(guild);
+            creator.setGuildRole(GuildRole.LEADER);
+            creator.saveAsync();
+        });
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Deine Gilde §d" + name + "§7 wurde §aerfolgreich§7 erstellt!");
     }
 
     public GuildContentResponse leaveGuild(ICloudUser cloudUser) {
@@ -44,10 +56,31 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat die Gilde §cverlassen§7!");
         String guildName = cloudUser.getGuild().getColor() + cloudUser.getGuild().getName();
-        cloudUser.getGuild().getMember().remove(cloudUser);
-        cloudUser.setGuild(null);
-        cloudUser.setGuildRole(null);
-        cloudUser.saveAsync();
+        IGuild guild = cloudUser.getGuild();
+        if (cloudUser.getGuild().getMember().size() > 1) {
+            if (cloudUser.getGuildRole().isHigherOrEquals(GuildRole.LEADER)) {
+                for (GuildRole value : GuildRole.values()) {
+                    if (cloudUser.getGuildRole() == null)
+                        break;
+                    for (ICloudUser iCloudUser : guild.getMember()) {
+                        if (iCloudUser.equals(cloudUser))
+                            continue;
+                        if (iCloudUser.getGuildRole().equals(value)) {
+                            iCloudUser.setGuildRole(GuildRole.LEADER);
+                            chatService.sendAnnouncement(cloudUser.getGuild(), "Da der " + GuildRole.LEADER.getPrettyName() + " die Gilde §cverlassen§7 hat wurde " + iCloudUser.getGuildRole().getColor() + iCloudUser.getLastUserName() + "§7 zum neuen " + GuildRole.LEADER.getPrettyName() + "§7!");
+                            cloudUser.setGuildRole(null);
+                            break;
+                        }
+                    }
+                }
+            }
+            cloudUser.getGuild().getMember().remove(cloudUser);
+            cloudUser.setGuild(null);
+            cloudUser.saveAsync();
+        } else {
+            chatService.sendAnnouncement(cloudUser.getGuild(), "§cDa das letzte Mitglied die Gilde verlassen hat wurde sie gelöscht§7!");
+            guildManagingService.deleteGuild(guild);
+        }
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + "§c verlassen§7!");
     }
 
@@ -104,8 +137,9 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         if (guild.getBalance() < Prices.GUILD_CHANGE_PREFIX.getPrice())
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
-        if (guild.getPrefix().equals(prefix))
-            return new GuildContentResponse(GuildResponseState.ERROR, "Der alte und der neue Prefix sind identisch!");
+        if (guild.getPrefix() != null)
+            if (guild.getPrefix().equals(prefix))
+                return new GuildContentResponse(GuildResponseState.ERROR, "Der alte und der neue Prefix sind identisch!");
         if (prefix.length() > 16)
             return new GuildContentResponse(GuildResponseState.ERROR, "Der Prefix darf nicht länger als 16 Zeichen sein!");
         guild.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
@@ -115,10 +149,58 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Prefix §aerfolgreich §7geändert!");
     }
 
+    public GuildContentResponse setHome(ICloudUser cloudUser, Location location) {
+        IGuild guild = cloudUser.getGuild();
+        if (cloudUser.getGuild() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
+        if (guild.getBalance() < Prices.GUILD_SET_HOME.getPrice())
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
+        guild.setHome(new HomePoint(location.getWorld().getName(), location.getX(), location.getY(), location.getZ()));
+        guild.saveAsync();
+        chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat den Homepunkt der Gilde zu §e" +
+                ((int) location.getX()) + "§7, §e" +
+                ((int) location.getY()) + "§7, §e" +
+                ((int) location.getZ()) + "§7, §e"
+                + "§7 geändert!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Homepunkt §aerfolgreich §7geändert!");
+    }
+
+    public GuildContentResponse tpHome(ICloudUser cloudUser, Player player) {
+        IGuild guild = cloudUser.getGuild();
+        if (cloudUser.getGuild() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (cloudUser.getCoins() < 500)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du leider zu wenig Geld!");
+        coinsContentService.removeCoins(cloudUser, 500);
+        Bukkit.getScheduler().runTask(bukkitConfiguration.getPlugin(), () -> player.teleport(
+                new Location(
+                        Bukkit.getWorld(guild.getHome().world()),
+                        guild.getHome().x(),
+                        guild.getHome().y(),
+                        guild.getHome().z()
+                )
+        ));
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest §aerfolgreich §7nach Hause teleportiert!");
+    }
+
     public GuildContentResponse changeBalance(ICloudUser cloudUser, long value, BalanceAction action) {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        switch (action) {
+            case DEPOSIT -> {
+                if (cloudUser.getCoins() < value)
+                    return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du zu wenig Geld!");
+                coinsContentService.removeCoins(cloudUser, value);
+            }
+            case WITHDRAW -> {
+                if (cloudUser.getGuild().getBalance() < value)
+                    return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
+                coinsContentService.addCoins(cloudUser, value);
+            }
+        }
         if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageBankAccountRole()))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         switch (action) {
@@ -129,6 +211,13 @@ public class GuildContentService {
         if (action.equals(BalanceAction.DEPOSIT))
             return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "§a eingezahlt§7!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "§c ausgezahlt§7!");
+    }
+
+    public GuildContentResponse showBalance(ICloudUser cloudUser) {
+        IGuild guild = cloudUser.getGuild();
+        if (cloudUser.getGuild() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Deine Gilde hat §e" + guild.getBalance() + "§7$ auf dem Konto!");
     }
 
     public GuildContentResponse expandRegion(ICloudUser cloudUser, Direction direction) {
@@ -170,7 +259,7 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich die Region §7(" +
                 "§e" + ((int) (location.getX() - 20)) + "§7, §e" + ((int) (location.getZ() - 20)) + "§7 - §e" +
                 "§e" + ((int) (location.getX() + 20)) + "§7, §e" + ((int) (location.getZ() + 20)) +
-                " beansprucht§7!");
+                "§7) beansprucht§7!");
     }
 
 }

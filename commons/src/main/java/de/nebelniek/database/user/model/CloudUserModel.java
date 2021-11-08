@@ -1,5 +1,6 @@
 package de.nebelniek.database.user.model;
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import de.nebelniek.database.guild.model.GuildModel;
@@ -20,7 +21,7 @@ public class CloudUserModel {
 
     @DatabaseField(unique = true, generatedId = true)
     private long id;
-    @DatabaseField
+    @DatabaseField(unique = true)
     private UUID uuid;
     @DatabaseField
     private String lastUserName;
@@ -36,6 +37,8 @@ public class CloudUserModel {
     private String guildRole;
     @DatabaseField(columnName = "guild_id", foreign = true, foreignAutoRefresh = true)
     private GuildModel guildModel;
+    @DatabaseField(dataType = DataType.LONG_STRING)
+    private String textureHash;
 
     public CloudUserModel(UUID uuid, String lastUserName) {
         this.uuid = uuid;
@@ -45,5 +48,6 @@ public class CloudUserModel {
         this.coins = 0;
         this.subbed = false;
         this.guildModel = null;
+        this.textureHash = null;
     }
 }

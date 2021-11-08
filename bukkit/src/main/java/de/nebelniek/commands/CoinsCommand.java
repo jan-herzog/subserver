@@ -29,6 +29,7 @@ public class CoinsCommand extends BaseCommand {
 
     @Subcommand("set")
     @CommandPermission("coins.set")
+    @CommandCompletion("@players @nothing")
     public void set(Player sender, @Single String playerName, long value) {
         cloudUserManagingService.loadUserByName(playerName).thenAccept(cloudUser -> {
             if (cloudUser == null) {

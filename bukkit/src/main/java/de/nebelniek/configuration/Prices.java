@@ -12,6 +12,7 @@ public enum Prices {
     GUILD_CHANGE_COLOR(5000),
     GUILD_RENAME(10000),
     GUILD_CHANGE_PREFIX(15000),
+    GUILD_SET_HOME(5000),
     ;
 
     @Getter

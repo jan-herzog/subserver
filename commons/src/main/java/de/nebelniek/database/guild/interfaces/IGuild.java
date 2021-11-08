@@ -2,6 +2,7 @@ package de.nebelniek.database.guild.interfaces;
 
 import com.j256.ormlite.dao.ForeignCollection;
 import de.nebelniek.database.guild.model.GuildModel;
+import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.interfaces.Loadable;
 import de.nebelniek.database.interfaces.Saveable;
 import de.nebelniek.database.user.interfaces.ICloudUser;
@@ -26,6 +27,8 @@ public interface IGuild extends Loadable, Saveable {
 
     void setBalance(long balance);
 
+    void setHome(HomePoint home);
+
     IRegion getRegion();
 
     void setRegion(IRegion region);
@@ -35,6 +38,8 @@ public interface IGuild extends Loadable, Saveable {
     List<ICloudUser> getMember();
 
     List<IGuild> getAllies();
+
+    HomePoint getHome();
 
     GuildModel getModel();
 

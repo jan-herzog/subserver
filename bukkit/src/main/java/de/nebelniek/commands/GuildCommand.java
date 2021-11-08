@@ -2,12 +2,17 @@ package de.nebelniek.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import de.nebelniek.configuration.BukkitConfiguration;
+import de.nebelniek.content.coins.CoinsContentService;
+import de.nebelniek.content.guild.BalanceAction;
 import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.content.guild.chat.GuildChatService;
 import de.nebelniek.content.guild.response.GuildContentResponse;
 import de.nebelniek.database.service.CloudUserManagingService;
+import de.nebelniek.inventory.GuildMainMenu;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,14 +28,23 @@ public class GuildCommand extends BaseCommand {
 
     private final GuildChatService guildChatService;
 
+    private final CoinsContentService coinsContentService;
+
+    private final GuildMainMenu guildMainMenu;
+
+    private final BukkitConfiguration configuration;
+
     @Default
     public void onDefault(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
             if (cloudUser.getGuild() != null) {
-                //TODO: Open Gui
+                Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> guildMainMenu.open(sender));
                 return;
             }
             help(sender);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
@@ -51,29 +65,99 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "/guild §achat§2 [Nachricht]");
                 sender.sendMessage(Prefix.GUILD + "Alias: §a/gc");
                 sender.sendMessage(Prefix.GUILD + "Sende deinen Kollegen eine Nachricht");
+                sender.sendMessage(Prefix.GUILD + "/guild §abank");
+                sender.sendMessage(Prefix.GUILD + "/guild §abank deposit§2 [Wert]");
+                sender.sendMessage(Prefix.GUILD + "/guild §abank withdraw§2 [Wert]");
+                sender.sendMessage(Prefix.GUILD + "Benutze das Gilden-Konto");
+                sender.sendMessage(Prefix.GUILD + "/guild §asethome");
+                sender.sendMessage(Prefix.GUILD + "Setzte deiner Gilde einen Homepunkt | Kosten: 5k");
+                sender.sendMessage(Prefix.GUILD + "/guild §ahome");
+                sender.sendMessage(Prefix.GUILD + "Teleportiert dich nach Hause | Kosten: 500");
+                sender.sendMessage(Prefix.GUILD + "/guild §aclaim");
+                sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: 5k");
             }
         });
     }
 
     @Subcommand("create")
     public void create(Player sender, @Single String name) {
-        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.createGuild(cloudUser, name)));
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.createGuild(cloudUser, name))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Subcommand("rename")
     public void rename(Player sender, @Single String name) {
-        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.renameGuild(cloudUser, name)));
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.renameGuild(cloudUser, name))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Subcommand("changeprefix")
     public void changePrefix(Player sender, @Single String prefix) {
-        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changePrefix(cloudUser, prefix)));
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changePrefix(cloudUser, prefix))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Subcommand("chat")
     @CommandAlias("gc")
     public void chat(Player sender, String message) {
-        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> guildChatService.sendMessage(cloudUser.getGuild(), cloudUser, message));
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> guildChatService.sendMessage(cloudUser.getGuild(), cloudUser, message)).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("bank")
+    public void bank(Player sender) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.showBalance(cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("bank deposit")
+    public void deposit(Player sender, long amount) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changeBalance(cloudUser, amount, BalanceAction.DEPOSIT))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("bank withdraw")
+    public void withdraw(Player sender, long amount) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changeBalance(cloudUser, amount, BalanceAction.WITHDRAW))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("sethome")
+    public void sethome(Player sender) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.setHome(cloudUser, sender.getLocation()))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("claim")
+    public void claim(Player sender) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.claimRegion(cloudUser, sender.getLocation()))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("home")
+    public void home(Player sender) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.tpHome(cloudUser, sender))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     private void sendResponse(Player player, GuildContentResponse response) {

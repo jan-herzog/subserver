@@ -56,11 +56,17 @@ public class CloudUserManagingService {
                 cloudUsers.put(uuid, cloudUser);
                 return cloudUser;
             }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
     public CompletableFuture<? extends ICloudUser> loadUser(UUID uuid) {
-        return CompletableFuture.supplyAsync(() -> loadUserSync(uuid));
+        return CompletableFuture.supplyAsync(() -> loadUserSync(uuid)).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @SneakyThrows
@@ -97,6 +103,9 @@ public class CloudUserManagingService {
                 cloudUsers.put(cloudUser.getUuid(), cloudUser);
                 return cloudUser;
             }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
@@ -118,7 +127,26 @@ public class CloudUserManagingService {
                 cloudUsers.put(cloudUser.getUuid(), cloudUser);
                 return cloudUser;
             }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
+    }
+
+    @SneakyThrows
+    public ICloudUser loadUserByIdSync(long id) {
+        if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getModel().getId() == id)) {
+            ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getModel().getId() == id).findAny().get().getValue();
+            cloudUser.load();
+            return cloudUser;
+        }
+        CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("id", id).queryForFirst();
+        if (model == null)
+            return null;
+        CloudUser cloudUser = new CloudUser(CloudUserManagingService.this, model.getId());
+        cloudUser.load();
+        cloudUsers.put(cloudUser.getUuid(), cloudUser);
+        return cloudUser;
     }
 
 }
