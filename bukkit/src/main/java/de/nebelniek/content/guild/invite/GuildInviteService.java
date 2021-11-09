@@ -47,16 +47,18 @@ public class GuildInviteService implements Listener {
             player.sendMessage(Prefix.GUILD + "Du wurdest von §e" + inviter.getLastUserName() + "§7 in die Gilde " + guild.getColor() + guild.getName() + " §7eingeladen!");
             player.sendMessage(
                     Component.text(Prefix.GUILD.toString())
-                            .append(Component.text("§7[§a§lAnnehmen§7]").clickEvent(ClickEvent.runCommand("guild accept " + guild.getName())))
-                            .append(Component.text(" §8oder "))
-                            .append(Component.text("§7[§a§lAblehnen§7]").clickEvent(ClickEvent.runCommand("guild deny " + guild.getName())))
+                            .append(Component.text("§7[§a§lAnnehmen§7]").clickEvent(ClickEvent.runCommand("/guild accept " + guild.getName())))
+                            .append(Component.text(" §7oder "))
+                            .append(Component.text("§7[§a§lAblehnen§7]").clickEvent(ClickEvent.runCommand("/guild deny " + guild.getName())))
             );
-            return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Spieler §e" + cloudUser.getLastUserName() + " eingeladen!");
+            return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Spieler §e" + cloudUser.getLastUserName() + "§7 eingeladen!");
         }
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast dem Offline-Spieler §e" + cloudUser.getLastUserName() + " eingeladen! Er wird benachrichtigt, sobald er online ist!");
     }
 
     public GuildContentResponse accept(IGuild guild, ICloudUser cloudUser) {
+        if (!pendingInvites.containsKey(cloudUser) || pendingInvites.get(cloudUser).size() == 0)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du hast keine offenen Einladungen!");
         InviteEntry inviteEntry = pendingInvites.get(cloudUser).stream().filter(entry -> entry.guild().equals(guild)).findFirst().orElse(null);
         if (inviteEntry == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Invite existiert nicht!");
@@ -66,6 +68,8 @@ public class GuildInviteService implements Listener {
     }
 
     public GuildContentResponse deny(IGuild guild, ICloudUser cloudUser) {
+        if (!pendingInvites.containsKey(cloudUser) || pendingInvites.get(cloudUser).size() == 0)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du hast keine offenen Einladungen!");
         InviteEntry inviteEntry = pendingInvites.get(cloudUser).stream().filter(entry -> entry.guild().equals(guild)).findFirst().orElse(null);
         if (inviteEntry == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Invite existiert nicht!");
@@ -74,7 +78,7 @@ public class GuildInviteService implements Listener {
     }
 
     public GuildContentResponse openInvites(ICloudUser cloudUser) {
-        if (pendingInvites.get(cloudUser).size() == 0)
+        if (!pendingInvites.containsKey(cloudUser) || pendingInvites.get(cloudUser).size() == 0)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du hast keine offenen Einladungen!");
         StringBuilder stringBuilder = new StringBuilder();
         for (InviteEntry inviteEntry : pendingInvites.get(cloudUser)) {

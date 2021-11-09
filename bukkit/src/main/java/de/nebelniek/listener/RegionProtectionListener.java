@@ -45,10 +45,11 @@ public class RegionProtectionListener implements Listener {
     private boolean isForbidden(Player player) {
         IGuild guild = guildManagingService.getGuild(player.getLocation().getX(), player.getLocation().getZ());
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
-        if (cloudUser.getGuild() != guild && (cloudUser.getGuild() != null && !cloudUser.getGuild().getAllies().contains(guild))) {
-            player.sendMessage(Prefix.GUILD + "§cDies ist das Gebiet von " + guild.getColor() + guild.getName() + "§c, du darfst hier nicht interagieren!");
-            return true;
-        }
+        if (guild != null)
+            if (cloudUser.getGuild() != guild && (cloudUser.getGuild() != null && !cloudUser.getGuild().getAllies().contains(guild))) {
+                player.sendMessage(Prefix.GUILD + "§cDies ist das Gebiet von " + guild.getColor() + guild.getName() + "§c, du darfst hier nicht interagieren!");
+                return true;
+            }
         return false;
     }
 

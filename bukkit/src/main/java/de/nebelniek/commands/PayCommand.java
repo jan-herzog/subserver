@@ -6,6 +6,7 @@ import de.nebelniek.content.coins.CoinsContentService;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ public class PayCommand extends BaseCommand {
     }
 
     @Default
+    @CommandCompletion("@players @nothing")
     public void onDefault(Player sender, @Single String target, long amount) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
             cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> {
@@ -41,6 +43,9 @@ public class PayCommand extends BaseCommand {
                 }
                 coinsContentService.removeCoins(cloudUser, amount);
                 coinsContentService.addCoins(targetUser, amount);
+                Player targetPlayer = Bukkit.getPlayer(cloudUser.getUuid());
+                if (targetPlayer != null)
+                    targetPlayer.sendMessage(Prefix.COINS + "Du hast §e" + amount + "§7 Coins von §5" + cloudUser.getLastUserName() + "§7 erhalten!");
                 sender.sendMessage(Prefix.COINS + "Du hast §5" + targetUser.getLastUserName() + " §e" + amount + "§7 Coins geschickt!");
             });
         });

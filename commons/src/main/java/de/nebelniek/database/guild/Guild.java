@@ -4,6 +4,7 @@ import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.guild.interfaces.IGuildSettings;
 import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.guild.model.GuildModel;
+import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.interfaces.Loadable;
 import de.nebelniek.database.interfaces.Saveable;
@@ -57,6 +58,10 @@ public class Guild implements IGuild {
     private List<IGuild> allies;
 
     @Getter
+    @Setter
+    private ICloudUser owner;
+
+    @Getter
     private final GuildModel model;
 
     private final GuildManagingService service;
@@ -106,6 +111,7 @@ public class Guild implements IGuild {
                     if (guild != null)
                         this.allies.add(guild);
                 }
+        this.owner = this.member.stream().filter(cloudUser -> cloudUser.getGuildRole().equals(GuildRole.LEADER)).findFirst().orElse(null);
     }
 
     public CompletableFuture<Void> saveAsync() {

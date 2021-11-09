@@ -1,13 +1,15 @@
 package de.nebelniek;
 
 import de.nebelniek.configuration.BukkitConfiguration;
+import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Subserver extends JavaPlugin {
 
-    private AnnotationConfigApplicationContext context;
+    @Getter
+    private static AnnotationConfigApplicationContext context;
 
     @Override
     public void onEnable() {
@@ -30,8 +32,9 @@ public class Subserver extends JavaPlugin {
     //TODO: Guild Region protection
     //TODO: Guild Member Kick
     //TODO: Guild Member Promote/Demote
-
     //TODO: Guild ally
+
+    //TODO: Join Message to Guild
     //TODO: discord-bot? -> Automatisches erstellen von channeln
 
 }

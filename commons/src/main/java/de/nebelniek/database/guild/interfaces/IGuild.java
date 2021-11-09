@@ -31,6 +31,8 @@ public interface IGuild extends Loadable, Saveable {
 
     IRegion getRegion();
 
+    ICloudUser getOwner();
+
     void setRegion(IRegion region);
 
     IGuildSettings getSettings();

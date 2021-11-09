@@ -7,6 +7,7 @@ import de.nebelniek.content.guild.BalanceAction;
 import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.content.guild.chat.GuildChatService;
 import de.nebelniek.content.guild.invite.GuildInviteService;
+import de.nebelniek.content.guild.invite.ally.GuildInviteAllyService;
 import de.nebelniek.content.guild.response.GuildContentResponse;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
@@ -35,13 +36,14 @@ public class GuildCommand extends BaseCommand {
 
     private final GuildInviteService guildInviteService;
 
-    private final GuildMainMenu guildMainMenu;
+    private final GuildInviteAllyService guildInviteAllyService;
 
     private final BukkitConfiguration configuration;
 
     @Default
     public void onDefault(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
+            GuildMainMenu guildMainMenu = new GuildMainMenu(cloudUser.getGuild());
             if (cloudUser.getGuild() != null) {
                 Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> guildMainMenu.open(sender));
                 return;
@@ -62,6 +64,8 @@ public class GuildCommand extends BaseCommand {
             sender.sendMessage(Prefix.GUILD + "Öffnet das Guild-Menu");
             sender.sendMessage(Prefix.GUILD + "/guild §acreate§2 [name]");
             sender.sendMessage(Prefix.GUILD + "Erstellt eine Gilde | Kosten: 10k");
+            sender.sendMessage(Prefix.GUILD + "/guild §aleave§2 [name]");
+            sender.sendMessage(Prefix.GUILD + "Verlasse deine Gilde");
             sender.sendMessage(Prefix.GUILD + "/guild §ainvite§2 [Spieler]");
             sender.sendMessage(Prefix.GUILD + "Lade einen Spieler in deine Gilde ein");
             sender.sendMessage(Prefix.GUILD + "/guild §aaccept§2 [Gilde]");
@@ -72,7 +76,7 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "/guild §arename§2 [name]");
                 sender.sendMessage(Prefix.GUILD + "Nenne deine Gilde um | Kosten: 5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §achangeprefix§2 [prefix]");
-                sender.sendMessage(Prefix.GUILD + "Setzt den Prefix | Kosten: 10k");
+                sender.sendMessage(Prefix.GUILD + "Setzt den Prefix | Kosten: 15k");
                 sender.sendMessage(Prefix.GUILD + "/guild §achat§2 [Nachricht]");
                 sender.sendMessage(Prefix.GUILD + "Alias: §a/gc");
                 sender.sendMessage(Prefix.GUILD + "Sende deinen Kollegen eine Nachricht");
@@ -88,8 +92,24 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: 5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §akick§2 [Spieler]");
                 sender.sendMessage(Prefix.GUILD + "Kicke ein Mitglied");
+                sender.sendMessage(Prefix.GUILD + "/guild §aally invite§2 [Gilde]");
+                sender.sendMessage(Prefix.GUILD + "Stelle einen Verbündungsantrag");
+                sender.sendMessage(Prefix.GUILD + "/guild §aally accept§2 [Gilde]");
+                sender.sendMessage(Prefix.GUILD + "Nehme einen Verbündungsantrag an");
+                sender.sendMessage(Prefix.GUILD + "/guild §aally deny§2 [Gilde]");
+                sender.sendMessage(Prefix.GUILD + "Lehne einen Verbündungsantrag ab");
             }
         });
+    }
+
+    @Subcommand("ally")
+    public void ally(Player sender) {
+        sender.sendMessage(Prefix.GUILD + "/guild §aally invite§2 [Gilde]");
+        sender.sendMessage(Prefix.GUILD + "Stelle einen Verbündungsantrag");
+        sender.sendMessage(Prefix.GUILD + "/guild §aally accept§2 [Gilde]");
+        sender.sendMessage(Prefix.GUILD + "Nehme einen Verbündungsantrag an");
+        sender.sendMessage(Prefix.GUILD + "/guild §aally deny§2 [Gilde]");
+        sender.sendMessage(Prefix.GUILD + "Lehne einen Verbündungsantrag ab");
     }
 
     @Subcommand("create")
@@ -128,6 +148,14 @@ public class GuildCommand extends BaseCommand {
     @Subcommand("bank")
     public void bank(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.showBalance(cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("leave")
+    public void leave(Player sender) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.leaveGuild(cloudUser))).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });
@@ -175,21 +203,30 @@ public class GuildCommand extends BaseCommand {
     @CommandCompletion("@players @nothing")
     public void kick(Player sender, @Single String target) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
-        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.kickMember(targetUser, cloudUser)));
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.kickMember(targetUser, cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Subcommand("promote")
     @CommandCompletion("@players @nothing")
     public void promote(Player sender, @Single String target) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
-        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.promoteMember(targetUser, cloudUser)));
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.promoteMember(targetUser, cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
-    @Subcommand("degrade")
+    @Subcommand("demote")
     @CommandCompletion("@players @nothing")
     public void degrade(Player sender, @Single String target) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
-        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.degradeMember(targetUser, cloudUser)));
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.degradeMember(targetUser, cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Subcommand("invites")
@@ -207,7 +244,10 @@ public class GuildCommand extends BaseCommand {
             sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
             return;
         }
-        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, guildInviteService.invite(guild, targetUser, cloudUser)));
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, guildInviteService.invite(guild, targetUser, cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Subcommand("accept")
@@ -230,6 +270,48 @@ public class GuildCommand extends BaseCommand {
             return;
         }
         sendResponse(sender, guildInviteService.deny(guild, cloudUser));
+    }
+
+    @Subcommand("ally invites")
+    public void allyInvites(Player sender) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        sendResponse(sender, guildInviteAllyService.openInvites(cloudUser.getGuild()));
+    }
+
+    @Subcommand("ally invite")
+    public void allyInvite(Player sender, @Single String target) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild guild = cloudUser.getGuild();
+        if (guild == null) {
+            sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
+            return;
+        }
+        IGuild other = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(target)).findAny().orElse(null);
+        sendResponse(sender, guildInviteAllyService.invite(guild, other, cloudUser));
+    }
+
+    @Subcommand("ally accept")
+    public void allyAccept(Player sender, @Single String guildName) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild guild = cloudUser.getGuild();
+        if (guild == null) {
+            sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
+            return;
+        }
+        IGuild other = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(guildName)).findAny().orElse(null);
+        sendResponse(sender, guildInviteAllyService.accept(other, guild));
+    }
+
+    @Subcommand("ally deny")
+    public void allyDeny(Player sender, @Single String guildName) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild guild = cloudUser.getGuild();
+        if (guild == null) {
+            sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
+            return;
+        }
+        IGuild other = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(guildName)).findAny().orElse(null);
+        sendResponse(sender, guildInviteAllyService.deny(other, guild));
     }
 
     private void sendResponse(Player player, GuildContentResponse response) {

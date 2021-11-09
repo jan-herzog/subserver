@@ -85,6 +85,7 @@ public class GuildManagingService {
     @SneakyThrows
     public void deleteGuild(IGuild guild) {
         guilds.remove(guild);
+        databaseProvider.getGuildSettingsDao().delete(guild.getModel().getSettingsModel());
         databaseProvider.getGuildDao().delete(guild.getModel());
     }
 
@@ -92,8 +93,9 @@ public class GuildManagingService {
     public IGuild getGuild(double x, double z) {
         for (IGuild guild : guilds) {
             IRegion region = guild.getRegion();
-            if (x > region.getBX() && x < region.getAX() && z > region.getAZ() && z < region.getBZ())
-                return guild;
+            if (region != null)
+                if (x > region.getBX() && x < region.getAX() && z > region.getAZ() && z < region.getBZ())
+                    return guild;
         }
         return null;
     }

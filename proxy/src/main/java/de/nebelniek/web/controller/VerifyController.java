@@ -53,7 +53,7 @@ public class VerifyController {
             OAuth2Credential credential = oAuth2IdentityProvider.getCredentialByCode(code);
             User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null,null).execute().getUsers().get(0);
             cloudUser.setTwitchId(twitchUser.getId());
-            cloudUser.saveAsync();
+            cloudUser.save();
             verifyService.notifyPlayerIfOnline(cloudUser.getUuid(), credential);
             response.redirect("/?ref=success");
             return "";

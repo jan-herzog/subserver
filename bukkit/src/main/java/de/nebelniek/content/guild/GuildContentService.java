@@ -49,9 +49,9 @@ public class GuildContentService {
         guildManagingService.createGuild(creator, name).thenAccept(guild -> {
             creator.setGuild(guild);
             creator.setGuildRole(GuildRole.LEADER);
+            creator.save();
             scoreboardManagementService.updateProfile(creator);
             scoreboardManagementService.updateGuild(creator);
-            creator.saveAsync();
         });
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Deine Gilde §d" + name + "§7 wurde §aerfolgreich§7 erstellt!");
     }
@@ -64,20 +64,22 @@ public class GuildContentService {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuildRole().isHigherOrEquals(GuildRole.LEADER)) {
             ICloudUser nextLeader = getNextLeader(guild);
-            if(nextLeader == null) {
+            if (nextLeader == null) {
                 chatService.sendAnnouncement(cloudUser.getGuild(), "§cDa das letzte Mitglied die Gilde verlassen hat wurde sie gelöscht§7!");
                 guildManagingService.deleteGuild(guild);
                 return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
             }
             nextLeader.setGuildRole(GuildRole.LEADER);
-            chatService.sendAnnouncement(cloudUser.getGuild(), "Da der " + GuildRole.LEADER.getPrettyName() + " die Gilde §cverlassen§7 hat wurde " + nextLeader.getGuildRole().getColor() + nextLeader.getLastUserName() + "§7 zum neuen " + GuildRole.LEADER.getPrettyName() + "§7!");
-            cloudUser.setGuildRole(null);
-            cloudUser.getGuild().getMember().remove(cloudUser);
-            cloudUser.setGuild(null);
-            scoreboardManagementService.updateProfile(cloudUser);
-            scoreboardManagementService.updateGuild(cloudUser);
-            cloudUser.saveAsync();
+            nextLeader.saveAsync();
+            scoreboardManagementService.updateProfile(nextLeader);
+            chatService.sendAnnouncement(cloudUser.getGuild(), "Da der " + GuildRole.LEADER.getPrettyName() + "§7 die Gilde §cverlassen§7 hat wurde " + nextLeader.getGuildRole().getColor() + nextLeader.getLastUserName() + "§7 zum neuen " + GuildRole.LEADER.getPrettyName() + "§7!");
         }
+        cloudUser.setGuildRole(null);
+        cloudUser.getGuild().getMember().remove(cloudUser);
+        cloudUser.setGuild(null);
+        scoreboardManagementService.updateProfile(cloudUser);
+        scoreboardManagementService.updateGuild(cloudUser);
+        cloudUser.saveAsync();
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + "§c verlassen§7!");
     }
 
@@ -90,13 +92,18 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         if (cloudUser.equals(kicker))
             return new GuildContentResponse(GuildResponseState.ERROR, "Du kannst dich nicht selber kicken!");
-        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + kicker.getGuildRole().getColor() + kicker.getLastUserName() + " aus der Gilde §cgeworfen§7!");
+        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + kicker.getGuildRole().getColor() + kicker.getLastUserName() + "§7 aus der Gilde §cgeworfen§7!");
         String guildName = cloudUser.getGuild().getColor() + cloudUser.getGuild().getName();
         cloudUser.getGuild().getMember().remove(cloudUser);
         cloudUser.setGuild(null);
         cloudUser.setGuildRole(null);
+        scoreboardManagementService.updateProfile(cloudUser);
+        scoreboardManagementService.updateGuild(cloudUser);
         cloudUser.saveAsync();
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest aus der Gilde " + guildName + " §cgeworfen§7!");
+        Player target = Bukkit.getPlayer(cloudUser.getUuid());
+        if (target != null)
+            target.sendMessage(Prefix.GUILD + "Du wurdest aus der Gilde " + guildName + " §cgeworfen§7!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast §5" + cloudUser.getLastUserName() + "§7 aus der Gilde " + guildName + " §cgeworfen§7!");
     }
 
     public GuildContentResponse joinGuild(ICloudUser cloudUser, IGuild guild, ICloudUser inviter) {
@@ -161,6 +168,8 @@ public class GuildContentService {
                 return new GuildContentResponse(GuildResponseState.ERROR, "Der alte und der neue Prefix sind identisch!");
         if (prefix.length() > 16)
             return new GuildContentResponse(GuildResponseState.ERROR, "Der Prefix darf nicht länger als 16 Zeichen sein!");
+        if (guildManagingService.getGuilds().stream().anyMatch(g -> g.getPrefix() != null && g.getPrefix().equalsIgnoreCase(prefix)))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Der Prefix ist bereits verwendet!");
         guild.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
         guild.setBalance(guild.getBalance() - Prices.GUILD_CHANGE_PREFIX.getPrice());
         guild.saveAsync();
@@ -287,6 +296,8 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuild().equals(promoter.getGuild()))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Spieler ist nicht in deiner Gilde!");
+        if (cloudUser.getGuildRole().equals(GuildRole.LEADER))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Spieler kann nicht weiter befördert werden!");
         if (!promoter.getGuildRole().isHigher(cloudUser.getGuildRole()))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         if (cloudUser.equals(promoter))
@@ -294,10 +305,12 @@ public class GuildContentService {
         if (cloudUser.getGuildRole().equals(GuildRole.ADMIN)) {
             chatService.sendAnnouncement(cloudUser.getGuild(), promoter.getGuildRole().getColor() + promoter.getLastUserName() + "§7 hat seinen Posten als " + promoter.getGuildRole().getPrettyName() + " §cabgegeben und ist nun " + promoter.getGuildRole().oneDown().getPrettyName() + "§7!");
             promoter.setGuildRole(promoter.getGuildRole().oneDown());
+            scoreboardManagementService.updateProfile(promoter);
         }
         cloudUser.setGuildRole(cloudUser.getGuildRole().oneUp());
         cloudUser.saveAsync();
-        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + promoter.getGuildRole().getColor() + promoter.getLastUserName() + " aus der Gilde zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
+        scoreboardManagementService.updateProfile(cloudUser);
+        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + promoter.getGuildRole().getColor() + promoter.getLastUserName() + "§7 zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
     }
 
@@ -308,17 +321,21 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Spieler ist nicht in deiner Gilde!");
         if (!degrader.getGuildRole().isHigher(cloudUser.getGuildRole()) && !cloudUser.equals(degrader))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
-        if (!cloudUser.getGuildRole().equals(GuildRole.DEFAULT))
+        if (cloudUser.getGuildRole().equals(GuildRole.DEFAULT))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Spieler kann nicht weiter degradiert werden!");
-        if(degrader.equals(cloudUser) && degrader.getGuildRole().equals(GuildRole.LEADER)) {
+        if (degrader.equals(cloudUser) && degrader.getGuildRole().equals(GuildRole.LEADER)) {
             ICloudUser nextLeader = getNextLeader(cloudUser.getGuild());
-            if(nextLeader == null)
+            if (nextLeader == null)
                 return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat kein Mitglied, was deine Position einehmen könnte!");
-            chatService.sendAnnouncement(cloudUser.getGuild(), "Da der " + GuildRole.LEADER.getPrettyName() + " seinen Posten §cabgegeben§7 hat wurde " + nextLeader.getGuildRole().getColor() + nextLeader.getLastUserName() + "§7 zum neuen " + GuildRole.LEADER.getPrettyName() + "§7!");
+            chatService.sendAnnouncement(cloudUser.getGuild(), "Da der " + GuildRole.LEADER.getPrettyName() + "§7 seinen Posten §cabgegeben§7 hat wurde " + nextLeader.getGuildRole().getColor() + nextLeader.getLastUserName() + "§7 zum neuen " + GuildRole.LEADER.getPrettyName() + "§7!");
+            nextLeader.setGuildRole(GuildRole.LEADER);
+            nextLeader.saveAsync();
+            scoreboardManagementService.updateProfile(nextLeader);
         }
         cloudUser.setGuildRole(cloudUser.getGuildRole().oneDown());
         cloudUser.saveAsync();
-        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + degrader.getGuildRole().getColor() + degrader.getLastUserName() + " aus der Gilde zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
+        scoreboardManagementService.updateProfile(cloudUser);
+        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + degrader.getGuildRole().getColor() + degrader.getLastUserName() + " §7zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
     }
 

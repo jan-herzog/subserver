@@ -33,7 +33,7 @@ import java.util.Map;
 public class GuildInviteAllyService implements Listener {
 
     private final CloudUserManagingService cloudUserManagingService;
-    private final GuildManagingService guildManagingService;
+
     private final GuildChatService guildChatService;
 
     private final GuildContentService guildContentService;
@@ -41,18 +41,21 @@ public class GuildInviteAllyService implements Listener {
     private final Map<IGuild, List<InviteEntry>> pendingInvites = new HashMap<>();
 
     public GuildContentResponse invite(IGuild guild, IGuild other, ICloudUser inviter) {
+        if (other == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Diese Gilde existiert nicht!");
+        if(guild.equals(other))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du kannst deiner eigenen Gilde keinen Verbündungsantrag schicken!");
         if (!pendingInvites.containsKey(other))
             pendingInvites.put(other, new ArrayList<>());
         if (pendingInvites.get(other).stream().anyMatch(inviteEntry -> inviteEntry.guild().equals(guild)))
             return new GuildContentResponse(GuildResponseState.ERROR, "Zu diesem Spieler steht bereits eine Einladung offen!");
         pendingInvites.get(other).add(new InviteEntry(guild, inviter));
         if (guildChatService.someoneOnline(other)) {
-            guildChatService.sendAnnouncementToRole(guild, GuildRole.ADMIN, Prefix.GUILD + "Deiner Gilde von §e" + inviter.getLastUserName() + "§7 ein Verbündungsantrag mit der Gilde " + guild.getColor() + guild.getName() + " §7gestellt!");
+            guildChatService.sendAnnouncementToRole(other, GuildRole.ADMIN, Prefix.GUILD + "Deiner Gilde wurde von §e" + inviter.getLastUserName() + "§7 ein Verbündungsantrag mit der Gilde " + guild.getColor() + guild.getName() + " §7gestellt!");
             guildChatService.sendAnnouncementToRole(other, GuildRole.ADMIN,
-                    Component.text(Prefix.GUILD.toString())
-                            .append(Component.text("§7[§a§lAnnehmen§7]").clickEvent(ClickEvent.runCommand("guild ally accept " + guild.getName())))
-                            .append(Component.text(" §8oder "))
-                            .append(Component.text("§7[§a§lAblehnen§7]").clickEvent(ClickEvent.runCommand("guild ally deny " + guild.getName())))
+                    Component.text("§7[§a§lAnnehmen§7]").clickEvent(ClickEvent.runCommand("/guild ally accept " + guild.getName()))
+                            .append(Component.text(" §7oder "))
+                            .append(Component.text("§7[§a§lAblehnen§7]").clickEvent(ClickEvent.runCommand("/guild ally deny " + guild.getName())))
             );
             return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + other.getColor() + other.getName() + "§7 ein §aVerbündungsantrag§7 geschickt!");
         }
@@ -60,7 +63,9 @@ public class GuildInviteAllyService implements Listener {
     }
 
     public GuildContentResponse accept(IGuild other, IGuild guild) {
-        InviteEntry inviteEntry = pendingInvites.get(guild).stream().filter(entry -> entry.guild().equals(guild)).findFirst().orElse(null);
+        if (!pendingInvites.containsKey(guild) || pendingInvites.get(guild).size() == 0)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du hast keine offenen Verbündungsanträge!");
+        InviteEntry inviteEntry = pendingInvites.get(guild).stream().filter(entry -> entry.guild().equals(other)).findFirst().orElse(null);
         if (inviteEntry == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Invite existiert nicht!");
         pendingInvites.remove(guild);
@@ -72,15 +77,19 @@ public class GuildInviteAllyService implements Listener {
     }
 
     public GuildContentResponse deny(IGuild other, IGuild guild) {
-        InviteEntry inviteEntry = pendingInvites.get(guild).stream().filter(entry -> entry.guild().equals(guild)).findFirst().orElse(null);
+        if (!pendingInvites.containsKey(guild) || pendingInvites.get(guild).size() == 0)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du hast keine offenen Verbündungsanträge!");
+        InviteEntry inviteEntry = pendingInvites.get(guild).stream().filter(entry -> entry.guild().equals(other)).findFirst().orElse(null);
         if (inviteEntry == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Invite existiert nicht!");
         pendingInvites.get(guild).remove(inviteEntry);
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den §2Verbündungsantrag§7 von " + guild.getColor() + guild.getName() + " §cabgelehnt§7!");
     }
 
-    public GuildContentResponse openInvites(IGuild other, IGuild guild) {
-        if (pendingInvites.get(guild).size() == 0)
+    public GuildContentResponse openInvites(IGuild guild) {
+        if (guild == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (!pendingInvites.containsKey(guild) || pendingInvites.get(guild).size() == 0)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du hast keine offenen Verbündungsanträge!");
         StringBuilder stringBuilder = new StringBuilder();
         for (InviteEntry inviteEntry : pendingInvites.get(guild)) {
