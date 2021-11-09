@@ -1,6 +1,7 @@
 package de.nebelniek;
 
 import de.nebelniek.configuration.BukkitConfiguration;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -21,12 +22,15 @@ public class Subserver extends JavaPlugin {
     //TODO: ChannelPointService -> Channel Points in coins einlösen
     //TODO: RegionEnterEvent -> Show property owner
     //TODO: Scoreboard -> Gilde, Gildenrang, Property, Coins
-
-    //TODO: Guild Leave last one -> delete guild
     //TODO: Guild Bank Command to transfer money
     //TODO: Guild Home
 
+    //TODO: Guild Leave last one -> delete guild
     //TODO: Guild Invite
+    //TODO: Guild Region protection
+    //TODO: Guild Member Kick
+    //TODO: Guild Member Promote/Demote
+
     //TODO: Guild ally
     //TODO: discord-bot? -> Automatisches erstellen von channeln
 

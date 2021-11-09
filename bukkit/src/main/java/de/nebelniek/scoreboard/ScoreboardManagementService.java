@@ -62,4 +62,12 @@ public class ScoreboardManagementService implements Listener {
         fastBoards.get(cloudUser).updateLine(5, " §7➥ " + cloudUser.getCoins() + "$");
     }
 
+    public void updateProfile(ICloudUser cloudUser) {
+        fastBoards.get(cloudUser).updateLine(2, " §7➥ " + (cloudUser.getGuildRole() != null ? cloudUser.getGuildRole().getColor() : "§7") + cloudUser.getLastUserName());
+    }
+
+    public void updateGuild(ICloudUser cloudUser) {
+        fastBoards.get(cloudUser).updateLine(8, " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde"));
+    }
+
 }

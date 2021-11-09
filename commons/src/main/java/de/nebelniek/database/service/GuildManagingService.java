@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -121,6 +122,10 @@ public class GuildManagingService {
 
     public IGuild getGuildById(long id) {
         return guilds.stream().filter(iGuild -> iGuild.getModel().getId() == id).findAny().orElse(null);
+    }
+
+    public IGuild getGuildByName(String name) {
+        return guilds.stream().filter(iGuild -> iGuild.getName().equalsIgnoreCase(name)).findAny().orElse(null);
     }
 
     public IRegion modelToRegion(RegionModel model) {

@@ -3,12 +3,15 @@ package de.nebelniek.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import de.nebelniek.configuration.BukkitConfiguration;
-import de.nebelniek.content.coins.CoinsContentService;
 import de.nebelniek.content.guild.BalanceAction;
 import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.content.guild.chat.GuildChatService;
+import de.nebelniek.content.guild.invite.GuildInviteService;
 import de.nebelniek.content.guild.response.GuildContentResponse;
+import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
+import de.nebelniek.database.service.GuildManagingService;
+import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.inventory.GuildMainMenu;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +27,13 @@ public class GuildCommand extends BaseCommand {
 
     private final CloudUserManagingService cloudUserManagingService;
 
+    private final GuildManagingService guildManagingService;
+
     private final GuildContentService service;
 
     private final GuildChatService guildChatService;
 
-    private final CoinsContentService coinsContentService;
+    private final GuildInviteService guildInviteService;
 
     private final GuildMainMenu guildMainMenu;
 
@@ -57,6 +62,12 @@ public class GuildCommand extends BaseCommand {
             sender.sendMessage(Prefix.GUILD + "Öffnet das Guild-Menu");
             sender.sendMessage(Prefix.GUILD + "/guild §acreate§2 [name]");
             sender.sendMessage(Prefix.GUILD + "Erstellt eine Gilde | Kosten: 10k");
+            sender.sendMessage(Prefix.GUILD + "/guild §ainvite§2 [Spieler]");
+            sender.sendMessage(Prefix.GUILD + "Lade einen Spieler in deine Gilde ein");
+            sender.sendMessage(Prefix.GUILD + "/guild §aaccept§2 [Gilde]");
+            sender.sendMessage(Prefix.GUILD + "Nehme eine Einladung an");
+            sender.sendMessage(Prefix.GUILD + "/guild §adeny§2 [Gilde]");
+            sender.sendMessage(Prefix.GUILD + "Lehne eine Einladung ab");
             if (cloudUser.getGuild() != null) {
                 sender.sendMessage(Prefix.GUILD + "/guild §arename§2 [name]");
                 sender.sendMessage(Prefix.GUILD + "Nenne deine Gilde um | Kosten: 5k");
@@ -75,6 +86,8 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "Teleportiert dich nach Hause | Kosten: 500");
                 sender.sendMessage(Prefix.GUILD + "/guild §aclaim");
                 sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: 5k");
+                sender.sendMessage(Prefix.GUILD + "/guild §akick§2 [Spieler]");
+                sender.sendMessage(Prefix.GUILD + "Kicke ein Mitglied");
             }
         });
     }
@@ -137,7 +150,7 @@ public class GuildCommand extends BaseCommand {
     }
 
     @Subcommand("sethome")
-    public void sethome(Player sender) {
+    public void setHome(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.setHome(cloudUser, sender.getLocation()))).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
@@ -154,10 +167,69 @@ public class GuildCommand extends BaseCommand {
 
     @Subcommand("home")
     public void home(Player sender) {
-        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.tpHome(cloudUser, sender))).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        sendResponse(sender, service.tpHome(cloudUser, sender));
+    }
+
+    @Subcommand("kick")
+    @CommandCompletion("@players @nothing")
+    public void kick(Player sender, @Single String target) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.kickMember(targetUser, cloudUser)));
+    }
+
+    @Subcommand("promote")
+    @CommandCompletion("@players @nothing")
+    public void promote(Player sender, @Single String target) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.promoteMember(targetUser, cloudUser)));
+    }
+
+    @Subcommand("degrade")
+    @CommandCompletion("@players @nothing")
+    public void degrade(Player sender, @Single String target) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, service.degradeMember(targetUser, cloudUser)));
+    }
+
+    @Subcommand("invites")
+    public void invites(Player sender) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        sendResponse(sender, guildInviteService.openInvites(cloudUser));
+    }
+
+    @Subcommand("invite")
+    @CommandCompletion("@players @nothing")
+    public void invite(Player sender, @Single String target) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild guild = cloudUser.getGuild();
+        if (guild == null) {
+            sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
+            return;
+        }
+        cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> sendResponse(sender, guildInviteService.invite(guild, targetUser, cloudUser)));
+    }
+
+    @Subcommand("accept")
+    public void accept(Player sender, @Single String guildName) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild guild = guildManagingService.getGuildByName(guildName);
+        if (guild == null) {
+            sender.sendMessage(Prefix.GUILD + "§cEntweder hast du dich verschrieben oder diese Gilde existiert nicht/mehr.");
+            return;
+        }
+        sendResponse(sender, guildInviteService.accept(guild, cloudUser));
+    }
+
+    @Subcommand("deny")
+    public void deny(Player sender, @Single String guildName) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild guild = guildManagingService.getGuildByName(guildName);
+        if (guild == null) {
+            sender.sendMessage(Prefix.GUILD + "§cEntweder hast du dich verschrieben oder diese Gilde existiert nicht/mehr.");
+            return;
+        }
+        sendResponse(sender, guildInviteService.deny(guild, cloudUser));
     }
 
     private void sendResponse(Player player, GuildContentResponse response) {

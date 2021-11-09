@@ -20,6 +20,40 @@ public enum GuildRole {
         return this.getPower() >= other.getPower();
     }
 
+    public boolean isHigher(GuildRole other) {
+        return this.getPower() > other.getPower();
+    }
+
+    public GuildRole oneUp() {
+        switch (this) {
+            case DEFAULT -> {
+                return GuildRole.MOD;
+            }
+            case MOD -> {
+                return GuildRole.ADMIN;
+            }
+            case ADMIN -> {
+                return GuildRole.LEADER;
+            }
+        }
+        return null;
+    }
+
+    public GuildRole oneDown() {
+        switch (this) {
+            case LEADER -> {
+                return GuildRole.ADMIN;
+            }
+            case ADMIN -> {
+                return GuildRole.MOD;
+            }
+            case MOD -> {
+                return GuildRole.DEFAULT;
+            }
+        }
+        return null;
+    }
+
 
     @Override
     public String toString() {
