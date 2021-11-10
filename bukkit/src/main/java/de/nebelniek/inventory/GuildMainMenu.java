@@ -4,8 +4,9 @@ import de.nebelniek.Subserver;
 import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
-import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
+import de.nebelniek.inventory.util.ItemColors;
+import de.nebelniek.inventory.util.MenuName;
 import de.notecho.ItemBuilder;
 import de.notecho.inventory.click.ClickOption;
 import de.notecho.inventory.click.OptionClickEvent;
@@ -21,7 +22,7 @@ public class GuildMainMenu extends BaseInventory {
     private final CloudUserManagingService cloudUserManagingService;
 
     public GuildMainMenu(IGuild guild) {
-        super(TemplateInventoryBackgroundProvider.fivexnine("§8» §2§lGilde §r§8«"));
+        super(TemplateInventoryBackgroundProvider.fivexnine(MenuName.GUILD_MAIN_MENU.getName()));
         this.guild = guild;
         this.guildContentService = Subserver.getContext().getBean(GuildContentService.class);
         this.cloudUserManagingService = Subserver.getContext().getBean(CloudUserManagingService.class);

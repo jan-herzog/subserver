@@ -38,6 +38,9 @@ public class CoinsCommand extends BaseCommand {
             }
             coinsContentService.setCoins(cloudUser, value);
             sender.sendMessage(Prefix.COINS + "Du hast die §eCoins§7 von §a" + playerName + "§7 auf §e" + value + " §7gesetzt!");
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 

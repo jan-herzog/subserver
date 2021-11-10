@@ -1,4 +1,4 @@
-package de.nebelniek.inventory;
+package de.nebelniek.inventory.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
