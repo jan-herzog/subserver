@@ -1,31 +1,24 @@
-package de.nebelniek.inventory;
+package de.nebelniek.inventory.guild;
 
-import de.nebelniek.Subserver;
-import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.database.guild.interfaces.IGuild;
-import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
+import de.nebelniek.inventory.types.GuildInventory;
 import de.nebelniek.inventory.util.ItemColors;
 import de.nebelniek.inventory.util.MenuName;
 import de.notecho.ItemBuilder;
 import de.notecho.inventory.click.ClickOption;
 import de.notecho.inventory.click.OptionClickEvent;
 import de.notecho.inventory.click.OptionHandler;
-import de.notecho.inventory.inventories.BaseInventory;
 
 import org.bukkit.Material;
 
-public class GuildMainMenu extends BaseInventory {
+public class GuildMainMenu extends GuildInventory {
 
     private final IGuild guild;
-    private final GuildContentService guildContentService;
-    private final CloudUserManagingService cloudUserManagingService;
 
     public GuildMainMenu(IGuild guild) {
         super(TemplateInventoryBackgroundProvider.fivexnine(MenuName.GUILD_MAIN_MENU.getName()));
         this.guild = guild;
-        this.guildContentService = Subserver.getContext().getBean(GuildContentService.class);
-        this.cloudUserManagingService = Subserver.getContext().getBean(CloudUserManagingService.class);
         setup();
     }
 

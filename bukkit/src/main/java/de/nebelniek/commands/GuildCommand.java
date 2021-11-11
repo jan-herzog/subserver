@@ -13,7 +13,8 @@ import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
-import de.nebelniek.inventory.GuildMainMenu;
+import de.nebelniek.inventory.guild.GuildMainMenu;
+import de.nebelniek.inventory.guild.NoGuildMenu;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -43,12 +44,11 @@ public class GuildCommand extends BaseCommand {
     @Default
     public void onDefault(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
-            GuildMainMenu guildMainMenu = new GuildMainMenu(cloudUser.getGuild());
             if (cloudUser.getGuild() != null) {
-                Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> guildMainMenu.open(sender));
+                Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new GuildMainMenu(cloudUser.getGuild()));
                 return;
             }
-            help(sender);
+            Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new NoGuildMenu().open(sender));
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

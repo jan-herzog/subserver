@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 @AllArgsConstructor
 public enum ItemColors {
 
+    GUILD(ChatColor.DARK_GREEN, ChatColor.GREEN),
     BANK(ChatColor.GOLD, ChatColor.YELLOW),
     REGION(ChatColor.BLUE, ChatColor.AQUA),
     MEMBER(ChatColor.DARK_PURPLE, ChatColor.LIGHT_PURPLE),
