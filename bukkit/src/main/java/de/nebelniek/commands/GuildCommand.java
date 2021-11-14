@@ -45,7 +45,7 @@ public class GuildCommand extends BaseCommand {
     public void onDefault(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
             if (cloudUser.getGuild() != null) {
-                Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new GuildMainMenu(cloudUser.getGuild()));
+                Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new GuildMainMenu(cloudUser.getGuild()).open(sender));
                 return;
             }
             Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new NoGuildMenu().open(sender));

@@ -1,6 +1,9 @@
 package de.nebelniek.inventory.guild;
 
+import de.nebelniek.content.guild.BalanceAction;
 import de.nebelniek.database.guild.interfaces.IGuild;
+import de.nebelniek.inventory.guild.bank.BankTransferMenu;
+import de.nebelniek.inventory.guild.region.RegionExpandMenu;
 import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
 import de.nebelniek.inventory.types.GuildInventory;
 import de.nebelniek.inventory.util.ItemColors;
@@ -14,11 +17,9 @@ import org.bukkit.Material;
 
 public class GuildMainMenu extends GuildInventory {
 
-    private final IGuild guild;
 
     public GuildMainMenu(IGuild guild) {
-        super(TemplateInventoryBackgroundProvider.fivexnine(MenuName.GUILD_MAIN_MENU.getName()));
-        this.guild = guild;
+        super(TemplateInventoryBackgroundProvider.fivexnine(MenuName.GUILD_MAIN_MENU.getName()), guild);
         setup();
     }
 
@@ -65,12 +66,12 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(4)
     public void onBank(OptionClickEvent event) {
-        //TODO: Open BankMenu
+        new BankTransferMenu(guild, event.getInventoryClickEvent().isLeftClick() ? BalanceAction.DEPOSIT : BalanceAction.WITHDRAW).open(event.getPlayer());
     }
 
     @OptionHandler(19)
     public void onRegion(OptionClickEvent event) {
-        //TODO: Open RegionMenu
+        new RegionExpandMenu(guild).open(event.getPlayer());
     }
 
     @OptionHandler(40)
@@ -80,7 +81,11 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(25)
     public void onLeave(OptionClickEvent event) {
-        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(guildContentService::leaveGuild);
+        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(guildContentService::leaveGuild).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+        event.getPlayer().closeInventory();
     }
 
     @OptionHandler(22)

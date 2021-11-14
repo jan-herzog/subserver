@@ -102,14 +102,15 @@ public class GuildInviteAllyService implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
-        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(event.getPlayer().getUniqueId());
-        IGuild guild = cloudUser.getGuild();
-        if (!pendingInvites.containsKey(guild))
-            return;
-        if (pendingInvites.get(guild).size() == 0)
-            return;
-        if (cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
-            event.getPlayer().sendMessage(Prefix.GUILD + "Deine Gilde hat §e" + pendingInvites.get(guild).size() + " §7offene §eVerbündungsanträge§7. Schaue sie dir mit §2/guild §aally invites §7an.");
+        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
+            IGuild guild = cloudUser.getGuild();
+            if (!pendingInvites.containsKey(guild))
+                return;
+            if (pendingInvites.get(guild).size() == 0)
+                return;
+            if (cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
+                event.getPlayer().sendMessage(Prefix.GUILD + "Deine Gilde hat §e" + pendingInvites.get(guild).size() + " §7offene §eVerbündungsanträge§7. Schaue sie dir mit §2/guild §aally invites §7an.");
+        });
     }
 
 

@@ -59,6 +59,8 @@ public class ScoreboardManagementService implements Listener {
     }
 
     public void updateCoins(ICloudUser cloudUser) {
+        System.out.println(fastBoards);
+        System.out.println(cloudUser);
         fastBoards.get(cloudUser).updateLine(5, " §7➥ " + cloudUser.getCoins() + "$");
     }
 
