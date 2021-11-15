@@ -46,9 +46,10 @@ public class GuildContentService {
         if (guildManagingService.getGuilds().stream().anyMatch(iGuild -> iGuild.getName().equalsIgnoreCase(name)))
             return new GuildContentResponse(GuildResponseState.ERROR, "Es ist bereits eine Gilde mit diesem Namen vorhanden!");
         coinsContentService.removeCoins(creator, Prices.GUILD_CREATE.getPrice());
+        creator.setGuildRole(GuildRole.LEADER);
+        creator.save();
         guildManagingService.createGuild(creator, name).thenAccept(guild -> {
             creator.setGuild(guild);
-            creator.setGuildRole(GuildRole.LEADER);
             creator.save();
             scoreboardManagementService.updateProfile(creator);
             scoreboardManagementService.updateGuild(creator);
@@ -67,6 +68,12 @@ public class GuildContentService {
             if (nextLeader == null) {
                 chatService.sendAnnouncement(cloudUser.getGuild(), "§cDa das letzte Mitglied die Gilde verlassen hat wurde sie gelöscht§7!");
                 guildManagingService.deleteGuild(guild);
+                cloudUser.setGuildRole(null);
+                cloudUser.getGuild().getMember().remove(cloudUser);
+                cloudUser.setGuild(null);
+                cloudUser.saveAsync();
+                scoreboardManagementService.updateProfile(cloudUser);
+                scoreboardManagementService.updateGuild(cloudUser);
                 return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
             }
             nextLeader.setGuildRole(GuildRole.LEADER);
@@ -77,9 +84,9 @@ public class GuildContentService {
         cloudUser.setGuildRole(null);
         cloudUser.getGuild().getMember().remove(cloudUser);
         cloudUser.setGuild(null);
+        cloudUser.saveAsync();
         scoreboardManagementService.updateProfile(cloudUser);
         scoreboardManagementService.updateGuild(cloudUser);
-        cloudUser.saveAsync();
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + "§c verlassen§7!");
     }
 

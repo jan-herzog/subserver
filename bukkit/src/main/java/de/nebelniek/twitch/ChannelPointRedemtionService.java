@@ -69,6 +69,9 @@ public class ChannelPointRedemtionService {
                 Player player = Bukkit.getPlayer(cloudUser.getUuid());
                 if (player != null)
                     player.sendMessage(Prefix.COINS + "Du hast §5" + finalReward.getName() + " §7im Chat eingelöst. Dir wurden §e" + finalReward.getPrice() + " §7 gutgeschrieben.");
+            }).exceptionally(throwable -> {
+                throwable.printStackTrace();
+                return null;
             });
         };
     }

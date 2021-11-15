@@ -26,7 +26,6 @@ public class Subserver extends JavaPlugin {
     //TODO: Scoreboard -> Gilde, Gildenrang, Property, Coins
     //TODO: Guild Bank Command to transfer money
     //TODO: Guild Home
-
     //TODO: Guild Leave last one -> delete guild
     //TODO: Guild Invite
     //TODO: Guild Region protection
