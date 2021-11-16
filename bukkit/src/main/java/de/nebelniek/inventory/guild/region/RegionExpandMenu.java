@@ -2,6 +2,7 @@ package de.nebelniek.inventory.guild.region;
 
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.guild.util.Direction;
+import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
 import de.nebelniek.inventory.types.GuildInventory;
 import de.nebelniek.inventory.util.HeadTextureHash;
@@ -14,8 +15,9 @@ import org.bukkit.Material;
 
 public class RegionExpandMenu extends GuildInventory {
 
-    public RegionExpandMenu(IGuild guild) {
-        super(TemplateInventoryBackgroundProvider.fivexnine(""), guild);
+    public RegionExpandMenu(IGuild guild, ICloudUser opener) {
+        super(TemplateInventoryBackgroundProvider.fivexnine(""), guild, opener);
+        setup();
     }
 
     @Override
@@ -52,20 +54,22 @@ public class RegionExpandMenu extends GuildInventory {
 
     @OptionHandler(4)
     public void onNorth(OptionClickEvent event) {
-        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> sendResponse(event.getPlayer(), guildContentService.expandRegion(cloudUser, Direction.NORTH)));
+        sendResponse(event.getPlayer(), guildContentService.expandRegion(opener, Direction.NORTH));
     }
 
     @OptionHandler(20)
     public void onEast(OptionClickEvent event) {
-        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> sendResponse(event.getPlayer(), guildContentService.expandRegion(cloudUser, Direction.EAST)));
+        sendResponse(event.getPlayer(), guildContentService.expandRegion(opener, Direction.EAST));
     }
+
     @OptionHandler(24)
     public void onSouth(OptionClickEvent event) {
-        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> sendResponse(event.getPlayer(), guildContentService.expandRegion(cloudUser, Direction.SOUTH)));
+        sendResponse(event.getPlayer(), guildContentService.expandRegion(opener, Direction.SOUTH));
     }
+
     @OptionHandler(40)
     public void onWest(OptionClickEvent event) {
-        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> sendResponse(event.getPlayer(), guildContentService.expandRegion(cloudUser, Direction.WEST)));
+        sendResponse(event.getPlayer(), guildContentService.expandRegion(opener, Direction.WEST));
     }
 
 

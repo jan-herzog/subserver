@@ -3,7 +3,6 @@ package de.nebelniek.inventory.guild;
 import de.nebelniek.Subserver;
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.configuration.Prices;
-import de.nebelniek.content.guild.response.GuildContentResponse;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
 import de.nebelniek.inventory.types.GuildInventory;
@@ -23,7 +22,7 @@ public class NoGuildMenu extends GuildInventory {
     private JavaPlugin plugin;
 
     public NoGuildMenu() {
-        super(TemplateInventoryBackgroundProvider.threexnine(MenuName.NOGUILD_MAIN_MENU.getName()));
+        super(TemplateInventoryBackgroundProvider.threexnine(MenuName.NOGUILD_MAIN_MENU.getName()), opener);
         this.plugin = Subserver.getContext().getBean(BukkitConfiguration.class).getPlugin();
         setup();
     }

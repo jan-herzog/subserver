@@ -27,7 +27,7 @@ public class ContentRegistry {
         TablistService tablistService = applicationServiceMode.equals(ApplicationServiceMode.SUBSERVER) ? event.getApplicationContext().getBean(TablistServiceSubserver.class) : event.getApplicationContext().getBean(TablistServiceDefault.class);
         Bukkit.getPluginManager().registerEvents((Listener) tablistService, event.getPlugin());
         tablistService.createTeams();
-        LOGGER.info("ContentService of bean has been enabled!");
+        LOGGER.info("TablistService of bean " + tablistService.getClass().getName() + " has been enabled!");
     }
 
 }

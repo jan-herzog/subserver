@@ -4,6 +4,7 @@ import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
+import de.nebelniek.rank.SubserverRank;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -34,7 +35,7 @@ public class TablistServiceSubserver implements Listener, TablistService {
         for (IGuild guild : guildManagingService.getGuilds())
             newGuild(guild);
         if (scoreboard.getTeam(i + "Player") == null)
-            scoreboard.registerNewTeam(i + "Player").setPrefix("§eLandstreicher §7");
+            scoreboard.registerNewTeam(i + "Player").setPrefix(SubserverRank.DEFAULT.getPrefix() + " §7");
         for (Team team : scoreboard.getTeams())
             team.setColor(ChatColor.GRAY);
     }

@@ -2,7 +2,10 @@ package de.nebelniek.inventory.guild;
 
 import de.nebelniek.content.guild.BalanceAction;
 import de.nebelniek.database.guild.interfaces.IGuild;
+import de.nebelniek.database.guild.util.HomePoint;
+import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.inventory.guild.bank.BankTransferMenu;
+import de.nebelniek.inventory.guild.member.MemberOverviewInventory;
 import de.nebelniek.inventory.guild.region.RegionExpandMenu;
 import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
 import de.nebelniek.inventory.types.GuildInventory;
@@ -13,13 +16,15 @@ import de.notecho.inventory.click.ClickOption;
 import de.notecho.inventory.click.OptionClickEvent;
 import de.notecho.inventory.click.OptionHandler;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 
 public class GuildMainMenu extends GuildInventory {
 
 
-    public GuildMainMenu(IGuild guild) {
-        super(TemplateInventoryBackgroundProvider.fivexnine(MenuName.GUILD_MAIN_MENU.getName()), guild);
+    public GuildMainMenu(IGuild guild, ICloudUser opener) {
+        super(TemplateInventoryBackgroundProvider.fivexnine(MenuName.GUILD_MAIN_MENU.getName()), guild, opener);
         setup();
     }
 
@@ -59,6 +64,7 @@ public class GuildMainMenu extends GuildInventory {
                 .setDisplayName("§8» " + ItemColors.HOME.getPrimary() + "§lHome §r§8«")
                 .setLore(
                         ItemColors.HOME.getAccent() + "Teleportiere§7 dich " + ItemColors.HOME.getAccent() + "nach Hause§7.",
+                        " §7➥ " + ItemColors.HOME.getAccent() + "Dein Home§7 ➞ " + (guild.getHome() == null ? "§7Nicht gesetzt!" : guild.getHome().string()),
                         " §7➥ §aLinksklick§7 ➞ Teleportieren"
                 )
                 .build()));
@@ -66,17 +72,17 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(4)
     public void onBank(OptionClickEvent event) {
-        new BankTransferMenu(guild, event.getInventoryClickEvent().isLeftClick() ? BalanceAction.DEPOSIT : BalanceAction.WITHDRAW).open(event.getPlayer());
+        new BankTransferMenu(guild, event.getInventoryClickEvent().isLeftClick() ? BalanceAction.DEPOSIT : BalanceAction.WITHDRAW, opener).open(event.getPlayer());
     }
 
     @OptionHandler(19)
     public void onRegion(OptionClickEvent event) {
-        new RegionExpandMenu(guild).open(event.getPlayer());
+        new RegionExpandMenu(guild, opener).open(event.getPlayer());
     }
 
     @OptionHandler(40)
     public void onMember(OptionClickEvent event) {
-        //TODO: Open MemberMenu
+        new MemberOverviewInventory(opener, guild).open(event.getPlayer());
     }
 
     @OptionHandler(25)
@@ -90,7 +96,11 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(22)
     public void onHome(OptionClickEvent event) {
-
+        HomePoint home = guild.getHome();
+        if (home == null)
+            return;
+        Location location = new Location(Bukkit.getWorld(home.world()), home.x(), home.y(), home.z());
+        Bukkit.getScheduler().runTask(getRegisteredPlugin(), () -> event.getPlayer().teleport(location));
     }
 
 

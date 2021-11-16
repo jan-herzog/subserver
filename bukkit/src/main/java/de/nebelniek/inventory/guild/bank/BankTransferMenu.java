@@ -2,6 +2,7 @@ package de.nebelniek.inventory.guild.bank;
 
 import de.nebelniek.content.guild.BalanceAction;
 import de.nebelniek.database.guild.interfaces.IGuild;
+import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.inventory.guild.GuildMainMenu;
 import de.nebelniek.inventory.template.TemplateInventoryBackgroundProvider;
 import de.nebelniek.inventory.types.GuildInventory;
@@ -19,8 +20,8 @@ public class BankTransferMenu extends GuildInventory {
 
     private final BalanceAction balanceAction;
 
-    public BankTransferMenu(IGuild guild, BalanceAction balanceAction) {
-        super(TemplateInventoryBackgroundProvider.threexnine(MenuName.BANK_TRANSFER_MENU.getName()), guild);
+    public BankTransferMenu(IGuild guild, BalanceAction balanceAction, ICloudUser opener) {
+        super(TemplateInventoryBackgroundProvider.threexnine(MenuName.BANK_TRANSFER_MENU.getName()), guild, opener);
         this.balanceAction = balanceAction;
         setup();
     }
@@ -62,7 +63,7 @@ public class BankTransferMenu extends GuildInventory {
         addClickOption(new ClickOption(26, ItemBuilder.item(Material.GREEN_STAINED_GLASS_PANE)
                 .setDisplayName("§8» §c§lZurück §r§8«")
                 .build()));
-        addOptionExecutor(new OptionExecutor(26, event -> new GuildMainMenu(guild).open(event.getPlayer())));
+        addOptionExecutor(new OptionExecutor(26, event -> new GuildMainMenu(guild, opener).open(event.getPlayer())));
     }
 
     @OptionHandler(11)
@@ -71,7 +72,7 @@ public class BankTransferMenu extends GuildInventory {
             case DEPOSIT -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "100§7$ an deine" + ItemColors.BANK.getAccent() + " Gilden-Bank §aeingezahlt§7.");
             case WITHDRAW -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "100§7$ aus deiner" + ItemColors.BANK.getAccent() + " Gilden-Bank §causgezahlt§7.");
         }
-        guildContentService.changeBalance(cloudUserManagingService.getCloudUsers().get(event.getPlayer().getUniqueId()), 100, balanceAction);
+        guildContentService.changeBalance(opener, 100, balanceAction);
         updateValue();
     }
 
@@ -81,7 +82,7 @@ public class BankTransferMenu extends GuildInventory {
             case DEPOSIT -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "1000§7$ an deine" + ItemColors.BANK.getAccent() + " Gilden-Bank §aeingezahlt§7.");
             case WITHDRAW -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "1000§7$ aus deiner" + ItemColors.BANK.getAccent() + " Gilden-Bank §causgezahlt§7.");
         }
-        guildContentService.changeBalance(cloudUserManagingService.getCloudUsers().get(event.getPlayer().getUniqueId()), 1000, balanceAction);
+        guildContentService.changeBalance(opener, 1000, balanceAction);
         updateValue();
     }
 
@@ -91,7 +92,7 @@ public class BankTransferMenu extends GuildInventory {
             case DEPOSIT -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "10000§7$ an deine" + ItemColors.BANK.getAccent() + " Gilden-Bank §aeingezahlt§7.");
             case WITHDRAW -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "10000§7$ aus deiner" + ItemColors.BANK.getAccent() + " Gilden-Bank §causgezahlt§7.");
         }
-        guildContentService.changeBalance(cloudUserManagingService.getCloudUsers().get(event.getPlayer().getUniqueId()), 10000, balanceAction);
+        guildContentService.changeBalance(opener, 10000, balanceAction);
         updateValue();
     }
 
