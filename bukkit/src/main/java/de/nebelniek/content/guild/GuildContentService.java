@@ -15,7 +15,9 @@ import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.scoreboard.ScoreboardManagementService;
+import de.nebelniek.tablistbukkit.TablistServiceSubserver;
 import de.nebelniek.utils.Prefix;
+import de.nebelniek.utils.TablistService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,6 +35,8 @@ public class GuildContentService {
     private final CoinsContentService coinsContentService;
 
     private final BukkitConfiguration bukkitConfiguration;
+
+    private final TablistServiceSubserver tablistServiceSubserver;
 
     private final ScoreboardManagementService scoreboardManagementService;
 
@@ -53,7 +57,9 @@ public class GuildContentService {
             creator.save();
             scoreboardManagementService.updateProfile(creator);
             scoreboardManagementService.updateGuild(creator);
+            tablistServiceSubserver.update();
         });
+
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Deine Gilde §d" + name + "§7 wurde §aerfolgreich§7 erstellt!");
     }
 
@@ -70,15 +76,23 @@ public class GuildContentService {
                 guildManagingService.deleteGuild(guild);
                 cloudUser.setGuildRole(null);
                 cloudUser.getGuild().getMember().remove(cloudUser);
+                if (cloudUser.getGuild().getBalance() > 0) {
+                    coinsContentService.addCoins(cloudUser, cloudUser.getGuild().getBalance());
+                    Player player = Bukkit.getPlayer(cloudUser.getUuid());
+                    if (player != null)
+                        player.sendMessage(Prefix.COINS + "Dir wurden ie restlichen §e" + cloudUser.getGuild().getBalance() + " §6Coins §7von deiner Gilde §aüberwiesen§7.");
+                }
                 cloudUser.setGuild(null);
                 cloudUser.saveAsync();
                 scoreboardManagementService.updateProfile(cloudUser);
                 scoreboardManagementService.updateGuild(cloudUser);
+                tablistServiceSubserver.update();
                 return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
             }
             nextLeader.setGuildRole(GuildRole.LEADER);
             nextLeader.saveAsync();
             scoreboardManagementService.updateProfile(nextLeader);
+            tablistServiceSubserver.update();
             chatService.sendAnnouncement(cloudUser.getGuild(), "Da der " + GuildRole.LEADER.getPrettyName() + "§7 die Gilde §cverlassen§7 hat wurde " + nextLeader.getGuildRole().getColor() + nextLeader.getLastUserName() + "§7 zum neuen " + GuildRole.LEADER.getPrettyName() + "§7!");
         }
         cloudUser.setGuildRole(null);
@@ -180,6 +194,7 @@ public class GuildContentService {
         guild.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
         guild.setBalance(guild.getBalance() - Prices.GUILD_CHANGE_PREFIX.getPrice());
         guild.saveAsync();
+        tablistServiceSubserver.update();
         chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat den Prefix der Gilde zu " + guild.getPrefix() + "§7 geändert!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Prefix §aerfolgreich §7geändert!");
     }

@@ -1,7 +1,7 @@
 package de.nebelniek.content.tablist;
 
-import de.nebelniek.application.ApplicationServiceMode;
 import de.nebelniek.utils.NameUtils;
+import de.nebelniek.utils.TablistService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TablistServiceDefault implements Listener, TablistService {
 
-    @Setter
     private Scoreboard scoreboard;
 
     public void createTeams() {
@@ -46,6 +45,11 @@ public class TablistServiceDefault implements Listener, TablistService {
                 team.addPlayer(onlinePlayer);
             }
         }
+    }
+
+    @Override
+    public void setScoreboard(Object scoreboard) {
+        this.scoreboard = (Scoreboard) scoreboard;
     }
 
     @EventHandler

@@ -69,6 +69,20 @@ public class CloudUserManagingService {
         });
     }
 
+    public CompletableFuture<? extends ICloudUser> getUser(UUID uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (cloudUsers.containsKey(uuid)) {
+                ICloudUser cloudUser = cloudUsers.get(uuid);
+                cloudUser.load();
+                return cloudUser;
+            }
+            return loadUserSync(uuid);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
     @SneakyThrows
     public ICloudUser loadUserSync(UUID uuid) {
         if (cloudUsers.containsKey(uuid)) {

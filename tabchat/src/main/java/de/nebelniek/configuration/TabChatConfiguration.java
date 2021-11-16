@@ -1,5 +1,6 @@
 package de.nebelniek.configuration;
 
+import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
 import de.nebelniek.application.ApplicationServiceMode;
 import de.nebelniek.registration.event.BukkitPluginEnableEvent;
 import lombok.Getter;
@@ -28,7 +29,8 @@ public class TabChatConfiguration {
 
     @Bean
     public ApplicationServiceMode applicationServiceMode() {
-        if (Bukkit.getServer().getName().contains("Subserver"))
+        System.out.println(Bukkit.getServer().getServerName());
+        if (Bukkit.getServer().getServerName().contains("Subserver"))
             return ApplicationServiceMode.SUBSERVER;
         return ApplicationServiceMode.DEFAULT;
     }

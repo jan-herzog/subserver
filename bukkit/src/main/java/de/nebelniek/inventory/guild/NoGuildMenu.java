@@ -21,7 +21,7 @@ public class NoGuildMenu extends GuildInventory {
 
     private JavaPlugin plugin;
 
-    public NoGuildMenu() {
+    public NoGuildMenu(ICloudUser opener) {
         super(TemplateInventoryBackgroundProvider.threexnine(MenuName.NOGUILD_MAIN_MENU.getName()), opener);
         this.plugin = Subserver.getContext().getBean(BukkitConfiguration.class).getPlugin();
         setup();
@@ -50,10 +50,7 @@ public class NoGuildMenu extends GuildInventory {
                 .onComplete((player, text) -> {
                     if (text.contains(" "))
                         return AnvilGUI.Response.text("No spaces allowed!");
-                    this.cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> sendResponse(player, this.guildContentService.createGuild(cloudUser, text))).exceptionally(throwable -> {
-                        throwable.printStackTrace();
-                        return null;
-                    });
+                    sendResponse(player, this.guildContentService.createGuild(opener, text));
                     return AnvilGUI.Response.close();
                 })
                 .plugin(plugin)

@@ -118,8 +118,17 @@ public class GuildManagingService {
         });
     }
 
+    @SneakyThrows
     public IGuild getGuildByUser(ICloudUser cloudUser) {
         return guilds.stream().filter(iGuild -> iGuild.getMember().stream().anyMatch(member -> member.getUuid().equals(cloudUser.getUuid()))).findAny().orElse(null);
+    }
+
+    @SneakyThrows
+    public IGuild getGuildByUserCheck(ICloudUser cloudUser) {
+        IGuild result = guilds.stream().filter(iGuild -> iGuild.getMember().stream().anyMatch(member -> member.getUuid().equals(cloudUser.getUuid()))).findAny().orElse(null);
+        if (result == null || databaseProvider.getGuildDao().idExists(result.getModel().getId()))
+            return result;
+        return null;
     }
 
     public IGuild getGuildById(long id) {

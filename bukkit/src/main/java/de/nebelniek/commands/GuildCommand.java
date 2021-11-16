@@ -48,7 +48,7 @@ public class GuildCommand extends BaseCommand {
                 Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new GuildMainMenu(cloudUser.getGuild(), cloudUser).open(sender));
                 return;
             }
-            Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new NoGuildMenu().open(sender));
+            Bukkit.getScheduler().runTask(configuration.getPlugin(), () -> new NoGuildMenu(cloudUser).open(sender));
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

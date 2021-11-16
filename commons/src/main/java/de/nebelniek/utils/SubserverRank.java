@@ -1,4 +1,4 @@
-package de.nebelniek.rank;
+package de.nebelniek.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

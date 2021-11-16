@@ -1,7 +1,6 @@
 package de.nebelniek.registration;
 
 import de.nebelniek.content.tablist.TablistServiceDefault;
-import de.nebelniek.content.tablist.TablistServiceSubserver;
 import de.nebelniek.registration.event.BukkitPluginEnableEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -18,7 +17,7 @@ public class BukkitListenerRegistry {
     @EventListener
     public void loadOnEnable(BukkitPluginEnableEvent event) {
         event.getApplicationContext().getBeansOfType(Listener.class).forEach((s, listener) -> {
-            if (!listener.getClass().equals(TablistServiceDefault.class) && !listener.getClass().equals(TablistServiceSubserver.class)) {
+            if (!listener.getClass().equals(TablistServiceDefault.class)) {
                 Bukkit.getPluginManager().registerEvents(listener, event.getPlugin());
                 LOGGER.info("Listener of bean " + s + " has been enabled!");
             }
