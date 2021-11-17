@@ -1,6 +1,7 @@
 package de.nebelniek.registration;
 
 import de.nebelniek.registration.event.BukkitPluginEnableEvent;
+import de.nebelniek.registration.event.GuildsLoadedEvent;
 import de.nebelniek.tablistchat.TablistServiceSubserver;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -15,7 +16,7 @@ public class TablistRegistry {
     private final TablistServiceSubserver tablistServiceSubserver;
 
     @EventListener
-    public void loadOnEnable(BukkitPluginEnableEvent event) {
+    public void loadOnEnable(GuildsLoadedEvent event) {
         tablistServiceSubserver.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         tablistServiceSubserver.createTeams();
     }

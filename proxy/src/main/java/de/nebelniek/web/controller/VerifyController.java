@@ -31,11 +31,11 @@ public class VerifyController {
     public void setupRoutes() {
         get("/auth", (request, response) -> {
             String hash = request.queryParams("hash");
-            if(!hashcodeService.isHashPresent(hash)) {
+            if (!hashcodeService.isHashPresent(hash)) {
                 response.redirect("/error");
                 return "";
             }
-            response.cookie("res", hash,1000);
+            response.cookie("res", hash, 1000);
             response.redirect("https://id.twitch.tv/oauth2/authorize?client_id=7suv1m3ae2vbiqjpbn5n2ovlnta440&redirect_uri=https://verify.nebelniek.de/callback&response_type=code&scope=user:read:email");
             return "";
         });
@@ -44,18 +44,18 @@ public class VerifyController {
             String hash = request.cookie("res");
             String code = request.queryParams("code");
 
-            if(!hashcodeService.isHashPresent(hash)) {
+            if (!hashcodeService.isHashPresent(hash)) {
                 response.redirect("/error");
                 return "";
             }
             response.removeCookie("res");
             ICloudUser cloudUser = repository.loadUserSync(hashcodeService.deleteHash(hash));
             OAuth2Credential credential = oAuth2IdentityProvider.getCredentialByCode(code);
-            User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null,null).execute().getUsers().get(0);
+            User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null, null).execute().getUsers().get(0);
             cloudUser.setTwitchId(twitchUser.getId());
             cloudUser.save();
             verifyService.notifyPlayerIfOnline(cloudUser.getUuid(), credential);
-            response.redirect("/?ref=success");
+            response.redirect("/?ref=success&name=" + cloudUser.getLastUserName());
             return "";
         }));
     }

@@ -43,6 +43,8 @@ public class GuildContentService {
     public GuildContentResponse createGuild(ICloudUser creator, String name) {
         if (creator.getGuild() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist bereits in einer Gilde!");
+        if (name.length() > 14)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Der Name darf nicht länger als 14 Zeichen sein!");
         if (creator.getCoins() < Prices.GUILD_CREATE.getPrice())
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du zu wenig Geld!");
         if (guildManagingService.getGuilds().stream().anyMatch(iGuild -> iGuild.getName().equalsIgnoreCase(name)))
@@ -78,7 +80,7 @@ public class GuildContentService {
                     coinsContentService.addCoins(cloudUser, cloudUser.getGuild().getBalance());
                     Player player = Bukkit.getPlayer(cloudUser.getUuid());
                     if (player != null)
-                        player.sendMessage(Prefix.COINS + "Dir wurden ie restlichen §e" + cloudUser.getGuild().getBalance() + " §6Coins §7von deiner Gilde §aüberwiesen§7.");
+                        player.sendMessage(Prefix.COINS + "Dir wurden die restlichen §e" + cloudUser.getGuild().getBalance() + " §6Coins §7von deiner Gilde §aüberwiesen§7.");
                 }
                 cloudUser.setGuild(null);
                 cloudUser.saveAsync();
@@ -258,8 +260,8 @@ public class GuildContentService {
         }
         guild.saveAsync();
         if (action.equals(BalanceAction.DEPOSIT))
-            return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "§a eingezahlt§7!");
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "§c ausgezahlt§7!");
+            return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "$§a eingezahlt§7!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "$§c ausgezahlt§7!");
     }
 
     public GuildContentResponse showBalance(ICloudUser cloudUser) {

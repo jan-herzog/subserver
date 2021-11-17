@@ -41,6 +41,7 @@ public class UnlinkCommand extends BaseCommand {
                 sender.sendMessage(Prefix.LINK + "Du bist mit §ckeinem §5Twitch§7-Account verbunden§7!");
             }
             cloudUser.setTwitchId(null);
+            cloudUser.saveAsync();
             sender.sendMessage(Prefix.LINK + "Dein §5Twitch§7-Account wurde von deinem Minecraft Account §cgetrennt§7!");
         });
     }

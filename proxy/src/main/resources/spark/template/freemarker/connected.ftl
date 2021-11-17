@@ -1,6 +1,6 @@
 <#import "masterTemplate.ftl" as layout />
 
-<@layout.masterTemplate title="Fehler">
+<@layout.masterTemplate title="Verbunden">
 
 
 <div class="message">

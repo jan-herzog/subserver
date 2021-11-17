@@ -27,11 +27,11 @@ public class ChatService implements Listener {
         if (rank.isHigherThanOrEquals(Rank.ADMIN))
             message = ChatColor.translateAlternateColorCodes('&', message);
         String finalMessage = message;
-        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
+        cloudUserManagingService.getUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
             System.out.println(cloudUser.getGuild());
             if (cloudUser.getGuild() != null)
                 if (cloudUser.getGuild().getPrefix() != null) {
-                    Bukkit.broadcastMessage(cloudUser.getGuild().getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);
+                    Bukkit.broadcastMessage("§7" + cloudUser.getGuild().getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);
                     return;
                 }
             Bukkit.broadcastMessage(SubserverRank.DEFAULT.getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);

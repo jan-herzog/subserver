@@ -45,8 +45,8 @@ public class GuildManagingService {
     @Getter
     private final List<IGuild> guilds = new ArrayList<>();
 
-    public void loadGuilds() {
-        CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Void> loadGuilds() {
+        return CompletableFuture.runAsync(() -> {
             try {
                 for (GuildModel model : databaseProvider.getGuildDao().queryForAll()) {
                     Guild guild = new Guild(this, model.getId());

@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class VerifyCommand extends BaseCommand {
 
-    private CloudUserManagingService cloudUserRepository;
+    private final CloudUserManagingService cloudUserRepository;
 
-    private VerifyService verifyService;
+    private final VerifyService verifyService;
 
     @Default
     @CatchUnknown

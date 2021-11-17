@@ -129,8 +129,8 @@ public class GuildCommand extends BaseCommand {
     }
 
     @Subcommand("changeprefix")
-    public void changePrefix(Player sender, @Single String prefix) {
-        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changePrefix(cloudUser, prefix))).exceptionally(throwable -> {
+    public void changePrefix(Player sender, String text) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changePrefix(cloudUser, text))).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });

@@ -67,11 +67,8 @@ public class VerifyService {
                         Component.text("Verbinde")
                                 .color(NamedTextColor.YELLOW)
                                 .style(Style.style(TextDecoration.BOLD))
-                                .hoverEvent(
-                                        Component.text("§a§lKlick!")
-                                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
-                                                .asHoverEvent()
-                                )
+                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
+                                .hoverEvent(Component.text("§a§lKlick!").asHoverEvent())
                 )
                 .append(Component.text("§7 deinen §5Twitch Account§7, um zu §averifizieren§7, dass du §5Sub§7 bist."));
         proxyConfiguration.getAdventure().player(player).sendMessage(component);

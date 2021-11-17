@@ -8,6 +8,7 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import de.nebelniek.registration.ProxyPluginEnableEvent;
+import de.nebelniek.utils.HexColors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -60,6 +61,11 @@ public class ProxyConfiguration {
         this.credentialManager = CredentialManagerBuilder.builder().build();
         credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback"));
         return credentialManager.getOAuth2IdentityProviderByName("twitch").get();
+    }
+
+    @Bean
+    public HexColors buildHexColors() {
+        return new HexColors(HexColors.toColor("#d0ff00"), HexColors.toColor("#ffb300"));
     }
 
 }

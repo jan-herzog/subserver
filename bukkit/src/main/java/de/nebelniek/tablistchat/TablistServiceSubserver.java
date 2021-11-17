@@ -50,7 +50,9 @@ public class TablistServiceSubserver implements Listener {
             if (cloudUser.getGuild() == null)
                 team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains("Player")).findAny().orElseThrow();
             else {
-                team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains(cloudUser.getGuild().getName())).findAny().orElse(scoreboard.registerNewTeam(cloudUser.getGuild().getName()));
+                team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(cloudUser.getGuild().getName())).findAny().orElse(null);
+                if (team == null)
+                    team = scoreboard.registerNewTeam(cloudUser.getGuild().getName());
                 team.setPrefix(cloudUser.getGuild().getPrefix() + " ");
             }
             if (!team.getPlayers().contains(onlinePlayer)) {
@@ -60,9 +62,9 @@ public class TablistServiceSubserver implements Listener {
             }
         }
         for (Team team : scoreboard.getTeams()) {
-            if(team.getName().contains("Player"))
+            if (team.getName().contains("Player"))
                 continue;
-            if(guildManagingService.getGuildByName(team.getName()) == null)
+            if (guildManagingService.getGuildByName(team.getName()) == null)
                 team.unregister();
         }
     }
@@ -73,8 +75,10 @@ public class TablistServiceSubserver implements Listener {
     }
 
     public void newGuild(IGuild guild) {
-        if (scoreboard.getTeams().stream().anyMatch(team1 -> team1.getName().contains(guild.getName())))
+        if (scoreboard.getTeams().stream().anyMatch(team1 -> team1.getName().equalsIgnoreCase(guild.getName()))) {
+            scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(guild.getName())).findAny().get().setPrefix(guild.getPrefix() + " ");
             return;
+        }
         Team team = scoreboard.registerNewTeam(i + guild.getName());
         if (guild.getPrefix() != null)
             team.setPrefix(guild.getPrefix() + " ");

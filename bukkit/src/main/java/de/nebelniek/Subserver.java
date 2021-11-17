@@ -1,8 +1,12 @@
 package de.nebelniek;
 
 import de.nebelniek.configuration.BukkitConfiguration;
+import de.nebelniek.tablistchat.utils.NameUtils;
 import lombok.Getter;
+import net.luckperms.api.LuckPerms;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -13,6 +17,9 @@ public class Subserver extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+        if (provider != null)
+            NameUtils.setLuckPerms(provider.getProvider());
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         context = new AnnotationConfigApplicationContext(BukkitSpringApplication.class);
         BukkitConfiguration bukkitConfiguration = context.getBean(BukkitConfiguration.class);
