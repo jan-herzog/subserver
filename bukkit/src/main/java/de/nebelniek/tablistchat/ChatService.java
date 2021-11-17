@@ -1,10 +1,9 @@
-package de.nebelniek.content.chat;
+package de.nebelniek.tablistchat;
 
-import de.nebelniek.application.ApplicationServiceMode;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
-import de.nebelniek.utils.NameUtils;
-import de.nebelniek.rank.Rank;
+import de.nebelniek.tablistchat.rank.Rank;
+import de.nebelniek.tablistchat.utils.NameUtils;
 import de.nebelniek.utils.SubserverRank;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -19,10 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ChatService implements Listener {
 
-    private final ApplicationServiceMode applicationServiceMode;
-
     private final CloudUserManagingService cloudUserManagingService;
-    private final GuildManagingService guildManagingService;
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
@@ -30,8 +26,20 @@ public class ChatService implements Listener {
         String message = event.getMessage().replace("%", " Prozent");
         if (rank.isHigherThanOrEquals(Rank.ADMIN))
             message = ChatColor.translateAlternateColorCodes('&', message);
-        String name = NameUtils.getPrefix(event.getPlayer().getUniqueId()) + " §7" + event.getPlayer().getName();
-        event.setFormat(name + " §8»§7 " + message);
+        String finalMessage = message;
+        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
+            System.out.println(cloudUser.getGuild());
+            if (cloudUser.getGuild() != null)
+                if (cloudUser.getGuild().getPrefix() != null) {
+                    Bukkit.broadcastMessage(cloudUser.getGuild().getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);
+                    return;
+                }
+            Bukkit.broadcastMessage(SubserverRank.DEFAULT.getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+        event.setCancelled(true);
     }
 
 }

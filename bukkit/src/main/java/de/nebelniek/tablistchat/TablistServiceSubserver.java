@@ -1,8 +1,7 @@
-package de.nebelniek.tablistbukkit;
+package de.nebelniek.tablistchat;
 
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.utils.SubserverRank;
-import de.nebelniek.utils.TablistService;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
@@ -47,12 +46,11 @@ public class TablistServiceSubserver implements Listener {
     public void update() {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(onlinePlayer.getUniqueId());
-            System.out.println(cloudUser.getGuild());
             Team team;
             if (cloudUser.getGuild() == null)
                 team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains("Player")).findAny().orElseThrow();
             else {
-                team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains(cloudUser.getGuild().getName())).findAny().orElseThrow();
+                team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains(cloudUser.getGuild().getName())).findAny().orElse(scoreboard.registerNewTeam(cloudUser.getGuild().getName()));
                 team.setPrefix(cloudUser.getGuild().getPrefix() + " ");
             }
             if (!team.getPlayers().contains(onlinePlayer)) {
@@ -60,6 +58,12 @@ public class TablistServiceSubserver implements Listener {
                     scoreboard.getPlayerTeam(onlinePlayer).removePlayer(onlinePlayer);
                 team.addPlayer(onlinePlayer);
             }
+        }
+        for (Team team : scoreboard.getTeams()) {
+            if(team.getName().contains("Player"))
+                continue;
+            if(guildManagingService.getGuildByName(team.getName()) == null)
+                team.unregister();
         }
     }
 

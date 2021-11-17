@@ -33,7 +33,6 @@ public class Subserver extends JavaPlugin {
     //TODO: Guild Member Promote/Demote
     //TODO: Guild ally
 
-
     //TODO: Merge Tablist into bukkit
     //TODO: Tablist delete Teams
     //TODO: Tablist create Teams

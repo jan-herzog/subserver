@@ -1,9 +1,7 @@
 package de.nebelniek.content.tablist;
 
 import de.nebelniek.utils.NameUtils;
-import de.nebelniek.utils.TablistService;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class TablistServiceDefault implements Listener, TablistService {
+public class TablistServiceDefault implements Listener {
 
     private Scoreboard scoreboard;
 
@@ -47,7 +45,6 @@ public class TablistServiceDefault implements Listener, TablistService {
         }
     }
 
-    @Override
     public void setScoreboard(Object scoreboard) {
         this.scoreboard = (Scoreboard) scoreboard;
     }

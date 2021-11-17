@@ -17,10 +17,8 @@ public class BukkitListenerRegistry {
     @EventListener
     public void loadOnEnable(BukkitPluginEnableEvent event) {
         event.getApplicationContext().getBeansOfType(Listener.class).forEach((s, listener) -> {
-            if (!listener.getClass().equals(TablistServiceDefault.class)) {
-                Bukkit.getPluginManager().registerEvents(listener, event.getPlugin());
-                LOGGER.info("Listener of bean " + s + " has been enabled!");
-            }
+            Bukkit.getPluginManager().registerEvents(listener, event.getPlugin());
+            LOGGER.info("Listener of bean " + s + " has been enabled!");
         });
     }
 
