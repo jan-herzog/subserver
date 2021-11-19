@@ -13,6 +13,7 @@
         <module>proxy</module>
         <module>bukkit</module>
         <module>tabchat</module>
+        <module>lobby</module>
     </modules>
 
     <properties>

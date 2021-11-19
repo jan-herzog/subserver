@@ -13,6 +13,7 @@ import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
+import de.nebelniek.discord.DiscordGuildChannelService;
 import de.nebelniek.scoreboard.ScoreboardManagementService;
 import de.nebelniek.tablistchat.TablistServiceSubserver;
 import de.nebelniek.utils.Prefix;
@@ -40,6 +41,8 @@ public class GuildContentService {
 
     private final GuildChatService chatService;
 
+    private final DiscordGuildChannelService discordGuildChannelService;
+
     public GuildContentResponse createGuild(ICloudUser creator, String name) {
         if (creator.getGuild() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist bereits in einer Gilde!");
@@ -55,6 +58,7 @@ public class GuildContentService {
         guildManagingService.createGuild(creator, name).thenAccept(guild -> {
             creator.setGuild(guild);
             creator.save();
+            discordGuildChannelService.createChannelsIfNotExists(guild);
             scoreboardManagementService.updateProfile(creator);
             scoreboardManagementService.updateGuild(creator);
             tablistServiceSubserver.update();
@@ -87,6 +91,7 @@ public class GuildContentService {
                 scoreboardManagementService.updateProfile(cloudUser);
                 scoreboardManagementService.updateGuild(cloudUser);
                 tablistServiceSubserver.update();
+                discordGuildChannelService.disposeGuildChannels(guild);
                 return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
             }
             nextLeader.setGuildRole(GuildRole.LEADER);
@@ -99,6 +104,7 @@ public class GuildContentService {
         cloudUser.getGuild().getMember().remove(cloudUser);
         cloudUser.setGuild(null);
         cloudUser.saveAsync();
+        discordGuildChannelService.updateChannels(guild);
         scoreboardManagementService.updateProfile(cloudUser);
         scoreboardManagementService.updateGuild(cloudUser);
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + "§c verlassen§7!");
@@ -116,6 +122,7 @@ public class GuildContentService {
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + kicker.getGuildRole().getColor() + kicker.getLastUserName() + "§7 aus der Gilde §cgeworfen§7!");
         String guildName = cloudUser.getGuild().getColor() + cloudUser.getGuild().getName();
         cloudUser.getGuild().getMember().remove(cloudUser);
+        discordGuildChannelService.updateChannels(cloudUser.getGuild());
         cloudUser.setGuild(null);
         cloudUser.setGuildRole(null);
         scoreboardManagementService.updateProfile(cloudUser);
@@ -135,6 +142,7 @@ public class GuildContentService {
         cloudUser.setGuildRole(GuildRole.DEFAULT);
         scoreboardManagementService.updateProfile(cloudUser);
         scoreboardManagementService.updateGuild(cloudUser);
+        discordGuildChannelService.updateChannels(cloudUser.getGuild());
         cloudUser.saveAsync();
         chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat die Gilde §abetreten§7! (Eingeladen von " + inviter.getGuildRole().getColor() + inviter.getLastUserName() + "§7)");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guild.getColor() + guild.getName() + "§a betreten§7!");
@@ -153,6 +161,7 @@ public class GuildContentService {
         guild.setName(name);
         guild.setBalance(guild.getBalance() - Prices.GUILD_RENAME.getPrice());
         scoreboardManagementService.updateGuild(cloudUser);
+        discordGuildChannelService.updateChannels(guild);
         guild.saveAsync();
         chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat den Namen der Gilde zu " + guild.getColor() + guild.getName() + "§7 geändert!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Namen §aerfolgreich §7geändert!");

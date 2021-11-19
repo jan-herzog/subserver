@@ -34,6 +34,9 @@ public class CloudUser implements ICloudUser {
     private String twitchId;
     @Getter
     @Setter
+    private String discordId;
+    @Getter
+    @Setter
     private boolean subbed;
     @Getter
     @Setter
@@ -69,6 +72,7 @@ public class CloudUser implements ICloudUser {
         this.lastLogin = this.model.getLastLogin();
         this.lastUserName = this.model.getLastUserName();
         this.twitchId = this.model.getTwitchId();
+        this.discordId = this.model.getDiscordId();
         this.subbed = this.model.isSubbed();
         this.textureHash = this.model.getTextureHash();
         this.coins = this.model.getCoins();
@@ -88,6 +92,7 @@ public class CloudUser implements ICloudUser {
         this.model.setLastLogin(this.lastLogin);
         this.model.setLastUserName(this.lastUserName);
         this.model.setTextureHash(this.textureHash);
+        this.model.setDiscordId(this.discordId);
         this.model.setTwitchId(this.twitchId);
         this.model.setSubbed(this.subbed);
         this.model.setCoins(this.coins);

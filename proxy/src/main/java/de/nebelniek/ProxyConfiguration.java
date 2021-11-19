@@ -9,11 +9,14 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import de.nebelniek.registration.ProxyPluginEnableEvent;
 import de.nebelniek.utils.HexColors;
+import de.nebelniek.web.controller.HomeController;
+import de.nebelniek.web.controller.verify.DiscordVerifyController;
+import de.nebelniek.web.controller.verify.TwitchVerifyController;
+import io.mokulu.discord.oauth.DiscordOAuth;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import de.nebelniek.web.controller.HomeController;
-import de.nebelniek.web.controller.VerifyController;
+import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +42,21 @@ public class ProxyConfiguration {
     public void startProxyPlugin(ApplicationContext context, Plugin plugin) {
         this.eventPublisher.publishEvent(new ProxyPluginEnableEvent(context, plugin));
         port(4556);
-        context.getBean(VerifyController.class).setupRoutes();
+        context.getBean(TwitchVerifyController.class).setupRoutes();
+        context.getBean(DiscordVerifyController.class).setupRoutes();
         context.getBean(HomeController.class).setupRoutes();
         this.adventure = BungeeAudiences.create(plugin);
     }
 
     @Setter
     private BungeeCommandManager commandManager;
+
+
+    @SneakyThrows
+    @Bean
+    public DiscordOAuth buildDiscordOAuth() {
+        return new DiscordOAuth("", "", "", new String[]{"identify", "guilds.join"});
+    }
 
     @Bean
     @DependsOn("buildOAuth2IdentityProvider")
@@ -59,7 +70,7 @@ public class ProxyConfiguration {
     @Bean
     public OAuth2IdentityProvider buildOAuth2IdentityProvider() {
         this.credentialManager = CredentialManagerBuilder.builder().build();
-        credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback"));
+        credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback/twitch"));
         return credentialManager.getOAuth2IdentityProviderByName("twitch").get();
     }
 

@@ -43,6 +43,10 @@ public class Guild implements IGuild {
 
     @Getter
     @Setter
+    private String discordRole;
+
+    @Getter
+    @Setter
     private IRegion region;
 
     @Getter
@@ -93,6 +97,7 @@ public class Guild implements IGuild {
         this.color = this.model.getColor();
         this.prefix = this.model.getPrefix();
         this.balance = this.model.getBalance();
+        this.discordRole = this.model.getDiscordRole();
         if (this.model.getRegionModel() != null) {
             this.region = this.service.modelToRegion(this.model.getRegionModel());
             this.region.load();
@@ -125,6 +130,7 @@ public class Guild implements IGuild {
         this.model.setColor(this.color);
         this.model.setPrefix(this.prefix);
         this.model.setBalance(this.balance);
+        this.model.setDiscordRole(this.discordRole);
         if (this.home != null)
             this.model.setHome(this.home.world() + ";" + this.home.x() + ";" + this.home.y() + ";" + this.home.z() + ";");
         if (this.region != null) {

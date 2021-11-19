@@ -37,6 +37,9 @@ public class GuildModel {
     @DatabaseField
     private long balance;
 
+    @DatabaseField
+    private String discordRole;
+
     @DatabaseField(columnName = "region_id", foreign = true, foreignAutoRefresh = true, foreignAutoCreate = true)
     private RegionModel regionModel;
 

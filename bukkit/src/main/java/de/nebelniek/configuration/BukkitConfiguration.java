@@ -12,6 +12,10 @@ import de.notecho.inventory.InventoryManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -42,6 +46,20 @@ public class BukkitConfiguration {
 
     @Setter
     private InventoryManager inventoryManager;
+
+    @Bean
+    @SneakyThrows
+    public JDA buildJDA() {
+        return JDABuilder.createDefault("OTA3Mzk4MjUxNzE0NjA1MDU3.YYmmeQ.Wfy_wZgPorvT-KkqsZQmO5GUMPA")
+                .build();
+    }
+
+    @Bean
+    @DependsOn("buildJDA")
+    public Guild retrieveMainGuild(JDA jda) {
+        return jda.getGuildById("782571463370080266");
+    }
+
 
     @Bean
     @DependsOn("buildOAuth2IdentityProvider")

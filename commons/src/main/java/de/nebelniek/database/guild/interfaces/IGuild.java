@@ -25,6 +25,10 @@ public interface IGuild extends Loadable, Saveable {
 
     long getBalance();
 
+    String getDiscordRole();
+
+    void setDiscordRole(String discordRole);
+
     void setBalance(long balance);
 
     void setHome(HomePoint home);

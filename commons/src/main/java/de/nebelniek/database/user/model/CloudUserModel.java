@@ -32,6 +32,8 @@ public class CloudUserModel {
     @DatabaseField
     private String twitchId;
     @DatabaseField
+    private String discordId;
+    @DatabaseField
     private boolean subbed;
     @DatabaseField
     private String guildRole;

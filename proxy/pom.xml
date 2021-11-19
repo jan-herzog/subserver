@@ -25,6 +25,10 @@
 
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
@@ -129,6 +133,12 @@
             <version>1.17-R0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.Mokulu</groupId>
+            <artifactId>discord-oauth2-api</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <resources>

@@ -22,6 +22,8 @@ public interface ICloudUser extends Loadable, Saveable {
 
     String getTwitchId();
 
+    String getDiscordId();
+
     boolean isSubbed();
 
     IGuild getGuild();
@@ -41,6 +43,8 @@ public interface ICloudUser extends Loadable, Saveable {
     void setLastLogin(Date lastLogin);
 
     void setTwitchId(String twitchId);
+
+    void setDiscordId(String discordId);
 
     void setSubbed(boolean subbed);
 

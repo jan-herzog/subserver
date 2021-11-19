@@ -39,6 +39,7 @@ public class UnlinkCommand extends BaseCommand {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
             if(cloudUser.getTwitchId() == null) {
                 sender.sendMessage(Prefix.LINK + "Du bist mit §ckeinem §5Twitch§7-Account verbunden§7!");
+                return;
             }
             cloudUser.setTwitchId(null);
             cloudUser.saveAsync();
@@ -48,6 +49,15 @@ public class UnlinkCommand extends BaseCommand {
 
     @Subcommand("discord")
     public void onDiscord(ProxiedPlayer sender) {
-        sender.sendMessage(Prefix.PROXY + "§cNot supported yet!");
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
+            if(cloudUser.getDiscordId() == null) {
+                sender.sendMessage(Prefix.LINK + "Du bist mit §ckeinem §9Discord§7-Account verbunden§7!");
+                return;
+            }
+            cloudUser.setDiscordId(null);
+            cloudUser.saveAsync();
+            //TODO: SEND PLUGIN MESSAGE TO BUKKIT -> DISCORD REMOVE ROLE
+            sender.sendMessage(Prefix.LINK + "Dein §9Discord§7-Account wurde von deinem Minecraft Account §cgetrennt§7!");
+        });
     }
 }

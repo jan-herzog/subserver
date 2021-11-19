@@ -5,7 +5,9 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.User;
 import de.nebelniek.ProxyConfiguration;
 import de.nebelniek.database.service.CloudUserManagingService;
+import de.nebelniek.services.hashcode.DiscordHashcodeService;
 import de.nebelniek.services.hashcode.HashcodeService;
+import de.nebelniek.services.hashcode.TwitchHashcodeService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
@@ -25,69 +27,12 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class VerifyService {
+public abstract class VerifyService {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private final CloudUserManagingService cloudUserRepository;
+    public abstract void showVerifySuggestion(ProxiedPlayer player);
 
-    private final TwitchSubscriptionService twitchSubscriptionService;
-
-    private final HashcodeService hashcodeService;
-
-    private final TwitchClient twitchClient;
-
-    private final ProxyConfiguration proxyConfiguration;
-
-    public void showVerifySuggestion(ProxiedPlayer player) {
-        hashcodeService.storeHash(player.getUniqueId());
-        final TextComponent component = Component
-                .text(Prefix.TWITCH + "Du bist noch nicht mit einem §5Twitch Account§7 verbunden! ")
-                .append(
-                        Component.text("Verbinde")
-                                .color(NamedTextColor.YELLOW)
-                                .style(Style.style(TextDecoration.BOLD))
-                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
-                                .hoverEvent(
-                                        Component.text("§a§lKlick!")
-                                                .asHoverEvent()
-                                )
-                )
-                .append(Component.text("§7 deinen §5Twitch Account§7, um zu §averifizieren§7, dass du §5Sub§7 bist."));
-        proxyConfiguration.getAdventure().player(player).sendMessage(component);
-    }
-
-    public void showVerify(ProxiedPlayer player) {
-        hashcodeService.storeHash(player.getUniqueId());
-        final TextComponent component = Component
-                .text(Prefix.TWITCH.getPrefix())
-                .append(
-                        Component.text("Verbinde")
-                                .color(NamedTextColor.YELLOW)
-                                .style(Style.style(TextDecoration.BOLD))
-                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
-                                .hoverEvent(Component.text("§a§lKlick!").asHoverEvent())
-                )
-                .append(Component.text("§7 deinen §5Twitch Account§7, um zu §averifizieren§7, dass du §5Sub§7 bist."));
-        proxyConfiguration.getAdventure().player(player).sendMessage(component);
-    }
-
-    public void notifyPlayerIfOnline(UUID uuid, OAuth2Credential credential) {
-        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(uuid);
-        if (player == null) {
-            LOGGER.debug("Notify cancelled because player (" + uuid + ") was not online!");
-            return;
-        }
-        cloudUserRepository.loadUser(uuid).thenAccept(cloudUser -> {
-            User user = twitchClient.getHelix().getUsers(credential.getAccessToken(), Collections.singletonList(cloudUser.getTwitchId()), null).execute().getUsers().get(0);
-            player.sendMessage(Prefix.TWITCH + "Du wurdest §aerfolgreich§7 mit deinem Twitch-Account §5" + user.getLogin() + "§7 verbunden!");
-            twitchSubscriptionService.notifyPlayer(player);
-        }).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
-    }
+    public abstract void showVerify(ProxiedPlayer player);
 
 }
