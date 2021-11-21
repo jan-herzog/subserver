@@ -19,7 +19,7 @@ public class HomeController {
             Map<String, String> map = new HashMap<>();
             if (ref != null && ref.equals("success")) {
                 String name = request.queryParams("name");
-                map.put("name", name);
+                map.put("username", name);
                 return new ModelAndView(map, "connected.ftl");
             }
             return new ModelAndView(new HashMap<>(), "index.ftl");

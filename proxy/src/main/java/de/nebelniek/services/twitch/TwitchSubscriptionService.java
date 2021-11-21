@@ -33,10 +33,16 @@ public class TwitchSubscriptionService {
 
     public CompletableFuture<Boolean> isSubbed(ICloudUser cloudUser) {
         return CompletableFuture.supplyAsync(() -> {
-            if (cloudUser.getTwitchId() == null)
+            if (cloudUser.getTwitchId() == null) {
+                cloudUser.setSubbed(false);
+                cloudUser.saveAsync();
                 return false;
-            if (cloudUser.getTwitchId().equalsIgnoreCase(""))
+            }
+            if (cloudUser.getTwitchId().equalsIgnoreCase("")) {
+                cloudUser.setSubbed(false);
+                cloudUser.saveAsync();
                 return false;
+            }
             List<Subscription> subscriptions = twitchClient.getHelix().getSubscriptionsByUser(TwitchTokens.NEBELNIEK.getToken(), TwitchTokens.NEBELNIEK.getChannelId(), Collections.singletonList(cloudUser.getTwitchId())).execute().getSubscriptions();
             if (subscriptions.size() == 0)
                 return false;

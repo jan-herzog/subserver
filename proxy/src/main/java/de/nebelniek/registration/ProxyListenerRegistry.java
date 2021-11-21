@@ -14,6 +14,7 @@ public class ProxyListenerRegistry {
 
     @EventListener
     public void loadOnEnable(ProxyPluginEnableEvent event) {
+
         event.getApplicationContext().getBeansOfType(Listener.class).forEach((s, listener) -> {
             ProxyServer.getInstance().getPluginManager().registerListener(event.getPlugin(), listener);
             LOGGER.info("Listener of bean " + s + " has been enabled!");

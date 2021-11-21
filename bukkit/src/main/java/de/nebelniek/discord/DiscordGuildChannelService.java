@@ -1,5 +1,6 @@
 package de.nebelniek.discord;
 
+import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +22,14 @@ public class DiscordGuildChannelService {
 
     private final JDA jda;
 
-    private final Guild subserverGuild;
-
     public boolean createChannelsIfNotExists(IGuild guild) {
+        Guild subserverGuild = BukkitConfiguration.getMainGuild();
         String categoryName = "- " + guild.getName() + " -";
         List<Category> categoryList = subserverGuild.getCategoriesByName(categoryName, true);
-        if (categoryList.size() != 0)
+        if (categoryList.size() != 0) {
+            updateChannels(guild);
             return false;
+        }
         subserverGuild.createRole().setName(guild.getName()).queue(role -> {
             guild.setDiscordRole(role.getId());
             guild.saveAsync();
@@ -53,6 +56,7 @@ public class DiscordGuildChannelService {
     }
 
     public void updateChannels(IGuild guild) {
+        Guild subserverGuild = BukkitConfiguration.getMainGuild();
         Role role = subserverGuild.getRoleById(guild.getDiscordRole());
         if (role == null)
             return;
@@ -79,6 +83,7 @@ public class DiscordGuildChannelService {
     }
 
     public void disposeGuildChannels(IGuild guild) {
+        Guild subserverGuild = BukkitConfiguration.getMainGuild();
         String categoryName = "- " + guild.getName() + " -";
         List<Category> categoryList = subserverGuild.getCategoriesByName(categoryName, true);
         if (categoryList.size() == 0)

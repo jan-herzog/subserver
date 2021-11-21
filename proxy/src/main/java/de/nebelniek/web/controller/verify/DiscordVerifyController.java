@@ -16,7 +16,7 @@ import static spark.Spark.get;
 
 @Controller
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class DiscordVerifyController extends VerifyController{
+public class DiscordVerifyController extends VerifyController {
 
     private final DiscordHashcodeService hashcodeService;
 
@@ -33,28 +33,38 @@ public class DiscordVerifyController extends VerifyController{
                 response.redirect("/error");
                 return "";
             }
-            response.cookie("res", hash, 1000);
+            response.cookie("/callback/discord", "res", hash, 1000, true);
             response.redirect("https://discord.com/api/oauth2/authorize?client_id=907398251714605057&redirect_uri=https%3A%2F%2Fverify.nebelniek.de%2Fcallback%2Fdiscord&response_type=code&scope=identify%20guilds.join");
             return "";
+        });
+
+        get("/discord/test", (request, response) -> {
+            String hash = request.queryParams("hash");
+            response.cookie("/callback/discord", "res", hash, 1000, true);
+            return hash;
         });
 
         get("/callback/discord", ((request, response) -> {
             String hash = request.cookie("res");
             String code = request.queryParams("code");
-
             if (!hashcodeService.isHashPresent(hash)) {
                 response.redirect("/error");
                 return "";
             }
             response.removeCookie("res");
-            ICloudUser cloudUser = repository.loadUserSync(hashcodeService.deleteHash(hash));
-            TokensResponse tokensResponse = discordOAuth.getTokens(code);
-            DiscordAPI discordAPI = new DiscordAPI(tokensResponse.getAccessToken());
-            User user = discordAPI.fetchUser();
-            cloudUser.setTwitchId(user.getId());
-            cloudUser.save();
-            verifyService.notifyPlayerIfOnline(cloudUser.getUuid(), user);
-            response.redirect("/?ref=success&name=" + user.getFullUsername());
+            try {
+                ICloudUser cloudUser = repository.loadUserSync(hashcodeService.deleteHash(hash));
+                TokensResponse tokensResponse = discordOAuth.getTokens(code);
+                DiscordAPI discordAPI = new DiscordAPI(tokensResponse.getAccessToken());
+                User user = discordAPI.fetchUser();
+                cloudUser.setDiscordId(user.getId());
+                cloudUser.save();
+                verifyService.notifyPlayerIfOnline(cloudUser.getUuid(), user);
+                response.redirect("/?ref=success&name=" + user.getFullUsername());
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.redirect("/error");
+            }
             return "";
         }));
     }

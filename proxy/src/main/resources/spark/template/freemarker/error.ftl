@@ -4,7 +4,7 @@
 
 <div class="message">
     <p class="top">Fehler</p>
-    <p class="bottom">Dein Account wurde nicht verbunden! <br> Du kannst dieses Fenster jetzt schließen.</p>
+    <p class="bottom">Dein Account wurde nicht verbunden! <br>Die Anfrage war ungültig.<br> Du kannst dieses Fenster jetzt schließen.</p>
 </div>
 
 <style>

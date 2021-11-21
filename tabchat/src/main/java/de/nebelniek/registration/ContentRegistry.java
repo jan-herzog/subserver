@@ -26,6 +26,7 @@ public class ContentRegistry {
         Bukkit.getPluginManager().registerEvents((Listener) tablistService, event.getPlugin());
         tablistService.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         tablistService.createTeams();
+        tablistService.startRunner(event.getPlugin());
         LOGGER.info("TablistService of bean " + tablistService.getClass().getName() + " has been enabled!");
     }
 

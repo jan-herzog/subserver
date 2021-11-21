@@ -23,8 +23,8 @@ public class TabChatConfiguration {
     private JavaPlugin plugin;
 
     public void startBukkitPlugin(ApplicationContext context, JavaPlugin plugin) {
-        this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
         this.plugin = plugin;
+        this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
     }
 
     @Bean

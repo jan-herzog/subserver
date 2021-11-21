@@ -16,6 +16,7 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.requests.restaction.GuildAction;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -36,8 +37,12 @@ public class BukkitConfiguration {
     @Getter
     private JavaPlugin plugin;
 
+    @Getter
+    private static Guild mainGuild;
+
     public void startBukkitPlugin(ApplicationContext context, JavaPlugin plugin) {
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
+        mainGuild = context.getBean(JDA.class).getGuildById("911963860242673734");
         this.plugin = plugin;
     }
 
@@ -53,13 +58,6 @@ public class BukkitConfiguration {
         return JDABuilder.createDefault("OTA3Mzk4MjUxNzE0NjA1MDU3.YYmmeQ.Wfy_wZgPorvT-KkqsZQmO5GUMPA")
                 .build();
     }
-
-    @Bean
-    @DependsOn("buildJDA")
-    public Guild retrieveMainGuild(JDA jda) {
-        return jda.getGuildById("782571463370080266");
-    }
-
 
     @Bean
     @DependsOn("buildOAuth2IdentityProvider")

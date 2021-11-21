@@ -1,5 +1,6 @@
 package de.nebelniek.content.tablist;
 
+import de.nebelniek.configuration.TabChatConfiguration;
 import de.nebelniek.utils.NameUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -8,13 +9,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TablistServiceDefault implements Listener {
 
     private Scoreboard scoreboard;
@@ -43,6 +44,10 @@ public class TablistServiceDefault implements Listener {
                 team.addPlayer(onlinePlayer);
             }
         }
+    }
+
+    public void startRunner(JavaPlugin plugin) {
+        Bukkit.getScheduler().runTaskTimer(plugin, this::update, 20, 20);
     }
 
     public void setScoreboard(Object scoreboard) {

@@ -76,12 +76,12 @@ public class TablistServiceSubserver implements Listener {
 
     public void newGuild(IGuild guild) {
         if (scoreboard.getTeams().stream().anyMatch(team1 -> team1.getName().equalsIgnoreCase(guild.getName()))) {
-            scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(guild.getName())).findAny().get().setPrefix(guild.getPrefix() + " ");
+            scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(guild.getName())).findAny().get().setPrefix(guild.getPrefix() + " §7");
             return;
         }
         Team team = scoreboard.registerNewTeam(i + guild.getName());
         if (guild.getPrefix() != null)
-            team.setPrefix(guild.getPrefix() + " ");
+            team.setPrefix(guild.getPrefix() + " §7");
         update();
         i++;
     }

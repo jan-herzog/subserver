@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -46,16 +48,20 @@ public class ProxyConfiguration {
         context.getBean(DiscordVerifyController.class).setupRoutes();
         context.getBean(HomeController.class).setupRoutes();
         this.adventure = BungeeAudiences.create(plugin);
+        this.luckPerms = getLuckPerms();
     }
 
     @Setter
     private BungeeCommandManager commandManager;
 
+    @Getter
+    private static LuckPerms luckPerms;
+
 
     @SneakyThrows
     @Bean
     public DiscordOAuth buildDiscordOAuth() {
-        return new DiscordOAuth("", "", "", new String[]{"identify", "guilds.join"});
+        return new DiscordOAuth("907398251714605057", "oTp8tqOmmkjWevmczVmWFgfJP5MzjcPz", "https://verify.nebelniek.de/callback/discord", new String[]{"identify", "guilds.join"});
     }
 
     @Bean
@@ -65,6 +71,10 @@ public class ProxyConfiguration {
                 .withEnableHelix(true)
                 .withCredentialManager(credentialManager)
                 .build();
+    }
+
+    public LuckPerms createLuckPerms() {
+        return LuckPermsProvider.get();
     }
 
     @Bean

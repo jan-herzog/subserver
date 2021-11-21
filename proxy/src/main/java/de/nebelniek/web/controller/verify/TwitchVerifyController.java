@@ -36,7 +36,7 @@ public class TwitchVerifyController extends VerifyController {
                 response.redirect("/error");
                 return "";
             }
-            response.cookie("res", hash, 1000);
+            response.cookie("/callback/twitch","res", hash, 1000, true);
             response.redirect("https://id.twitch.tv/oauth2/authorize?client_id=7suv1m3ae2vbiqjpbn5n2ovlnta440&redirect_uri=https://verify.nebelniek.de/callback/twitch&response_type=code&scope=user:read:email");
             return "";
         });
