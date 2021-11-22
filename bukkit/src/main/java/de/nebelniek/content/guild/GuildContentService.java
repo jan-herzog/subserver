@@ -286,7 +286,7 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageRegionRole()))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
-        if (guild.getBalance() < Prices.GUILD_EXPAND_REGION.getPrice())
+        if (guild.getBalance() < (long) Prices.GUILD_EXPAND_REGION_BLOCK.getPrice() * direction.getBlocks(guild.getRegion(), 10))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
         if (guild.getRegion() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat noch keine Region beansprucht!");
@@ -296,9 +296,22 @@ public class GuildContentService {
             if (iGuild.getRegion().doesCollide(clone))
                 return new GuildContentResponse(GuildResponseState.ERROR, "In diese Richtung ist kein Platz für deine Gilde!");
         guild.getRegion().expand(10, direction);
-        guild.setBalance(guild.getBalance() - Prices.GUILD_EXPAND_REGION.getPrice());
+        guild.setBalance(guild.getBalance() - (long) Prices.GUILD_EXPAND_REGION_BLOCK.getPrice() * direction.getBlocks(guild.getRegion(), 10));
         guild.saveAsync();
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich  ausgezahlt§7!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast §aerfolgreich §7die Region deiner Gilde nach §e" + direction + " §aerweitert§7!");
+    }
+
+    public GuildContentResponse disposeRegion(ICloudUser cloudUser) {
+        IGuild guild = cloudUser.getGuild();
+        if (cloudUser.getGuild() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageRegionRole()))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
+        if (guild.getRegion() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat noch keine Region beansprucht!");
+        guild.setRegion(null);
+        guild.saveAsync();
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast §aerfolgreich §7die Region deiner Gilde §cgelöscht§7!");
     }
 
     public GuildContentResponse claimRegion(ICloudUser cloudUser, Location location) {

@@ -49,6 +49,10 @@ public class GuildManagingService {
         return CompletableFuture.runAsync(() -> {
             try {
                 for (GuildModel model : databaseProvider.getGuildDao().queryForAll()) {
+                    if (guilds.stream().anyMatch(g -> g.getModel().getId() == model.getId())) {
+                        guilds.stream().filter(g -> g.getModel().getId() == model.getId()).findAny().get().load();
+                        continue;
+                    }
                     Guild guild = new Guild(this, model.getId());
                     guild.load();
                     guilds.add(guild);

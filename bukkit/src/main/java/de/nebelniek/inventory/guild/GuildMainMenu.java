@@ -42,7 +42,8 @@ public class GuildMainMenu extends GuildInventory {
                 .setDisplayName("§8» " + ItemColors.REGION.getPrimary() + "§lRegion §r§8«")
                 .setLore(
                         "§7Beanspruche eine " + ItemColors.REGION.getAccent() + "Region §7und nur " + ItemColors.REGION.getAccent() + "du und deine Gilde §7können darauf bauen!",
-                        (guild.getRegion() != null ? " §7➥ §aLinksklick§7 ➞ Region §aerweitern" : " §7➥ §aLinksklick§7 ➞ Region §aclaimen")
+                        (guild.getRegion() != null ? " §7➥ §aLinksklick§7 ➞ Region §aerweitern" : " §7➥ §aLinksklick§7 ➞ Region §aclaimen"),
+                        (guild.getRegion() != null ? " §7➥ §aRechtsklick§7 ➞ Region §clöschen" : "")
                 )
                 .build()));
         addClickOption(new ClickOption(40, ItemBuilder.item(Material.PLAYER_HEAD)
@@ -77,7 +78,13 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(19)
     public void onRegion(OptionClickEvent event) {
-        new RegionExpandMenu(guild, opener).open(event.getPlayer());
+        if(guild.getRegion() == null) {
+            sendResponse(event.getPlayer(), guildContentService.claimRegion(opener, event.getPlayer().getLocation()));
+            return;
+        }
+        if (event.getInventoryClickEvent().isLeftClick())
+            new RegionExpandMenu(guild, opener).open(event.getPlayer());
+        else sendResponse(event.getPlayer(), guildContentService.disposeRegion(opener));
     }
 
     @OptionHandler(40)

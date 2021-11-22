@@ -60,13 +60,19 @@ public class DiscordGuildChannelService {
         Role role = subserverGuild.getRoleById(guild.getDiscordRole());
         if (role == null)
             return;
-        if(!role.getName().equals(guild.getName())) {
+        if (!role.getName().equals(guild.getName())) {
             role.getManager().setName(guild.getName()).queue();
             String categoryName = "- " + guild.getName() + " -";
             List<Category> categoryList = subserverGuild.getCategoriesByName(categoryName, true);
             if (categoryList.size() == 0)
                 return;
             categoryList.get(0).getManager().setName(guild.getName()).queue();
+        }
+        for (Member member : subserverGuild.getMembersWithRoles(role)) {
+            cloudUserManagingService.loadUserByDiscordId(member.getId()).thenAccept(cloudUser -> {
+                if (cloudUser == null || cloudUser.getGuild() != guild)
+                    subserverGuild.removeRoleFromMember(member, role).queue();
+            });
         }
         for (ICloudUser cloudUser : guild.getMember()) {
             if (cloudUser.getDiscordId() == null)
@@ -93,7 +99,7 @@ public class DiscordGuildChannelService {
             channel.delete().queue();
         category.delete().queue();
         Role role = subserverGuild.getRoleById(guild.getDiscordRole());
-        if(role == null)
+        if (role == null)
             return;
         role.delete().queue();
     }

@@ -56,7 +56,9 @@ public class UnlinkCommand extends BaseCommand {
             }
             cloudUser.setDiscordId(null);
             cloudUser.saveAsync();
+
             //TODO: SEND PLUGIN MESSAGE TO BUKKIT -> DISCORD REMOVE ROLE
+
             sender.sendMessage(Prefix.LINK + "Dein §9Discord§7-Account wurde von deinem Minecraft Account §cgetrennt§7!");
         });
     }

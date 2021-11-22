@@ -123,6 +123,31 @@ public class CloudUserManagingService {
         });
     }
 
+    public CompletableFuture<? extends ICloudUser> loadUserByDiscordId(String discordId) {
+        return CompletableFuture.supplyAsync(new Supplier<ICloudUser>() {
+            @SneakyThrows
+            @Override
+            public ICloudUser get() {
+                if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getDiscordId().equals(discordId))) {
+                    ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId().equals(discordId)).findAny().get().getValue();
+                    cloudUser.load();
+                    if (cloudUser.getDiscordId().equals(discordId))
+                        return cloudUser;
+                }
+                CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("discordId", discordId).queryForFirst();
+                if (model == null)
+                    return null;
+                CloudUser cloudUser = new CloudUser(CloudUserManagingService.this, model.getId());
+                cloudUser.load();
+                cloudUsers.put(cloudUser.getUuid(), cloudUser);
+                return cloudUser;
+            }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
     public CompletableFuture<? extends ICloudUser> loadUserByName(String name) {
         return CompletableFuture.supplyAsync(new Supplier<ICloudUser>() {
             @SneakyThrows

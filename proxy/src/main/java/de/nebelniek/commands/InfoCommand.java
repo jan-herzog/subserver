@@ -49,6 +49,7 @@ public class InfoCommand extends BaseCommand {
             sender.sendMessage(Prefix.PROXY + "§7Gilde §8» §a" + (cloudUser.getGuild() == null ? "§cnull" : cloudUser.getGuild().getName() + "§7 (§4" + cloudUser.getGuild().getOwner().getLastUserName() + "§7)"));
             sender.sendMessage(Prefix.PROXY + "§7Coins §8» §a" + cloudUser.getCoins());
             sender.sendMessage(Prefix.PROXY + "§7Twitch Verbunden §8» §a" + (cloudUser.getTwitchId() != null ? "§aVerbunden" : "§cNicht Verbunden") + "§7(" + cloudUser.getTwitchId() + "§7)!");
+            sender.sendMessage(Prefix.PROXY + "§7Discord Verbunden §8» §a" + (cloudUser.getDiscordId() != null ? "§aVerbunden" : "§cNicht Verbunden") + "§7(" + cloudUser.getDiscordId() + "§7)!");
             sender.sendMessage(Prefix.PROXY + "§7Twitch-Subscriber §8» " + (cloudUser.isSubbed() ? "§atrue" : "§cfalse"));
         });
     }

@@ -1,6 +1,5 @@
 package de.nebelniek.listener;
 
-import de.nebelniek.database.guild.Region;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.service.CloudUserManagingService;
@@ -33,6 +32,10 @@ public class RegionEnterListener implements Listener {
         if (lastRegions.entrySet().stream().anyMatch(entry -> entry.getKey().getUuid().equals(player.getUniqueId()))) {
             ICloudUser cloudUser = lastRegions.entrySet().stream().filter(entry -> entry.getKey().getUuid().equals(player.getUniqueId())).findAny().get().getKey();
             IGuild guild = guildManagingService.getGuild(player.getLocation().getX(), player.getLocation().getZ());
+            if (guild == null) {
+                lastRegions.replace(cloudUser, null);
+                return;
+            }
             if (!lastRegions.get(cloudUser).equals(guild.getRegion())) {
                 lastRegions.replace(cloudUser, guild.getRegion());
                 displayTitle(guild, player);
@@ -41,6 +44,10 @@ public class RegionEnterListener implements Listener {
         }
         cloudUserManagingService.loadUser(player.getUniqueId()).thenAccept(cloudUser -> {
             IGuild guild = guildManagingService.getGuild(player.getLocation().getX(), player.getLocation().getZ());
+            if (guild == null) {
+                lastRegions.put(cloudUser, null);
+                return;
+            }
             lastRegions.put(cloudUser, guild.getRegion());
             displayTitle(guild, player);
         });

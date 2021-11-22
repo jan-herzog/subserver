@@ -48,6 +48,10 @@ public class VerifyCommand extends BaseCommand {
 
     @Subcommand("discord")
     public void onDiscord(ProxiedPlayer sender) {
+        if(sender.getServer().getInfo().getName().contains("Subserver")) {
+            sender.sendMessage(Prefix.DISCORD + "Um dich mit §9Discord§7 zu verbinden, gehe bitte auf die Lobby. (§e/l§7)");
+            return;
+        }
         cloudUserRepository.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
             if(cloudUser.getDiscordId() == null)
                 discordVerifyService.showVerify(sender);

@@ -22,6 +22,7 @@ import net.md_5.bungee.event.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,6 +40,8 @@ public class PlayerJoinListener implements Listener {
         LuckPerms luckPerms = ProxyConfiguration.getLuckPerms();
         ProxiedPlayer player = event.getPlayer();
         cloudUserRepository.createUserIfNotExists(player.getUniqueId(), player.getName()).thenAccept(cloudUser -> {
+            cloudUser.setLastLogin(new Date());
+            cloudUser.saveAsync();
             twitchSubscriptionService.isSubbed(cloudUser);
             if (cloudUser.getTwitchId() == null)
                 verifyService.showVerifySuggestion(player);
