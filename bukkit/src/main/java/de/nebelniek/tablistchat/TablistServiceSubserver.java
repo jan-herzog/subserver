@@ -53,7 +53,7 @@ public class TablistServiceSubserver implements Listener {
                 team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(cloudUser.getGuild().getName())).findAny().orElse(null);
                 if (team == null)
                     team = scoreboard.registerNewTeam(cloudUser.getGuild().getName());
-                team.setPrefix(cloudUser.getGuild().getPrefix() + " ");
+                team.setPrefix(cloudUser.getGuild().getPrefix() + " §7");
             }
             if (!team.getPlayers().contains(onlinePlayer)) {
                 if (scoreboard.getPlayerTeam(onlinePlayer) != null)

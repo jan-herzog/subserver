@@ -6,6 +6,7 @@ import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,31 +26,24 @@ public class RegionProtectionListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (isForbidden(event.getPlayer()))
-            event.setCancelled(true);
+        if (event.getClickedBlock() != null && !event.getClickedBlock().getType().equals(Material.AIR))
+            if (isForbidden(event.getPlayer()))
+                event.setCancelled(true);
     }
-
-    @EventHandler
-    public void onBuild(BlockPlaceEvent event) {
-        if (isForbidden(event.getPlayer()))
-            event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onInteract(BlockBreakEvent event) {
-        if (isForbidden(event.getPlayer()))
-            event.setCancelled(true);
-    }
-
 
     private boolean isForbidden(Player player) {
-        IGuild guild = guildManagingService.getGuild(player.getLocation().getX(), player.getLocation().getZ());
+        IGuild guild = guildManagingService.getGuildAt(player.getLocation().getX(), player.getLocation().getZ());
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
         if (guild != null)
-            if (cloudUser.getGuild() != guild && (cloudUser.getGuild() != null && !cloudUser.getGuild().getAllies().contains(guild))) {
-                player.sendMessage(Prefix.GUILD + "§cDies ist das Gebiet von " + guild.getColor() + guild.getName() + "§c, du darfst hier nicht interagieren!");
-                return true;
-            }
+            if (cloudUser.getGuild() != guild)
+                if (cloudUser.getGuild() == null || (cloudUser.getGuild() != null && !cloudUser.getGuild().getAllies().contains(guild))) {
+                    if (player.hasPermission("subserver.bypass")) {
+                        player.sendMessage(Prefix.GUILD + "§cGebiet von " + guild.getColor() + guild.getName() + "§c!");
+                        return false;
+                    }
+                    player.sendMessage(Prefix.GUILD + "§cDies ist das Gebiet von " + guild.getColor() + guild.getName() + "§c, du darfst hier nicht interagieren!");
+                    return true;
+                }
         return false;
     }
 

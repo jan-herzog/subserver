@@ -30,6 +30,7 @@ public class CoinsCommand extends BaseCommand {
     @Subcommand("set")
     @CommandPermission("coins.set")
     @CommandCompletion("@players @nothing")
+    @Syntax("§7[§ename§7] [§eamount§7]")
     public void set(Player sender, @Single String playerName, long value) {
         cloudUserManagingService.loadUserByName(playerName).thenAccept(cloudUser -> {
             if (cloudUser == null) {

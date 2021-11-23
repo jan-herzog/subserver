@@ -47,6 +47,7 @@ public class DiscordGuildChannelService {
             }
             subserverGuild.createCategory(categoryName).queue(category -> {
                 category.createPermissionOverride(role).setAllow(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+                category.createPermissionOverride(subserverGuild.getPublicRole()).setDeny(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
                 category.createTextChannel("chat").syncPermissionOverrides().queue();
                 category.createVoiceChannel("Voice 1").syncPermissionOverrides().queue();
                 category.createVoiceChannel("Voice 2").syncPermissionOverrides().queue();
@@ -78,13 +79,11 @@ public class DiscordGuildChannelService {
             if (cloudUser.getDiscordId() == null)
                 continue;
             Member member = subserverGuild.getMemberById(cloudUser.getDiscordId());
-            if (member == null) {
-                cloudUser.setDiscordId(null);
-                cloudUser.saveAsync();
+            if (member != null) {
+                addRole(cloudUser, member, role, subserverGuild);
                 continue;
             }
-            if (!member.getRoles().contains(role))
-                subserverGuild.addRoleToMember(cloudUser.getDiscordId(), role).queue();
+            subserverGuild.retrieveMemberById(cloudUser.getDiscordId()).queue(member1 -> addRole(cloudUser, member1, role, subserverGuild));
         }
     }
 
@@ -103,5 +102,16 @@ public class DiscordGuildChannelService {
             return;
         role.delete().queue();
     }
+
+    private void addRole(ICloudUser cloudUser, Member member, Role role, Guild subserverGuild) {
+        if (member == null) {
+            cloudUser.setDiscordId(null);
+            cloudUser.saveAsync();
+            return;
+        }
+        if (!member.getRoles().contains(role))
+            subserverGuild.addRoleToMember(cloudUser.getDiscordId(), role).queue();
+    }
+
 
 }

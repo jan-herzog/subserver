@@ -23,14 +23,23 @@ public class PayCommand extends BaseCommand {
     @Default
     @CatchUnknown
     public void onHelp(Player sender) {
-        sender.sendMessage(Prefix.COINS + "Hilfe für §e/pay§7:");
+        sender.sendMessage(Prefix.COINS + "§l§6Hilfe§7 für §e/pay§7:");
         sender.sendMessage(Prefix.COINS + "/pay §e[Spieler] [Wert]");
         sender.sendMessage(Prefix.COINS + "Sende jemandem Geld");
     }
 
     @Default
     @CommandCompletion("@players @nothing")
+    @Syntax("§7[§ename§7] [§eamount§7]")
     public void onDefault(Player sender, @Single String target, long amount) {
+        if (target.equalsIgnoreCase(sender.getDisplayName())) {
+            sender.sendMessage(Prefix.COINS + "§cDu kannst dir selber keine Coins senden!");
+            return;
+        }
+        if (amount <= 0) {
+            sender.sendMessage(Prefix.COINS + "§cDer Mindestbetrag liegt bei §e1§7$§c!");
+            return;
+        }
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
             cloudUserManagingService.loadUserByName(target).thenAccept(targetUser -> {
                 if (targetUser == null) {

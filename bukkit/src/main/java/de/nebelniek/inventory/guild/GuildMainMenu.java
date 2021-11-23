@@ -65,7 +65,7 @@ public class GuildMainMenu extends GuildInventory {
                 .setDisplayName("§8» " + ItemColors.HOME.getPrimary() + "§lHome §r§8«")
                 .setLore(
                         ItemColors.HOME.getAccent() + "Teleportiere§7 dich " + ItemColors.HOME.getAccent() + "nach Hause§7.",
-                        " §7➥ " + ItemColors.HOME.getAccent() + "Dein Home§7 ➞ " + (guild.getHome() == null ? "§7Nicht gesetzt!" : guild.getHome().string()),
+                        " §7➥ " + ItemColors.HOME.getAccent() + "Dein Home§7 ➞ " + (guild.getHome() == null ? "§cNicht gesetzt!" : guild.getHome().string()),
                         " §7➥ §aLinksklick§7 ➞ Teleportieren"
                 )
                 .build()));
@@ -78,13 +78,17 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(19)
     public void onRegion(OptionClickEvent event) {
-        if(guild.getRegion() == null) {
+        if (guild.getRegion() == null) {
             sendResponse(event.getPlayer(), guildContentService.claimRegion(opener, event.getPlayer().getLocation()));
+            event.getPlayer().closeInventory();
             return;
         }
         if (event.getInventoryClickEvent().isLeftClick())
             new RegionExpandMenu(guild, opener).open(event.getPlayer());
-        else sendResponse(event.getPlayer(), guildContentService.disposeRegion(opener));
+        else {
+            sendResponse(event.getPlayer(), guildContentService.disposeRegion(opener));
+            event.getPlayer().closeInventory();
+        }
     }
 
     @OptionHandler(40)
@@ -94,20 +98,13 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(25)
     public void onLeave(OptionClickEvent event) {
-        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(guildContentService::leaveGuild).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
+        sendResponse(event.getPlayer(), guildContentService.leaveGuild(opener));
         event.getPlayer().closeInventory();
     }
 
     @OptionHandler(22)
     public void onHome(OptionClickEvent event) {
-        HomePoint home = guild.getHome();
-        if (home == null)
-            return;
-        Location location = new Location(Bukkit.getWorld(home.world()), home.x(), home.y(), home.z());
-        Bukkit.getScheduler().runTask(getRegisteredPlugin(), () -> event.getPlayer().teleport(location));
+        sendResponse(event.getPlayer(), guildContentService.tpHome(opener, event.getPlayer()));
     }
 
 

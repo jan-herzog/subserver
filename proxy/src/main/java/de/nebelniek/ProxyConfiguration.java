@@ -48,12 +48,12 @@ public class ProxyConfiguration {
         context.getBean(DiscordVerifyController.class).setupRoutes();
         context.getBean(HomeController.class).setupRoutes();
         this.adventure = BungeeAudiences.create(plugin);
-        this.luckPerms = getLuckPerms();
     }
 
     @Setter
     private BungeeCommandManager commandManager;
 
+    @Setter
     @Getter
     private static LuckPerms luckPerms;
 
@@ -73,9 +73,7 @@ public class ProxyConfiguration {
                 .build();
     }
 
-    public LuckPerms createLuckPerms() {
-        return LuckPermsProvider.get();
-    }
+
 
     @Bean
     public OAuth2IdentityProvider buildOAuth2IdentityProvider() {

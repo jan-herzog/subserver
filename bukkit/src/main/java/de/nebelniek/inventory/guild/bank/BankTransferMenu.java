@@ -68,31 +68,19 @@ public class BankTransferMenu extends GuildInventory {
 
     @OptionHandler(11)
     public void on100(OptionClickEvent event) {
-        switch (balanceAction) {
-            case DEPOSIT -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "100§7$ an deine" + ItemColors.BANK.getAccent() + " Gilden-Bank §aeingezahlt§7.");
-            case WITHDRAW -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "100§7$ aus deiner" + ItemColors.BANK.getAccent() + " Gilden-Bank §causgezahlt§7.");
-        }
-        guildContentService.changeBalance(opener, 100, balanceAction);
+        sendResponse(event.getPlayer(), guildContentService.changeBalance(opener, 100, balanceAction));
         updateValue();
     }
 
     @OptionHandler(13)
     public void on1000(OptionClickEvent event) {
-        switch (balanceAction) {
-            case DEPOSIT -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "1000§7$ an deine" + ItemColors.BANK.getAccent() + " Gilden-Bank §aeingezahlt§7.");
-            case WITHDRAW -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "1000§7$ aus deiner" + ItemColors.BANK.getAccent() + " Gilden-Bank §causgezahlt§7.");
-        }
-        guildContentService.changeBalance(opener, 1000, balanceAction);
+        sendResponse(event.getPlayer(), guildContentService.changeBalance(opener, 1000, balanceAction));
         updateValue();
     }
 
     @OptionHandler(15)
     public void on10000(OptionClickEvent event) {
-        switch (balanceAction) {
-            case DEPOSIT -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "10000§7$ an deine" + ItemColors.BANK.getAccent() + " Gilden-Bank §aeingezahlt§7.");
-            case WITHDRAW -> event.getPlayer().sendMessage(Prefix.COINS + "Du hast " + ItemColors.BANK.getPrimary() + "10000§7$ aus deiner" + ItemColors.BANK.getAccent() + " Gilden-Bank §causgezahlt§7.");
-        }
-        guildContentService.changeBalance(opener, 10000, balanceAction);
+        sendResponse(event.getPlayer(), guildContentService.changeBalance(opener, 10000, balanceAction));
         updateValue();
     }
 

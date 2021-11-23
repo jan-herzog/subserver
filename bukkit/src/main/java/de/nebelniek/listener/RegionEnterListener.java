@@ -31,19 +31,20 @@ public class RegionEnterListener implements Listener {
         Player player = event.getPlayer();
         if (lastRegions.entrySet().stream().anyMatch(entry -> entry.getKey().getUuid().equals(player.getUniqueId()))) {
             ICloudUser cloudUser = lastRegions.entrySet().stream().filter(entry -> entry.getKey().getUuid().equals(player.getUniqueId())).findAny().get().getKey();
-            IGuild guild = guildManagingService.getGuild(player.getLocation().getX(), player.getLocation().getZ());
+            IGuild guild = guildManagingService.getGuildAt(player.getLocation().getX(), player.getLocation().getZ());
             if (guild == null) {
                 lastRegions.replace(cloudUser, null);
                 return;
             }
-            if (!lastRegions.get(cloudUser).equals(guild.getRegion())) {
+            if (lastRegions.get(cloudUser) == null || !lastRegions.get(cloudUser).equals(guild.getRegion())) {
                 lastRegions.replace(cloudUser, guild.getRegion());
                 displayTitle(guild, player);
                 return;
             }
+            return;
         }
         cloudUserManagingService.loadUser(player.getUniqueId()).thenAccept(cloudUser -> {
-            IGuild guild = guildManagingService.getGuild(player.getLocation().getX(), player.getLocation().getZ());
+            IGuild guild = guildManagingService.getGuildAt(player.getLocation().getX(), player.getLocation().getZ());
             if (guild == null) {
                 lastRegions.put(cloudUser, null);
                 return;

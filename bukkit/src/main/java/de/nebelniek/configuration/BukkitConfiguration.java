@@ -18,7 +18,9 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.GuildAction;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -59,6 +61,8 @@ public class BukkitConfiguration {
     public JDA buildJDA() {
         return JDABuilder.createDefault("OTA3Mzk4MjUxNzE0NjA1MDU3.YYmmeQ.Wfy_wZgPorvT-KkqsZQmO5GUMPA")
                 .setStatus(OnlineStatus.ONLINE)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setActivity(Activity.playing("nebelniek.de"))
                 .build();
     }
@@ -69,6 +73,7 @@ public class BukkitConfiguration {
         return TwitchClientBuilder.builder()
                 .withEnableHelix(true)
                 .withEnablePubSub(true)
+                .withEnableChat(true)
                 .withCredentialManager(credentialManager)
                 .build();
     }

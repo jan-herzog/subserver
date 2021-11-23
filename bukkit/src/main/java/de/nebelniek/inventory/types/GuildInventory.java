@@ -1,6 +1,7 @@
 package de.nebelniek.inventory.types;
 
 import de.nebelniek.Subserver;
+import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.content.guild.response.GuildContentResponse;
 import de.nebelniek.database.guild.interfaces.IGuild;

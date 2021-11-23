@@ -59,7 +59,7 @@ public class GuildCommand extends BaseCommand {
     @CatchUnknown
     public void help(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
-            sender.sendMessage(Prefix.GUILD + "Hilfe für §a/guild§7:");
+            sender.sendMessage(Prefix.GUILD + "§l§6Hilfe§7 für §a/guild§7:");
             sender.sendMessage(Prefix.GUILD + "/guild");
             sender.sendMessage(Prefix.GUILD + "Öffnet das Guild-Menu");
             sender.sendMessage(Prefix.GUILD + "/guild §acreate§2 [name]");
@@ -87,7 +87,7 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "/guild §asethome");
                 sender.sendMessage(Prefix.GUILD + "Setzte deiner Gilde einen Homepunkt | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §ahome");
-                sender.sendMessage(Prefix.GUILD + "Teleportiert dich nach Hause | Kosten: 500");
+                sender.sendMessage(Prefix.GUILD + "Teleportiert dich nach Hause | Kosten: §e500");
                 sender.sendMessage(Prefix.GUILD + "/guild §aclaim");
                 sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §akick§2 [Spieler]");

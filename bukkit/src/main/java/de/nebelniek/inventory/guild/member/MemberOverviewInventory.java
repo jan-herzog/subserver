@@ -1,6 +1,7 @@
 package de.nebelniek.inventory.guild.member;
 
 import de.nebelniek.Subserver;
+import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.guild.util.GuildRole;
@@ -30,6 +31,7 @@ public class MemberOverviewInventory extends SiteInventory {
 
     public MemberOverviewInventory(ICloudUser opener, IGuild guild) {
         super(TemplateInventoryBackgroundProvider.fivexnine("§8» " + ItemColors.MEMBER.getPrimary() + "§lMitlgieder §r§8«"));
+        Subserver.getContext().getBean(BukkitConfiguration.class).getInventoryManager().registerInventory(this);
         this.guildContentService = Subserver.getContext().getBean(GuildContentService.class);
         this.cloudUserManagingService = Subserver.getContext().getBean(CloudUserManagingService.class);
         this.guild = guild;

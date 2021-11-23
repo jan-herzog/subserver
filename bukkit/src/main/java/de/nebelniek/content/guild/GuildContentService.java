@@ -8,16 +8,19 @@ import de.nebelniek.content.guild.response.GuildContentResponse;
 import de.nebelniek.content.guild.response.GuildResponseState;
 import de.nebelniek.database.guild.Region;
 import de.nebelniek.database.guild.interfaces.IGuild;
+import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.guild.util.Direction;
 import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.discord.DiscordGuildChannelService;
+import de.nebelniek.inventory.util.ItemColors;
 import de.nebelniek.scoreboard.ScoreboardManagementService;
 import de.nebelniek.tablistchat.TablistServiceSubserver;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -43,6 +46,8 @@ public class GuildContentService {
 
     private final DiscordGuildChannelService discordGuildChannelService;
 
+    private final GuildPrefixNameFilter guildPrefixNameFilter;
+
     public GuildContentResponse createGuild(ICloudUser creator, String name) {
         if (creator.getGuild() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist bereits in einer Gilde!");
@@ -50,6 +55,8 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Der Name darf nicht länger als 14 Zeichen sein!");
         if (creator.getCoins() < Prices.GUILD_CREATE.getPrice())
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du zu wenig Geld!");
+        if (guildPrefixNameFilter.contains(name))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Name darf nicht gewählt werden.");
         if (guildManagingService.getGuilds().stream().anyMatch(iGuild -> iGuild.getName().equalsIgnoreCase(name)))
             return new GuildContentResponse(GuildResponseState.ERROR, "Es ist bereits eine Gilde mit diesem Namen vorhanden!");
         coinsContentService.removeCoins(creator, Prices.GUILD_CREATE.getPrice());
@@ -156,6 +163,8 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         if (guild.getBalance() < Prices.GUILD_RENAME.getPrice())
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
+        if (guildPrefixNameFilter.contains(name))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Name darf nicht gewählt werden.");
         if (guild.getName().equals(name))
             return new GuildContentResponse(GuildResponseState.ERROR, "Der alte und der neue Name sind identisch!");
         guild.setName(name);
@@ -198,6 +207,8 @@ public class GuildContentService {
                 return new GuildContentResponse(GuildResponseState.ERROR, "Der alte und der neue Prefix sind identisch!");
         if (prefix.length() > 16)
             return new GuildContentResponse(GuildResponseState.ERROR, "Der Prefix darf nicht länger als 16 Zeichen sein!");
+        if (guildPrefixNameFilter.contains(prefix))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Prefix darf nicht gewählt werden.");
         if (guildManagingService.getGuilds().stream().anyMatch(g -> g.getPrefix() != null && g.getPrefix().equalsIgnoreCase(prefix)))
             return new GuildContentResponse(GuildResponseState.ERROR, "Der Prefix ist bereits verwendet!");
         guild.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
@@ -231,6 +242,8 @@ public class GuildContentService {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (guild.getHome() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat keinen Home-Point!");
         if (cloudUser.getCoins() < 500)
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du leider zu wenig Geld!");
         coinsContentService.removeCoins(cloudUser, 500);
@@ -269,8 +282,8 @@ public class GuildContentService {
         }
         guild.saveAsync();
         if (action.equals(BalanceAction.DEPOSIT))
-            return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "$§a eingezahlt§7!");
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast erfolgreich §e" + value + "$§c ausgezahlt§7!");
+            return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + ItemColors.BANK.getPrimary() + value + "§7$ an deine" + ItemColors.BANK.getAccent() + " Gilden-Bank §aeingezahlt§7.");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + ItemColors.BANK.getPrimary() + value + "§7$ aus deiner" + ItemColors.BANK.getAccent() + " Gilden-Bank §causgezahlt§7.");
     }
 
     public GuildContentResponse showBalance(ICloudUser cloudUser) {
@@ -286,7 +299,7 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageRegionRole()))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
-        if (guild.getBalance() < (long) Prices.GUILD_EXPAND_REGION_BLOCK.getPrice() * direction.getBlocks(guild.getRegion(), 10))
+        if (guild.getBalance() < getPrice(guild.getRegion(), direction))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
         if (guild.getRegion() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat noch keine Region beansprucht!");
@@ -296,11 +309,12 @@ public class GuildContentService {
             if (iGuild.getRegion().doesCollide(clone))
                 return new GuildContentResponse(GuildResponseState.ERROR, "In diese Richtung ist kein Platz für deine Gilde!");
         guild.getRegion().expand(10, direction);
-        guild.setBalance(guild.getBalance() - (long) Prices.GUILD_EXPAND_REGION_BLOCK.getPrice() * direction.getBlocks(guild.getRegion(), 10));
+        guild.setBalance(guild.getBalance() - getPrice(guild.getRegion(), direction));
         guild.saveAsync();
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast §aerfolgreich §7die Region deiner Gilde nach §e" + direction + " §aerweitert§7!");
     }
 
+    @SneakyThrows
     public GuildContentResponse disposeRegion(ICloudUser cloudUser) {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
@@ -309,6 +323,7 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         if (guild.getRegion() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat noch keine Region beansprucht!");
+        guildManagingService.getDatabaseProvider().getRegionDao().delete(guild.getRegion().getModel());
         guild.setRegion(null);
         guild.saveAsync();
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast §aerfolgreich §7die Region deiner Gilde §cgelöscht§7!");
@@ -381,6 +396,10 @@ public class GuildContentService {
         scoreboardManagementService.updateProfile(cloudUser);
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + degrader.getGuildRole().getColor() + degrader.getLastUserName() + " §7zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
+    }
+
+    public long getPrice(IRegion region, Direction direction) {
+        return (long) Prices.GUILD_EXPAND_REGION_BLOCK.getPrice() * direction.getBlocks(region, 10);
     }
 
 

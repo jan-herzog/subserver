@@ -70,7 +70,7 @@ public class DiscordVerifyService extends VerifyService {
             return;
         }
         cloudUserManagingService.loadUser(uuid).thenAccept(cloudUser -> {
-            player.sendMessage(Prefix.DISCORD + "Du wurdest §aerfolgreich§7 mit deinem Discord-Account §9" + user.getFullUsername() + "§7 verbunden!");
+            player.sendMessage(Prefix.DISCORD + "Du wurdest §aerfolgreich§7 mit deinem Discord-Account §9" + user.getFullUsername() + "§7 verbunden! Um nun auf die Channel deiner §2Gilde §7zugreifen zu können, joine bitte einmal auf §eSubserver-1§7!");
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

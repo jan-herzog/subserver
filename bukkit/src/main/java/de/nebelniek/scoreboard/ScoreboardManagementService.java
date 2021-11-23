@@ -1,11 +1,14 @@
 package de.nebelniek.scoreboard;
 
+import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import fr.mrmicky.fastboard.FastBoard;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -20,16 +23,17 @@ import java.util.Map;
 public class ScoreboardManagementService implements Listener {
 
     private final CloudUserManagingService cloudUserManagingService;
+    private final BukkitConfiguration bukkitConfiguration;
 
     private final Map<ICloudUser, FastBoard> fastBoards = new HashMap<>();
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        cloudUserManagingService.loadUser(player.getUniqueId()).thenAccept(cloudUser -> fastBoards.put(cloudUser, createBoard(cloudUser, player))).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
+        Bukkit.getScheduler().runTaskLater(bukkitConfiguration.getPlugin(), () -> {
+            Player player = event.getPlayer();
+            ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
+            fastBoards.put(cloudUser, createBoard(cloudUser, player));
+        }, 20L);
     }
 
     @EventHandler
