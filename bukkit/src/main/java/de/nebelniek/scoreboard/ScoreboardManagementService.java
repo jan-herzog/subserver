@@ -1,6 +1,8 @@
 package de.nebelniek.scoreboard;
 
 import de.nebelniek.configuration.BukkitConfiguration;
+import de.nebelniek.database.guild.interfaces.IGuild;
+import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import fr.mrmicky.fastboard.FastBoard;
@@ -57,7 +59,10 @@ public class ScoreboardManagementService implements Listener {
                 " §7➥ " + cloudUser.getCoins() + "$",
                 "",
                 "§8● §dGilde",
-                " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde")
+                " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde"),
+                "",
+                "§8● §dGebiet",
+                " §7➥ Wird geladen..."
         );
         return board;
     }
@@ -70,6 +75,10 @@ public class ScoreboardManagementService implements Listener {
 
     public void updateProfile(ICloudUser cloudUser) {
         fastBoards.get(cloudUser).updateLine(2, " §7➥ " + (cloudUser.getGuildRole() != null ? cloudUser.getGuildRole().getColor() : "§7") + cloudUser.getLastUserName());
+    }
+
+    public void updateRegion(ICloudUser cloudUser, IGuild guild) {
+        fastBoards.get(cloudUser).updateLine(11, " §7➥ " + (guild == null ? "§2Wildnis" : guild.getColor() + guild.getName()));
     }
 
     public void updateGuild(ICloudUser cloudUser) {

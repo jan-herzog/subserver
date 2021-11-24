@@ -27,11 +27,11 @@ public class TwitchSubscriptionService {
     private final TwitchClient twitchClient;
     private final CloudUserManagingService cloudUserRepository;
 
-    public CompletableFuture<Boolean> isSubbed(UUID uuid) {
-        return this.isSubbed(cloudUserRepository.loadUserSync(uuid));
+    public CompletableFuture<Boolean> checkIfSubbed(UUID uuid) {
+        return this.checkIfSubbed(cloudUserRepository.loadUserSync(uuid));
     }
 
-    public CompletableFuture<Boolean> isSubbed(ICloudUser cloudUser) {
+    public CompletableFuture<Boolean> checkIfSubbed(ICloudUser cloudUser) {
         return CompletableFuture.supplyAsync(() -> {
             if (cloudUser.getTwitchId() == null) {
                 cloudUser.setSubbed(false);
@@ -60,7 +60,7 @@ public class TwitchSubscriptionService {
             LOGGER.debug("Notify cancelled because player was not online!");
             return;
         }
-        this.isSubbed(player.getUniqueId()).thenAccept(subbed -> {
+        this.checkIfSubbed(player.getUniqueId()).thenAccept(subbed -> {
             if (subbed)
                 player.sendMessage(Prefix.TWITCH + "Du bist §5Twitch-Abonnent§7 und kannst somit dem Server beitreten!");
             else

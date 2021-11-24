@@ -30,7 +30,7 @@ public class MemberOverviewInventory extends SiteInventory {
     private final ICloudUser opener;
 
     public MemberOverviewInventory(ICloudUser opener, IGuild guild) {
-        super(TemplateInventoryBackgroundProvider.fivexnine("§8» " + ItemColors.MEMBER.getPrimary() + "§lMitlgieder §r§8«"));
+        super(TemplateInventoryBackgroundProvider.fivexnine("§8» " + ItemColors.MEMBER.getPrimary() + "§lMitglieder §r§8«"));
         Subserver.getContext().getBean(BukkitConfiguration.class).getInventoryManager().registerInventory(this);
         this.guildContentService = Subserver.getContext().getBean(GuildContentService.class);
         this.cloudUserManagingService = Subserver.getContext().getBean(CloudUserManagingService.class);

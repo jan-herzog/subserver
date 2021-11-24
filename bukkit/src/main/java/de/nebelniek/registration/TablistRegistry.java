@@ -17,6 +17,7 @@ public class TablistRegistry {
 
     @EventListener
     public void loadOnEnable(GuildsLoadedEvent event) {
+        Bukkit.getPluginManager().registerEvents(tablistServiceSubserver, event.getPlugin());
         tablistServiceSubserver.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         tablistServiceSubserver.createTeams();
     }

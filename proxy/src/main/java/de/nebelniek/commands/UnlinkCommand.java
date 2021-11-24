@@ -37,11 +37,12 @@ public class UnlinkCommand extends BaseCommand {
             sender.sendMessage(Prefix.LINK + "Da du auf dem §2Subserver §7warst wurdest du nach §eLobby-1 §7verschoben!");
         }
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
-            if(cloudUser.getTwitchId() == null) {
+            if (cloudUser.getTwitchId() == null) {
                 sender.sendMessage(Prefix.LINK + "Du bist mit §ckeinem §5Twitch§7-Account verbunden§7!");
                 return;
             }
             cloudUser.setTwitchId(null);
+            cloudUser.setSubbed(false);
             cloudUser.saveAsync();
             sender.sendMessage(Prefix.LINK + "Dein §5Twitch§7-Account wurde von deinem Minecraft Account §cgetrennt§7!");
         });
@@ -50,7 +51,7 @@ public class UnlinkCommand extends BaseCommand {
     @Subcommand("discord")
     public void onDiscord(ProxiedPlayer sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> {
-            if(cloudUser.getDiscordId() == null) {
+            if (cloudUser.getDiscordId() == null) {
                 sender.sendMessage(Prefix.LINK + "Du bist mit §ckeinem §9Discord§7-Account verbunden§7!");
                 return;
             }

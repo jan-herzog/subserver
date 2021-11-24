@@ -55,7 +55,7 @@ public class GuildModel {
     public GuildModel(String name) {
         this.name = name;
         this.color = "§a";
-        this.prefix = "§a" + name;
+        this.prefix = "§e" + name;
         this.balance = 0L;
         this.regionModel = null;
         this.settingsModel = new GuildSettingsModel();

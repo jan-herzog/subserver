@@ -109,6 +109,7 @@ public class GuildContentService {
         }
         cloudUser.setGuildRole(null);
         cloudUser.getGuild().getMember().remove(cloudUser);
+        cloudUser.getGuild().saveAsync();
         cloudUser.setGuild(null);
         cloudUser.saveAsync();
         discordGuildChannelService.updateChannels(guild);
@@ -129,11 +130,13 @@ public class GuildContentService {
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + kicker.getGuildRole().getColor() + kicker.getLastUserName() + "§7 aus der Gilde §cgeworfen§7!");
         String guildName = cloudUser.getGuild().getColor() + cloudUser.getGuild().getName();
         cloudUser.getGuild().getMember().remove(cloudUser);
+        cloudUser.getGuild().saveAsync();
         discordGuildChannelService.updateChannels(cloudUser.getGuild());
         cloudUser.setGuild(null);
         cloudUser.setGuildRole(null);
         scoreboardManagementService.updateProfile(cloudUser);
         scoreboardManagementService.updateGuild(cloudUser);
+        tablistServiceSubserver.update();
         cloudUser.saveAsync();
         Player target = Bukkit.getPlayer(cloudUser.getUuid());
         if (target != null)
@@ -145,11 +148,13 @@ public class GuildContentService {
         if (cloudUser.getGuild() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist noch in einer Gilde!");
         guild.getMember().add(cloudUser);
+        guild.saveAsync();
         cloudUser.setGuild(guild);
         cloudUser.setGuildRole(GuildRole.DEFAULT);
         scoreboardManagementService.updateProfile(cloudUser);
         scoreboardManagementService.updateGuild(cloudUser);
         discordGuildChannelService.updateChannels(cloudUser.getGuild());
+        tablistServiceSubserver.update();
         cloudUser.saveAsync();
         chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat die Gilde §abetreten§7! (Eingeladen von " + inviter.getGuildRole().getColor() + inviter.getLastUserName() + "§7)");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guild.getColor() + guild.getName() + "§a betreten§7!");
@@ -362,15 +367,19 @@ public class GuildContentService {
         if (cloudUser.equals(promoter))
             return new GuildContentResponse(GuildResponseState.ERROR, "Du kannst dich nicht selber promoten!");
         if (cloudUser.getGuildRole().equals(GuildRole.ADMIN)) {
-            chatService.sendAnnouncement(cloudUser.getGuild(), promoter.getGuildRole().getColor() + promoter.getLastUserName() + "§7 hat seinen Posten als " + promoter.getGuildRole().getPrettyName() + " §cabgegeben und ist nun " + promoter.getGuildRole().oneDown().getPrettyName() + "§7!");
+            chatService.sendAnnouncement(cloudUser.getGuild(), promoter.getGuildRole().getColor() + promoter.getLastUserName() + "§7 hat seinen Posten als " + promoter.getGuildRole().getPrettyName() + " §cabgegeben§7 und ist nun " + promoter.getGuildRole().oneDown().getPrettyName() + "§7!");
             promoter.setGuildRole(promoter.getGuildRole().oneDown());
+            promoter.saveAsync();
             scoreboardManagementService.updateProfile(promoter);
         }
         cloudUser.setGuildRole(cloudUser.getGuildRole().oneUp());
         cloudUser.saveAsync();
         scoreboardManagementService.updateProfile(cloudUser);
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + promoter.getGuildRole().getColor() + promoter.getLastUserName() + "§7 zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
+        Player player = Bukkit.getPlayer(cloudUser.getUuid());
+        if (player != null)
+            player.sendMessage(Prefix.GUILD + "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
     }
 
     public GuildContentResponse degradeMember(ICloudUser cloudUser, ICloudUser degrader) {
@@ -395,7 +404,10 @@ public class GuildContentService {
         cloudUser.saveAsync();
         scoreboardManagementService.updateProfile(cloudUser);
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 wurde von " + degrader.getGuildRole().getColor() + degrader.getLastUserName() + " §7zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
+        Player player = Bukkit.getPlayer(cloudUser.getUuid());
+        if (player != null)
+            player.sendMessage(Prefix.GUILD + "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
     }
 
     public long getPrice(IRegion region, Direction direction) {

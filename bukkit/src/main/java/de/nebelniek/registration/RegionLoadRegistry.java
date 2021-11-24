@@ -1,7 +1,5 @@
 package de.nebelniek.registration;
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.PaperCommandManager;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.registration.event.BukkitPluginEnableEvent;
 import de.nebelniek.registration.event.GuildsLoadedEvent;
@@ -22,7 +20,7 @@ public class RegionLoadRegistry {
     @EventListener
     public void loadOnEnable(BukkitPluginEnableEvent event) {
         guildManagingService.loadGuilds().thenAccept(v -> {
-            eventPublisher.publishEvent(new GuildsLoadedEvent(event.getApplicationContext()));
+            eventPublisher.publishEvent(new GuildsLoadedEvent(event.getApplicationContext(), event.getPlugin()));
         });
     }
 

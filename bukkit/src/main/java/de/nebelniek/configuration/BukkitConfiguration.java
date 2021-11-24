@@ -3,6 +3,7 @@ package de.nebelniek.configuration;
 import co.aikar.commands.PaperCommandManager;
 import com.github.philippheuer.credentialmanager.CredentialManager;
 import com.github.philippheuer.credentialmanager.CredentialManagerBuilder;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
@@ -74,6 +75,7 @@ public class BukkitConfiguration {
                 .withEnableHelix(true)
                 .withEnablePubSub(true)
                 .withEnableChat(true)
+                .withChatAccount(new OAuth2Credential("twitch", "m7v9ucbza1gj3xta61c4qyq25m3gvj")) //refresh: pd93h721kq7od4ig4uyum20w6wxfxdzpsjp3crlvy6s7yk9quq
                 .withCredentialManager(credentialManager)
                 .build();
     }
@@ -81,7 +83,7 @@ public class BukkitConfiguration {
     @Bean
     public OAuth2IdentityProvider buildOAuth2IdentityProvider() {
         this.credentialManager = CredentialManagerBuilder.builder().build();
-        credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback"));
+        credentialManager.registerIdentityProvider(new TwitchIdentityProvider("7suv1m3ae2vbiqjpbn5n2ovlnta440", "6jna6vduaf03rmh1npzk7j4q7knsxy", "https://verify.nebelniek.de/callback/twitch"));
         return credentialManager.getOAuth2IdentityProviderByName("twitch").get();
     }
 

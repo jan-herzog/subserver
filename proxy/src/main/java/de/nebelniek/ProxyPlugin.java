@@ -3,8 +3,11 @@ package de.nebelniek;
 import lombok.SneakyThrows;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.util.concurrent.TimeUnit;
 
 public class ProxyPlugin extends Plugin {
 
@@ -22,16 +25,12 @@ public class ProxyPlugin extends Plugin {
         ProxyConfiguration proxyConfiguration = context.getBean(ProxyConfiguration.class);
         proxyConfiguration.startProxyPlugin(context, this);
         context.registerShutdownHook();
-        ProxyConfiguration.setLuckPerms(createLuckPerms());
+        ProxyServer.getInstance().getScheduler().schedule(this, () -> ProxyConfiguration.setLuckPerms(LuckPermsProvider.get()), 1, TimeUnit.SECONDS);
     }
 
     @Override
     public void onDisable() {
         context.close();
         context = null;
-    }
-
-    public LuckPerms createLuckPerms() {
-        return LuckPermsProvider.get();
     }
 }

@@ -37,7 +37,7 @@ public class TablistServiceSubserver implements Listener {
         for (IGuild guild : guildManagingService.getGuilds())
             newGuild(guild);
         if (scoreboard.getTeam(i + "Player") == null)
-            scoreboard.registerNewTeam(i + "Player").setPrefix(SubserverRank.DEFAULT.getPrefix() + " §7");
+            scoreboard.registerNewTeam(i + "Player").setPrefix(SubserverRank.DEFAULT.getPrefix() + " ");
         for (Team team : scoreboard.getTeams())
             team.setColor(ChatColor.GRAY);
         update();
@@ -53,7 +53,8 @@ public class TablistServiceSubserver implements Listener {
                 team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(cloudUser.getGuild().getName())).findAny().orElse(null);
                 if (team == null)
                     team = scoreboard.registerNewTeam(cloudUser.getGuild().getName());
-                team.setPrefix(cloudUser.getGuild().getPrefix() + " §7");
+                team.setPrefix(cloudUser.getGuild().getPrefix() + " ");
+                team.setColor(ChatColor.GRAY);
             }
             if (!team.getPlayers().contains(onlinePlayer)) {
                 if (scoreboard.getPlayerTeam(onlinePlayer) != null)
@@ -76,12 +77,13 @@ public class TablistServiceSubserver implements Listener {
 
     public void newGuild(IGuild guild) {
         if (scoreboard.getTeams().stream().anyMatch(team1 -> team1.getName().equalsIgnoreCase(guild.getName()))) {
-            scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(guild.getName())).findAny().get().setPrefix(guild.getPrefix() + " §7");
+            scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(guild.getName())).findAny().get().setPrefix(guild.getPrefix() + " ");
             return;
         }
         Team team = scoreboard.registerNewTeam(i + guild.getName());
         if (guild.getPrefix() != null)
-            team.setPrefix(guild.getPrefix() + " §7");
+            team.setPrefix(guild.getPrefix() + " ");
+        team.setColor(ChatColor.GRAY);
         update();
         i++;
     }

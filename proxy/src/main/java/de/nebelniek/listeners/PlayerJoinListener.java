@@ -6,7 +6,6 @@ import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.services.verify.TwitchVerifyService;
-import de.nebelniek.services.verify.VerifyService;
 import de.nebelniek.utils.TwitchTokens;
 import lombok.RequiredArgsConstructor;
 import net.luckperms.api.LuckPerms;
@@ -42,7 +41,7 @@ public class PlayerJoinListener implements Listener {
         cloudUserRepository.createUserIfNotExists(player.getUniqueId(), player.getName()).thenAccept(cloudUser -> {
             cloudUser.setLastLogin(new Date());
             cloudUser.saveAsync();
-            twitchSubscriptionService.isSubbed(cloudUser);
+            twitchSubscriptionService.checkIfSubbed(cloudUser);
             if (cloudUser.getTwitchId() == null)
                 verifyService.showVerifySuggestion(player);
             if (luckPerms.getUserManager().getUser(cloudUser.getUuid()).getPrimaryGroup().equalsIgnoreCase("administrator"))

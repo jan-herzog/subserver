@@ -40,7 +40,7 @@ public class OneMemberInventory extends GuildInventory {
                 .setDisplayName("§8» §aBefördern §r§8«")
                 .setLore(" §7➥ §aLinksklick§7 ➞ §aBefördere §7" + cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " §7zum " + cloudUser.getGuildRole().oneUp().getPrettyName())
                 .build()));
-        addClickOption(new ClickOption(13, ItemBuilder.item(Material.LIME_CONCRETE_POWDER)
+        addClickOption(new ClickOption(13, ItemBuilder.item(Material.BARRIER)
                 .setDisplayName("§8» §cKicken §r§8«")
                 .setLore(" §7➥ §aLinksklick§7 ➞ §cKicke §7" + cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " §7aus der Gilde")
                 .build()));
@@ -58,7 +58,7 @@ public class OneMemberInventory extends GuildInventory {
             event.getPlayer().closeInventory();
     }
 
-    @OptionHandler(13)
+    @OptionHandler(15)
     public void onPromote(OptionClickEvent event) {
         GuildContentResponse response = guildContentService.promoteMember(cloudUser, opener);
         sendResponse(event.getPlayer(), response);
@@ -66,7 +66,7 @@ public class OneMemberInventory extends GuildInventory {
             event.getPlayer().closeInventory();
     }
 
-    @OptionHandler(15)
+    @OptionHandler(13)
     public void onKick(OptionClickEvent event) {
         GuildContentResponse response = guildContentService.kickMember(cloudUser, opener);
         sendResponse(event.getPlayer(), response);

@@ -42,11 +42,6 @@ public class NoGuildMenu extends GuildInventory {
     @OptionHandler(13)
     public void onCreate(OptionClickEvent event) {
         new AnvilGUI.Builder()
-                .onClose(player -> {
-                    ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
-                    if (cloudUser.getGuild() == null)
-                        player.sendMessage(Prefix.GUILD + "§cDu hast die Gilden-Erstellung abgebrochen!");
-                })
                 .onComplete((player, text) -> {
                     if (text.contains(" "))
                         return AnvilGUI.Response.text("No spaces allowed!");

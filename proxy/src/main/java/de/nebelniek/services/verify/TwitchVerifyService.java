@@ -65,7 +65,7 @@ public class TwitchVerifyService extends VerifyService {
                         Component.text("Klicke hier")
                                 .color(NamedTextColor.YELLOW)
                                 .style(Style.style(TextDecoration.BOLD))
-                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
+                                .clickEvent(ClickEvent.openUrl("https://verify.nebelniek.de/twitch/auth?hash=" + hashcodeService.getHash(player.getUniqueId())))
                                 .hoverEvent(Component.text("§a§lKlick!").asHoverEvent())
                 )
                 .append(Component.text("§7 um deinen §5Twitch Account§7 zu verbinden, um zu §averifizieren§7, dass du §5Sub§7 bist."));

@@ -71,6 +71,8 @@ public class GuildInviteAllyService implements Listener {
         pendingInvites.remove(guild);
         guild.getAllies().add(other);
         other.getAllies().add(guild);
+        guild.saveAsync();
+        other.saveAsync();
         guildChatService.sendAnnouncement(guild, "Deine Gilde ist nun mit " + other.getColor() + other.getName() + " §averbündet§7!");
         guildChatService.sendAnnouncement(other, "Deine Gilde ist nun mit " + guild.getColor() + guild.getName() + " §averbündet§7!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den §2Verbündungsantrag§7 von " + guild.getColor() + guild.getName() + " §aangenommen§7!");
