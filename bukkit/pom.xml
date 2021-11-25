@@ -207,7 +207,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>fr.mrmicky.fastboard</pattern>
-                                    <shadedPattern>de.nebelniek.scoreboard.fastboard</shadedPattern>
+                                    <shadedPattern>de.nebelniek.components.scoreboard.fastboard</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>net.wesjd.anvilgui</pattern>

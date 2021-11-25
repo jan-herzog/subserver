@@ -1,4 +1,4 @@
-package de.nebelniek.twitch;
+package de.nebelniek.components.twitch;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;

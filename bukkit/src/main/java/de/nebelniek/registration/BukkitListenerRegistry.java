@@ -1,7 +1,7 @@
 package de.nebelniek.registration;
 
 import de.nebelniek.registration.event.BukkitPluginEnableEvent;
-import de.nebelniek.tablistchat.TablistServiceSubserver;
+import de.nebelniek.components.tablistchat.TablistServiceSubserver;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;

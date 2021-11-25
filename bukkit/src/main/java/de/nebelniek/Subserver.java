@@ -1,11 +1,10 @@
 package de.nebelniek;
 
 import de.nebelniek.configuration.BukkitConfiguration;
-import de.nebelniek.tablistchat.utils.NameUtils;
+import de.nebelniek.components.tablistchat.utils.NameUtils;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

@@ -1,4 +1,4 @@
-package de.nebelniek.tablistchat;
+package de.nebelniek.components.tablistchat;
 
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.utils.SubserverRank;

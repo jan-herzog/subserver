@@ -1,8 +1,7 @@
 package de.nebelniek.content.coins;
 
-import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
-import de.nebelniek.scoreboard.ScoreboardManagementService;
+import de.nebelniek.components.scoreboard.ScoreboardManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
-package de.nebelniek.tablistchat.rank;
+package de.nebelniek.components.tablistchat.rank;
 
-import de.nebelniek.tablistchat.utils.NameUtils;
+import de.nebelniek.components.tablistchat.utils.NameUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.entity.Player;

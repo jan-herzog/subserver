@@ -1,4 +1,4 @@
-package de.nebelniek.twitch;
+package de.nebelniek.components.twitch;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

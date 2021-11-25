@@ -1,9 +1,7 @@
-package de.nebelniek.tablistchat;
+package de.nebelniek.components.tablistchat;
 
 import de.nebelniek.database.service.CloudUserManagingService;
-import de.nebelniek.database.service.GuildManagingService;
-import de.nebelniek.tablistchat.rank.Rank;
-import de.nebelniek.tablistchat.utils.NameUtils;
+import de.nebelniek.components.tablistchat.rank.Rank;
 import de.nebelniek.utils.SubserverRank;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;

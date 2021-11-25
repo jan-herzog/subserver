@@ -1,8 +1,8 @@
 package de.nebelniek.listener;
 
 import de.nebelniek.database.service.CloudUserManagingService;
-import de.nebelniek.discord.DiscordGuildChannelService;
-import de.nebelniek.texturehash.TextureHashProviderService;
+import de.nebelniek.components.discord.DiscordGuildChannelService;
+import de.nebelniek.components.texturehash.TextureHashProviderService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

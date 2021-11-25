@@ -1,8 +1,7 @@
-package de.nebelniek.scoreboard;
+package de.nebelniek.components.scoreboard;
 
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.database.guild.interfaces.IGuild;
-import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import fr.mrmicky.fastboard.FastBoard;

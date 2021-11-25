@@ -1,4 +1,4 @@
-package de.nebelniek.tablistchat.utils;
+package de.nebelniek.components.tablistchat.utils;
 
 import lombok.Getter;
 import lombok.Setter;

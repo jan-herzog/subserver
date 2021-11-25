@@ -5,7 +5,7 @@ import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
-import de.nebelniek.scoreboard.ScoreboardManagementService;
+import de.nebelniek.components.scoreboard.ScoreboardManagementService;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

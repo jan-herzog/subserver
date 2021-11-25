@@ -1,4 +1,4 @@
-package de.nebelniek.discord;
+package de.nebelniek.components.discord;
 
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.database.guild.interfaces.IGuild;
@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import org.bukkit.Bukkit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
