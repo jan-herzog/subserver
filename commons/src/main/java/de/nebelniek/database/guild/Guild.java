@@ -84,6 +84,7 @@ public class Guild implements IGuild {
     @SneakyThrows
     @Override
     public void load() {
+        this.owner = this.member.stream().filter(cloudUser -> cloudUser.getGuildRole().equals(GuildRole.LEADER)).findFirst().orElse(null);
         this.service.getDatabaseProvider().getGuildDao().refresh(this.model);
         this.name = this.model.getName();
         if (this.model.getHome() != null)
@@ -116,7 +117,6 @@ public class Guild implements IGuild {
                     if (guild != null)
                         this.allies.add(guild);
                 }
-        this.owner = this.member.stream().filter(cloudUser -> cloudUser.getGuildRole().equals(GuildRole.LEADER)).findFirst().orElse(null);
     }
 
     public CompletableFuture<Void> saveAsync() {

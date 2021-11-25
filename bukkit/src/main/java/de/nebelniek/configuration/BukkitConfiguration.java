@@ -46,9 +46,9 @@ public class BukkitConfiguration {
     private static Guild mainGuild;
 
     public void startBukkitPlugin(ApplicationContext context, JavaPlugin plugin) {
-        this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
         mainGuild = context.getBean(JDA.class).getGuildById("911963860242673734");
         this.plugin = plugin;
+        this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
     }
 
     @Setter

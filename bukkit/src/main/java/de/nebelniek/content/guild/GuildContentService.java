@@ -379,7 +379,7 @@ public class GuildContentService {
         Player player = Bukkit.getPlayer(cloudUser.getUuid());
         if (player != null)
             player.sendMessage(Prefix.GUILD + "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 zum " + cloudUser.getGuildRole().getPrettyName() + " §abefördert§7!");
     }
 
     public GuildContentResponse degradeMember(ICloudUser cloudUser, ICloudUser degrader) {

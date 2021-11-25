@@ -6,7 +6,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>bukkit</artifactId>
+  <artifactId>lobby</artifactId>
   <build>
     <resources>
       <resource>
@@ -59,29 +59,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>dv8tion</id>
-      <name>m2-dv8tion</name>
-      <url>https://m2.dv8tion.net/releases</url>
-    </repository>
-    <repository>
-      <id>codemc-snapshots</id>
-      <url>https://repo.codemc.io/repository/maven-snapshots/</url>
-    </repository>
-    <repository>
-      <id>purpur</id>
-      <url>https://repo.pl3x.net/</url>
-    </repository>
-    <repository>
-      <id>notecho</id>
-      <url>https://nexus.notecho.de/repository/maven-public/</url>
-    </repository>
-    <repository>
-      <id>minecraft-repo</id>
-      <url>https://libraries.minecraft.net/</url>
-    </repository>
-  </repositories>
   <pluginRepositories>
     <pluginRepository>
       <id>maven-snapshots</id>
@@ -89,12 +66,6 @@
     </pluginRepository>
   </pluginRepositories>
   <dependencies>
-    <dependency>
-      <groupId>com.mojang</groupId>
-      <artifactId>authlib</artifactId>
-      <version>1.5.21</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
@@ -114,45 +85,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-      <version>20030211.134440</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>co.aikar</groupId>
-      <artifactId>acf-paper</artifactId>
-      <version>0.5.0-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>net.pl3x.purpur</groupId>
       <artifactId>purpur-api</artifactId>
       <version>1.17.1-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.twitch4j</groupId>
-      <artifactId>twitch4j</artifactId>
-      <version>1.5.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>de.nebelniek</groupId>
-      <artifactId>commons</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mariadb.jdbc</groupId>
-      <artifactId>mariadb-java-client</artifactId>
-      <version>2.7.3</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.j256.ormlite</groupId>
-      <artifactId>ormlite-jdbc</artifactId>
-      <version>5.6</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -168,39 +103,33 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>net.wesjd</groupId>
-      <artifactId>anvilgui</artifactId>
-      <version>1.5.3-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>net.luckperms</groupId>
       <artifactId>api</artifactId>
       <version>5.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>net.dv8tion</groupId>
-      <artifactId>JDA</artifactId>
-      <version>4.3.0_277</version>
+      <groupId>co.aikar</groupId>
+      <artifactId>acf-paper</artifactId>
+      <version>0.5.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.12.5</version>
+      <groupId>com.elmakers.mine.bukkit</groupId>
+      <artifactId>EffectLib</artifactId>
+      <version>9.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.12.5</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>31.0.1-jre</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>2.12.5</version>
+      <groupId>de.nebelniek</groupId>
+      <artifactId>commons</artifactId>
+      <version>1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -213,13 +142,7 @@
   </dependencies>
   <properties>
     <maven.compiler.target>16</maven.compiler.target>
-    <spark.version>2.9.3</spark.version>
     <maven.compiler.source>16</maven.compiler.source>
-    <dbcp.version>2.8.0</dbcp.version>
-    <freemarker.version>2.3.31</freemarker.version>
     <spring.version>5.3.12</spring.version>
-    <spark.freemarker.version>2.7.1</spark.freemarker.version>
-    <commons.beanutils.version>20030211.134440</commons.beanutils.version>
-    <jdk.version>16</jdk.version>
   </properties>
 </project>

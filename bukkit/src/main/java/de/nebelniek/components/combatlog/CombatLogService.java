@@ -5,12 +5,14 @@ import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.Prefix;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +22,19 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class CombatLogService implements Listener {
 
     private final HashMap<ICloudUser, Long> cache = new HashMap<>();
 
     private final CloudUserManagingService cloudUserManagingService;
 
-    @Autowired
-    public CombatLogService(BukkitConfiguration configuration, CloudUserManagingService cloudUserManagingService) {
-        this.cloudUserManagingService = cloudUserManagingService;
-        Bukkit.getScheduler().runTaskTimerAsynchronously(configuration.getPlugin(), () -> {
+    public boolean isInFight(ICloudUser cloudUser) {
+        return cache.containsKey(cloudUser);
+    }
+
+    public void start(JavaPlugin plugin) {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             List<ICloudUser> cloudUsers = new ArrayList<>();
             cache.forEach((cloudUser, aLong) -> cloudUsers.add(cloudUser));
             for (ICloudUser cloudUser : cloudUsers) {
@@ -44,10 +49,6 @@ public class CombatLogService implements Listener {
                     player.sendActionBar(Prefix.COMBAT + "§4Du bist im Kampf! §7Cooldown §8» §c" + TimeUnit.MILLISECONDS.toSeconds((cache.get(cloudUser) + TimeUnit.SECONDS.toMillis(60)) - System.currentTimeMillis()) + "§7s");
             }
         }, 20L, 20L);
-    }
-
-    public boolean isInFight(ICloudUser cloudUser) {
-        return cache.containsKey(cloudUser);
     }
 
     @EventHandler

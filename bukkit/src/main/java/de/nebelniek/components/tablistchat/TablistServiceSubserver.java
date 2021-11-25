@@ -34,10 +34,10 @@ public class TablistServiceSubserver implements Listener {
     private int i = 0;
 
     public void createTeams() {
-        for (IGuild guild : guildManagingService.getGuilds())
-            newGuild(guild);
         if (scoreboard.getTeam(i + "Player") == null)
             scoreboard.registerNewTeam(i + "Player").setPrefix(SubserverRank.DEFAULT.getPrefix() + " ");
+        for (IGuild guild : guildManagingService.getGuilds())
+            newGuild(guild);
         for (Team team : scoreboard.getTeams())
             team.setColor(ChatColor.GRAY);
         update();
@@ -52,7 +52,7 @@ public class TablistServiceSubserver implements Listener {
             else {
                 team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().equalsIgnoreCase(cloudUser.getGuild().getName())).findAny().orElse(null);
                 if (team == null)
-                    team = scoreboard.registerNewTeam(cloudUser.getGuild().getName());
+                    team = scoreboard.registerNewTeam(i + cloudUser.getGuild().getName());
                 team.setPrefix(cloudUser.getGuild().getPrefix() + " ");
                 team.setColor(ChatColor.GRAY);
             }
