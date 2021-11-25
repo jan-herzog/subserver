@@ -15,6 +15,8 @@ public enum Prefix {
     GUILDCHAT("§2Gilden-Chat §8» §7"),
     COINS("§6Coins §8» §7"),
     PROXY("§cProxy §8» §7"),
+    COMBAT("§bCombat §8» §7"),
+    SUBSERVER("§5Subserver §8» §7"),
     ;
 
     private String prefix;
