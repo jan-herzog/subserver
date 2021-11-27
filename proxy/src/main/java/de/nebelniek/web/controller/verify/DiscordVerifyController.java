@@ -12,6 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
+
 import static spark.Spark.get;
 
 @Controller
@@ -60,12 +65,25 @@ public class DiscordVerifyController extends VerifyController {
                 cloudUser.setDiscordId(user.getId());
                 cloudUser.save();
                 verifyService.notifyPlayerIfOnline(cloudUser.getUuid(), user);
-                response.redirect("/?ref=success&name=" + user.getFullUsername());
+                if (isUTF8(user.getFullUsername()))
+                    response.redirect("/?ref=success&name=" + user.getFullUsername());
+                else
+                    response.redirect("/?ref=success&name=non-UTF8-name");
             } catch (Exception e) {
                 e.printStackTrace();
                 response.redirect("/error");
             }
             return "";
         }));
+    }
+
+    private boolean isUTF8(String s) {
+        CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
+        try {
+            decoder.decode(ByteBuffer.wrap(s.getBytes()));
+        } catch (CharacterCodingException ex) {
+            return false;
+        }
+        return true;
     }
 }

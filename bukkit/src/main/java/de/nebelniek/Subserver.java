@@ -4,6 +4,7 @@ import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.components.tablistchat.utils.NameUtils;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;

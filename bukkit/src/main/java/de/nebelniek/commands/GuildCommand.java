@@ -66,6 +66,8 @@ public class GuildCommand extends BaseCommand {
             sender.sendMessage(Prefix.GUILD + "Erstellt eine Gilde | Kosten: §e10k");
             sender.sendMessage(Prefix.GUILD + "/guild §aleave§2 [name]");
             sender.sendMessage(Prefix.GUILD + "Verlasse deine Gilde");
+            sender.sendMessage(Prefix.GUILD + "/guild §adelete§2 [name]");
+            sender.sendMessage(Prefix.GUILD + "Lösche deine Gilde");
             sender.sendMessage(Prefix.GUILD + "/guild §ainvite§2 [Spieler]");
             sender.sendMessage(Prefix.GUILD + "Lade einen Spieler in deine Gilde ein");
             sender.sendMessage(Prefix.GUILD + "/guild §aaccept§2 [Gilde]");
@@ -160,6 +162,14 @@ public class GuildCommand extends BaseCommand {
     @Subcommand("leave")
     public void leave(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.leaveGuild(cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("delete")
+    public void delete(Player sender) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.deleteGuild(cloudUser))).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });
@@ -264,7 +274,7 @@ public class GuildCommand extends BaseCommand {
     @Syntax("§7[§eguild§7]")
     public void accept(Player sender, @Single String guildName) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
-        IGuild guild = guildManagingService.getGuildByName(guildName);
+        IGuild guild = guildManagingService.getGuildContainsName(guildName);
         if (guild == null) {
             sender.sendMessage(Prefix.GUILD + "§cEntweder hast du dich verschrieben oder diese Gilde existiert nicht/mehr.");
             return;
@@ -276,7 +286,7 @@ public class GuildCommand extends BaseCommand {
     @Syntax("§7[§eguild§7]")
     public void deny(Player sender, @Single String guildName) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
-        IGuild guild = guildManagingService.getGuildByName(guildName);
+        IGuild guild = guildManagingService.getGuildContainsName(guildName);
         if (guild == null) {
             sender.sendMessage(Prefix.GUILD + "§cEntweder hast du dich verschrieben oder diese Gilde existiert nicht/mehr.");
             return;

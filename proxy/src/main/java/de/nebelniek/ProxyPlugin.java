@@ -25,7 +25,8 @@ public class ProxyPlugin extends Plugin {
         ProxyConfiguration proxyConfiguration = context.getBean(ProxyConfiguration.class);
         proxyConfiguration.startProxyPlugin(context, this);
         context.registerShutdownHook();
-        ProxyServer.getInstance().getScheduler().schedule(this, () -> ProxyConfiguration.setLuckPerms(LuckPermsProvider.get()), 1, TimeUnit.SECONDS);
+        LuckPermsProvider.get();
+        ProxyConfiguration.setLuckPerms(null);
     }
 
     @Override

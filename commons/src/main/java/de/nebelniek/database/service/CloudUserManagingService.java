@@ -128,7 +128,7 @@ public class CloudUserManagingService {
             @SneakyThrows
             @Override
             public ICloudUser get() {
-                if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getDiscordId().equals(discordId))) {
+                if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getDiscordId() != null && entry.getValue().getDiscordId().equals(discordId))) {
                     ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId().equals(discordId)).findAny().get().getValue();
                     cloudUser.load();
                     if (cloudUser.getDiscordId().equals(discordId))

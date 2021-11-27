@@ -13,6 +13,7 @@ import de.nebelniek.database.guild.util.Direction;
 import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.service.GuildManagingService;
+import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.components.discord.DiscordGuildChannelService;
 import de.nebelniek.inventory.util.ItemColors;
@@ -82,25 +83,8 @@ public class GuildContentService {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuildRole().isHigherOrEquals(GuildRole.LEADER)) {
             ICloudUser nextLeader = getNextLeader(guild);
-            if (nextLeader == null) {
-                chatService.sendAnnouncement(cloudUser.getGuild(), "§cDa das letzte Mitglied die Gilde verlassen hat wurde sie gelöscht§7!");
-                guildManagingService.deleteGuild(guild);
-                cloudUser.setGuildRole(null);
-                cloudUser.getGuild().getMember().remove(cloudUser);
-                if (cloudUser.getGuild().getBalance() > 0) {
-                    coinsContentService.addCoins(cloudUser, cloudUser.getGuild().getBalance());
-                    Player player = Bukkit.getPlayer(cloudUser.getUuid());
-                    if (player != null)
-                        player.sendMessage(Prefix.COINS + "Dir wurden die restlichen §e" + cloudUser.getGuild().getBalance() + " §6Coins §7von deiner Gilde §aüberwiesen§7.");
-                }
-                cloudUser.setGuild(null);
-                cloudUser.saveAsync();
-                scoreboardManagementService.updateProfile(cloudUser);
-                scoreboardManagementService.updateGuild(cloudUser);
-                tablistServiceSubserver.update();
-                discordGuildChannelService.disposeGuildChannels(guild);
-                return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
-            }
+            if (nextLeader == null)
+                return deleteGuild(cloudUser);
             nextLeader.setGuildRole(GuildRole.LEADER);
             nextLeader.saveAsync();
             scoreboardManagementService.updateProfile(nextLeader);
@@ -116,6 +100,32 @@ public class GuildContentService {
         scoreboardManagementService.updateProfile(cloudUser);
         scoreboardManagementService.updateGuild(cloudUser);
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + "§c verlassen§7!");
+    }
+
+    public GuildContentResponse deleteGuild(ICloudUser cloudUser) {
+        if (cloudUser.getGuild() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (!cloudUser.getGuildRole().isHigher(GuildRole.LEADER))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
+        IGuild guild = cloudUser.getGuild();
+        String guildName = guild.getColor() + guild.getName();
+        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + "§c hat die Gilde " + guildName + "§c gelöscht§7!");
+        guildManagingService.deleteGuild(guild);
+        cloudUser.setGuildRole(null);
+        cloudUser.getGuild().getMember().remove(cloudUser);
+        if (cloudUser.getGuild().getBalance() > 0) {
+            coinsContentService.addCoins(cloudUser, cloudUser.getGuild().getBalance());
+            Player player = Bukkit.getPlayer(cloudUser.getUuid());
+            if (player != null)
+                player.sendMessage(Prefix.COINS + "Dir wurden die restlichen §e" + cloudUser.getGuild().getBalance() + " §6Coins §7von deiner Gilde §aüberwiesen§7.");
+        }
+        cloudUser.setGuild(null);
+        cloudUser.saveAsync();
+        scoreboardManagementService.updateProfile(cloudUser);
+        scoreboardManagementService.updateGuild(cloudUser);
+        tablistServiceSubserver.update();
+        discordGuildChannelService.disposeGuildChannels(guild);
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
     }
 
     public GuildContentResponse kickMember(ICloudUser cloudUser, ICloudUser kicker) {

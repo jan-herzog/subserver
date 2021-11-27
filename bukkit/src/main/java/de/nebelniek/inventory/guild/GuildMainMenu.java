@@ -46,8 +46,10 @@ public class GuildMainMenu extends GuildInventory {
                         (guild.getRegion() != null ? " §7➥ §aRechtsklick§7 ➞ Region §clöschen" : "")
                 )
                 .build()));
+        if (guild.getOwner() == null)
+            guild.load();
         addClickOption(new ClickOption(40, ItemBuilder.item(Material.PLAYER_HEAD)
-                .setSkullHash(guild.getOwner().getTextureHash())
+                .setSkullHash(guild.getOwner() == null ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmFkYzA0OGE3Y2U3OGY3ZGFkNzJhMDdkYTI3ZDg1YzA5MTY4ODFlNTUyMmVlZWQxZTNkYWYyMTdhMzhjMWEifX19" : guild.getOwner().getTextureHash())
                 .setDisplayName("§8» " + ItemColors.MEMBER.getPrimary() + "§lMitglieder §r§8«")
                 .setLore(
                         ItemColors.MEMBER.getAccent() + "Verwalte§7 die " + ItemColors.MEMBER.getAccent() + "Mitglieder §7deiner Gilde.",

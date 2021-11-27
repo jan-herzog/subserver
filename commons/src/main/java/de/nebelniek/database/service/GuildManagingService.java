@@ -90,6 +90,8 @@ public class GuildManagingService {
     public void deleteGuild(IGuild guild) {
         guilds.remove(guild);
         databaseProvider.getGuildSettingsDao().delete(guild.getModel().getSettingsModel());
+        if (guild.getModel().getRegionModel() != null)
+            databaseProvider.getRegionDao().delete(guild.getModel().getRegionModel());
         databaseProvider.getGuildDao().delete(guild.getModel());
     }
 
@@ -140,8 +142,8 @@ public class GuildManagingService {
         return guilds.stream().filter(iGuild -> iGuild.getModel().getId() == id).findAny().orElse(null);
     }
 
-    public IGuild getGuildByName(String name) {
-        return guilds.stream().filter(iGuild -> iGuild.getName().equalsIgnoreCase(name)).findAny().orElse(null);
+    public IGuild getGuildContainsName(String name) {
+        return guilds.stream().filter(iGuild -> name.contains(iGuild.getName())).findAny().orElse(null);
     }
 
     public IRegion modelToRegion(RegionModel model) {
