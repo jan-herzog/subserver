@@ -105,11 +105,11 @@ public class GuildContentService {
     public GuildContentResponse deleteGuild(ICloudUser cloudUser) {
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
-        if (!cloudUser.getGuildRole().isHigher(GuildRole.LEADER))
+        if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.LEADER))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         IGuild guild = cloudUser.getGuild();
         String guildName = guild.getColor() + guild.getName();
-        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + "§c hat die Gilde " + guildName + "§c gelöscht§7!");
+        chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§c hat die Gilde " + guildName + "§c gelöscht§7!");
         for (IGuild ally : guild.getAllies()) {
             ally.getAllies().remove(guild);
             chatService.sendAnnouncement(ally, "Die §aVerbündung §7mit " + guildName + " wurde §caufgelöst§7, da sie §4gelöscht§7 wurde.");

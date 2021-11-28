@@ -4,7 +4,7 @@
 
 
 <div class="message">
-    <p class="top">Verbunden mit <a style="color: lime;">${username}</a></p>
+    <p class="top">Verbunden mit <a style="color: lime;"><#if username??>${username}<#else>non-UTF8-name</#if></a></p>
     <p class="bottom">Du kannst dieses Fenster jetzt schließen.</p>
 </div>
 

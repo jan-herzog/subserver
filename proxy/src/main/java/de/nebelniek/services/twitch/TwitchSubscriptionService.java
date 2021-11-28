@@ -44,8 +44,11 @@ public class TwitchSubscriptionService {
                 return false;
             }
             List<Subscription> subscriptions = twitchClient.getHelix().getSubscriptionsByUser(TwitchTokens.NEBELNIEK.getToken(), TwitchTokens.NEBELNIEK.getChannelId(), Collections.singletonList(cloudUser.getTwitchId())).execute().getSubscriptions();
-            if (subscriptions.size() == 0)
+            if (subscriptions.size() == 0) {
+                cloudUser.setSubbed(false);
+                cloudUser.saveAsync();
                 return false;
+            }
             cloudUser.setSubbed(subscriptions.get(0) != null);
             cloudUser.saveAsync();
             return subscriptions.get(0) != null;

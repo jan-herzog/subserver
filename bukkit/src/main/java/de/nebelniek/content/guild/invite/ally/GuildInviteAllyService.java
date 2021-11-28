@@ -45,13 +45,15 @@ public class GuildInviteAllyService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Diese Gilde existiert nicht!");
         if (guild.equals(other))
             return new GuildContentResponse(GuildResponseState.ERROR, "Du kannst deiner eigenen Gilde keinen Verbündungsantrag schicken!");
+        if (!inviter.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         if (!pendingInvites.containsKey(other))
             pendingInvites.put(other, new ArrayList<>());
         if (pendingInvites.get(other).stream().anyMatch(inviteEntry -> inviteEntry.guild().equals(guild)))
             return new GuildContentResponse(GuildResponseState.ERROR, "Zu diesem Spieler steht bereits eine Einladung offen!");
         pendingInvites.get(other).add(new InviteEntry(guild, inviter));
         if (guildChatService.someoneOnline(other)) {
-            guildChatService.sendAnnouncementToRole(other, GuildRole.ADMIN, Prefix.GUILD + "Deiner Gilde wurde von §e" + inviter.getLastUserName() + "§7 ein Verbündungsantrag mit der Gilde " + guild.getColor() + guild.getName() + " §7gestellt!");
+            guildChatService.sendAnnouncementToRole(other, GuildRole.ADMIN, "Deiner Gilde wurde von §e" + inviter.getLastUserName() + "§7 ein Verbündungsantrag mit der Gilde " + guild.getColor() + guild.getName() + " §7gestellt!");
             guildChatService.sendAnnouncementToRole(other, GuildRole.ADMIN,
                     Component.text("§7[§a§lAnnehmen§7]").clickEvent(ClickEvent.runCommand("/guild ally accept " + guild.getName()))
                             .append(Component.text(" §7oder "))
@@ -75,7 +77,7 @@ public class GuildInviteAllyService implements Listener {
         other.saveAsync();
         guildChatService.sendAnnouncement(guild, "Deine Gilde ist nun mit " + other.getColor() + other.getName() + " §averbündet§7!");
         guildChatService.sendAnnouncement(other, "Deine Gilde ist nun mit " + guild.getColor() + guild.getName() + " §averbündet§7!");
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den §2Verbündungsantrag§7 von " + guild.getColor() + guild.getName() + " §aangenommen§7!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den §2Verbündungsantrag§7 von " + other.getColor() + other.getName() + " §aangenommen§7!");
     }
 
     public GuildContentResponse deny(IGuild other, IGuild guild) {
@@ -109,13 +111,14 @@ public class GuildInviteAllyService implements Listener {
         if (guild == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!guild.getAllies().contains(other))
-            return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde ist nicht mit dieser Gilde Verbündet!");
+            return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde ist nicht mit dieser Gilde verbündet!");
         if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         guild.getAllies().remove(other);
         other.getAllies().remove(guild);
         guild.saveAsync();
         other.saveAsync();
+        guildChatService.sendAnnouncement(other, guild.getColor() + guild.getName() + " §chat die §aVerbündung§c mit dieser Gilde aufgehoben!");
         guildChatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " §chat die §aVerbündung§c mit " + other.getColor() + other.getName() + " §caufgehoben!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast deine Gilde von " + other.getColor() + other.getName() + "§c getrennt§7!");
     }

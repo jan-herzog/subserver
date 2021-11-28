@@ -67,6 +67,7 @@ public class CombatLogService implements Listener {
                 if (guildManagingService.getGuildAt(reciever.getLocation().getX(), reciever.getLocation().getZ()).equals(cRevceiver.getGuild())) {
                     damager.sendMessage(Prefix.COMBAT + "§cDieser Spieler steht auf seinem Grundstück! Du kannst ihn nicht angreifen!");
                     event.setCancelled(true);
+                    return;
                 }
         updatePlayer(reciever);
         updatePlayer(damager);
@@ -91,6 +92,7 @@ public class CombatLogService implements Listener {
         if (player.getHealth() <= 0)
             return;
         player.setHealth(0);
+        cache.remove(cloudUser);
         Bukkit.broadcastMessage(Prefix.SUBSERVER + NameUtils.getColoredName(player.getUniqueId(), player.getName()) + "§7 ist §cgestorben§7, weil er sich im Kampf ausgeloggt hat.");
     }
 

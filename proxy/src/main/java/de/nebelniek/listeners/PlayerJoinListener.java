@@ -41,27 +41,30 @@ public class PlayerJoinListener implements Listener {
         cloudUserRepository.createUserIfNotExists(player.getUniqueId(), player.getName()).thenAccept(cloudUser -> {
             cloudUser.setLastLogin(new Date());
             cloudUser.saveAsync();
-            twitchSubscriptionService.checkIfSubbed(cloudUser);
-            if (cloudUser.getTwitchId() == null)
-                verifyService.showVerifySuggestion(player);
-            if (luckPerms.getUserManager().getUser(cloudUser.getUuid()).getPrimaryGroup().equalsIgnoreCase("administrator"))
-                return;
-            if (cloudUser.getTwitchId() != null)
-                if (twitchClient.getHelix().getModerators(TwitchTokens.NEBELNIEK.getToken(), TwitchTokens.NEBELNIEK.getChannelId(), null, null).execute().getModerators().stream().anyMatch(moderator -> moderator.getUserId().equalsIgnoreCase(cloudUser.getTwitchId()))) {
-                    Group group = luckPerms.getGroupManager().getGroup("mod");
-                    setGroup(group, cloudUser);
-                    System.out.println(cloudUser.getTwitchId() + " mod");
+            twitchSubscriptionService.checkIfSubbed(cloudUser).thenAccept(is -> {
+                if (cloudUser.getTwitchId() == null)
+                    verifyService.showVerifySuggestion(player);
+                if (luckPerms.getUserManager().getUser(cloudUser.getUuid()).getPrimaryGroup().equalsIgnoreCase("administrator"))
                     return;
+                if (luckPerms.getUserManager().getUser(cloudUser.getUuid()).getPrimaryGroup().equalsIgnoreCase("team"))
+                    return;
+                if (cloudUser.getTwitchId() != null)
+                    if (twitchClient.getHelix().getModerators(TwitchTokens.NEBELNIEK.getToken(), TwitchTokens.NEBELNIEK.getChannelId(), null, null).execute().getModerators().stream().anyMatch(moderator -> moderator.getUserId().equalsIgnoreCase(cloudUser.getTwitchId()))) {
+                        Group group = luckPerms.getGroupManager().getGroup("mod");
+                        setGroup(group, cloudUser);
+                        System.out.println(cloudUser.getTwitchId() + " mod");
+                        return;
+                    }
+                if (is) {
+                    Group group = luckPerms.getGroupManager().getGroup("sub");
+                    setGroup(group, cloudUser);
+                    System.out.println(cloudUser.getTwitchId() + " Subbed");
+                } else {
+                    Group group = luckPerms.getGroupManager().getGroup("default");
+                    setGroup(group, cloudUser);
+                    System.out.println(cloudUser.getTwitchId() + " Not subbed!");
                 }
-            if (cloudUser.isSubbed()) {
-                Group group = luckPerms.getGroupManager().getGroup("sub");
-                setGroup(group, cloudUser);
-                System.out.println(cloudUser.getTwitchId() + " Subbed");
-            } else {
-                Group group = luckPerms.getGroupManager().getGroup("default");
-                setGroup(group, cloudUser);
-                System.out.println(cloudUser.getTwitchId() + " Not subbed!");
-            }
+            });
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
@@ -70,16 +73,19 @@ public class PlayerJoinListener implements Listener {
 
     private void setGroup(Group group, ICloudUser cloudUser) {
         LuckPerms luckPerms = ProxyConfiguration.getLuckPerms();
-        CompletableFuture<Void> action = CompletableFuture.runAsync(() -> {
-            luckPerms.getUserManager().loadUser(cloudUser.getUuid()).thenAccept(user -> {
-                user.data().clear(NodeType.INHERITANCE::matches);
-                Node node = InheritanceNode.builder(group).build();
-                user.data().add(node);
-            });
-        });
-        action.thenRunAsync(() -> {
+        luckPerms.getUserManager().modifyUser(cloudUser.getUuid(), user -> {
+            user.data().clear(NodeType.INHERITANCE::matches);
+            Node node = InheritanceNode.builder(group).build();
+            user.data().add(node);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        }).thenRunAsync(() -> {
             Optional<MessagingService> messagingService = luckPerms.getMessagingService();
             messagingService.ifPresent(service -> service.pushUserUpdate(luckPerms.getUserManager().getUser(cloudUser.getUuid())));
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 

@@ -1,5 +1,5 @@
 name: Subserver-lobby
 version: 1.0
 author: Kexesser
-main: de.nebelniek.Subserver
+main: de.nebelniek.Lobby
 api-version: 1.17

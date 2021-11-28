@@ -32,7 +32,7 @@ public class LobbyConfiguration {
     }
 
     public Location getSpawnLocation() {
-        return new Location(Bukkit.getWorld("world"), 0, 80, 0);
+        return new Location(Bukkit.getWorld("world"), 98.5, 7, 107.5, 45, 0);
     }
 
 }

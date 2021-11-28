@@ -15,10 +15,20 @@ public class HomeController {
 
     public void setupRoutes() {
         get("/", (request, response) -> {
-            String ref = request.queryParams("ref");
+            String ref;
+            try {
+                ref = request.queryParams("ref");
+            } catch (Exception e) {
+                ref = "success";
+            }
             Map<String, String> map = new HashMap<>();
             if (ref != null && ref.equals("success")) {
-                String name = request.queryParams("name");
+                String name;
+                try {
+                    name = request.queryParams("name");
+                } catch (Exception e) {
+                    name = "non-UTF8-name";
+                }
                 map.put("username", name);
                 return new ModelAndView(map, "connected.ftl");
             }

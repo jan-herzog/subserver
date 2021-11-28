@@ -10,7 +10,9 @@ import de.nebelniek.content.guild.chat.GuildChatService;
 import de.nebelniek.content.guild.invite.GuildInviteService;
 import de.nebelniek.content.guild.invite.ally.GuildInviteAllyService;
 import de.nebelniek.content.guild.response.GuildContentResponse;
+import de.nebelniek.content.guild.response.GuildResponseState;
 import de.nebelniek.database.guild.interfaces.IGuild;
+import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
@@ -18,6 +20,11 @@ import de.nebelniek.inventory.guild.GuildMainMenu;
 import de.nebelniek.inventory.guild.NoGuildMenu;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -147,9 +154,16 @@ public class GuildCommand extends BaseCommand {
     @Subcommand("changecolor")
     @Syntax("§7[§ecolorcode§7]")
     public void changeColor(Player sender, @Single String colorcode) {
-        ChatColor chatColor = ChatColor.getByChar(colorcode);
+        ChatColor chatColor = ChatColor.getByChar(colorcode.charAt(0));
         if (chatColor == null || !chatColor.isColor()) {
-            sender.sendMessage(Prefix.GUILD + "§cDies ist kein valider §aColorcode§c!§7 Eine Liste mit validen Codes findest du im Wiki: §ahttps://subserver.nebelniek.de/wiki§7.");
+            sender.sendMessage(
+                    net.kyori.adventure.text.Component.text(Prefix.GUILD + "§cDies ist kein valider §aColorcode§c!§7 Eine Liste mit validen Codes findest du im Wiki: ")
+                            .append(
+                                    net.kyori.adventure.text.Component.text("§ahttps://subserver.nebelniek.de/wiki§7.")
+                                            .clickEvent(ClickEvent.openUrl("https://subserver.nebelniek.de/wiki"))
+                                            .hoverEvent(net.kyori.adventure.text.Component.text("§a§lKlick!").asHoverEvent())
+                            )
+            );
             return;
         }
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changeColor(cloudUser, "§" + colorcode))).exceptionally(throwable -> {
@@ -339,6 +353,10 @@ public class GuildCommand extends BaseCommand {
             sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
             return;
         }
+        if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN)) {
+            sender.sendMessage(Prefix.GUILD + "§cDazu hast du keine Rechte!");
+            return;
+        }
         IGuild other = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(guildName)).findAny().orElse(null);
         sendResponse(sender, guildInviteAllyService.accept(other, guild));
     }
@@ -350,6 +368,10 @@ public class GuildCommand extends BaseCommand {
         IGuild guild = cloudUser.getGuild();
         if (guild == null) {
             sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
+            return;
+        }
+        if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN)) {
+            sender.sendMessage(Prefix.GUILD + "§cDazu hast du keine Rechte!");
             return;
         }
         IGuild other = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(guildName)).findAny().orElse(null);
@@ -373,7 +395,7 @@ public class GuildCommand extends BaseCommand {
             return;
         }
         if (guild.getAllies().size() == 0) {
-            sender.sendMessage(Prefix.GUILD + "Du hast keine §aVerbündeten§7!");
+            sender.sendMessage(Prefix.GUILD + "Du hast §ckeine §aVerbündeten§7!");
             return;
         }
         sender.sendMessage(Prefix.GUILD + "Deine §aVerbündeten§7:");

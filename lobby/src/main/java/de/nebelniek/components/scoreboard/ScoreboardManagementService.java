@@ -30,11 +30,8 @@ public class ScoreboardManagementService implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskLater(configuration.getPlugin(), () -> {
-            Player player = event.getPlayer();
-            ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
-            fastBoards.put(cloudUser, createBoard(cloudUser, player));
-        }, 20L);
+        Player player = event.getPlayer();
+        cloudUserManagingService.loadUser(player.getUniqueId()).thenAccept(cloudUser -> fastBoards.put(cloudUser, createBoard(cloudUser, player)));
     }
 
     @EventHandler
