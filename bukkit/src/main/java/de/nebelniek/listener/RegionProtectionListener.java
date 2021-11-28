@@ -1,5 +1,6 @@
 package de.nebelniek.listener;
 
+import de.nebelniek.components.combatlog.CombatLogService;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
@@ -11,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -23,6 +25,8 @@ public class RegionProtectionListener implements Listener {
 
     private final GuildManagingService guildManagingService;
 
+    private final CombatLogService combatLogService;
+
     private final CloudUserManagingService cloudUserManagingService;
 
     @EventHandler
@@ -33,16 +37,22 @@ public class RegionProtectionListener implements Listener {
     }
 
     private boolean isForbidden(Player player, Location location) {
-        IGuild guild = guildManagingService.getGuildAt(location.getX(), location.getZ());
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
+        IGuild guild = guildManagingService.getGuildAt(location.getX(), location.getZ());
         if (guild != null)
-            if (cloudUser.getGuild() != guild)
+            if (cloudUser.getGuild() != guild) {
                 if (cloudUser.getGuild() == null || (cloudUser.getGuild() != null && !cloudUser.getGuild().getAllies().contains(guild))) {
                     if (player.hasPermission("subserver.bypass"))
                         return false;
                     player.sendMessage(Prefix.GUILD + "§cDies ist das Gebiet von " + guild.getColor() + guild.getName() + "§c, du darfst hier nicht interagieren!");
                     return true;
                 }
+            } else {
+                if(combatLogService.isInFight(cloudUser)) {
+                    player.sendMessage(Prefix.COMBAT + "§cDu bist im Kampf! §7Du darfst nur außerhalb deines Grundstückes interagieren.");
+                    return true;
+                }
+            }
         return false;
     }
 

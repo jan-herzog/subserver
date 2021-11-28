@@ -3,6 +3,7 @@ package de.nebelniek.components.combatlog;
 import de.nebelniek.components.tablistchat.utils.NameUtils;
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.database.service.CloudUserManagingService;
+import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,8 @@ public class CombatLogService implements Listener {
     private final HashMap<ICloudUser, Long> cache = new HashMap<>();
 
     private final CloudUserManagingService cloudUserManagingService;
+
+    private final GuildManagingService guildManagingService;
 
     public boolean isInFight(ICloudUser cloudUser) {
         return cache.containsKey(cloudUser);
@@ -57,6 +60,14 @@ public class CombatLogService implements Listener {
             return;
         Player reciever = (Player) event.getEntity();
         Player damager = (Player) event.getDamager();
+        ICloudUser cRevceiver = cloudUserManagingService.getCloudUsers().get(reciever.getUniqueId());
+        ICloudUser cDamager = cloudUserManagingService.getCloudUsers().get(damager.getUniqueId());
+        if (!isInFight(cRevceiver))
+            if (cDamager.getGuild() != cRevceiver.getGuild())
+                if (guildManagingService.getGuildAt(reciever.getLocation().getX(), reciever.getLocation().getZ()).equals(cRevceiver.getGuild())) {
+                    damager.sendMessage(Prefix.COMBAT + "§cDieser Spieler steht auf seinem Grundstück! Du kannst ihn nicht angreifen!");
+                    event.setCancelled(true);
+                }
         updatePlayer(reciever);
         updatePlayer(damager);
     }

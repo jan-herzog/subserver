@@ -43,7 +43,7 @@ public class GuildInviteAllyService implements Listener {
     public GuildContentResponse invite(IGuild guild, IGuild other, ICloudUser inviter) {
         if (other == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Diese Gilde existiert nicht!");
-        if(guild.equals(other))
+        if (guild.equals(other))
             return new GuildContentResponse(GuildResponseState.ERROR, "Du kannst deiner eigenen Gilde keinen Verbündungsantrag schicken!");
         if (!pendingInvites.containsKey(other))
             pendingInvites.put(other, new ArrayList<>());
@@ -100,6 +100,24 @@ public class GuildInviteAllyService implements Listener {
             stringBuilder.append(inviteEntry.guild().getColor()).append(inviteEntry.guild().getName()).append("§7(Von §e").append(inviteEntry.inviter().getLastUserName()).append("§7)");
         }
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Offene Verbündungsanträge: " + stringBuilder);
+    }
+
+    public GuildContentResponse disconnectAlly(ICloudUser cloudUser, IGuild other) {
+        IGuild guild = cloudUser.getGuild();
+        if (other == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Diese Gilde existiert nicht!");
+        if (guild == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (!guild.getAllies().contains(other))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde ist nicht mit dieser Gilde Verbündet!");
+        if (!cloudUser.getGuildRole().isHigherOrEquals(GuildRole.ADMIN))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
+        guild.getAllies().remove(other);
+        other.getAllies().remove(guild);
+        guild.saveAsync();
+        other.saveAsync();
+        guildChatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " §chat die §aVerbündung§c mit " + other.getColor() + other.getName() + " §caufgehoben!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast deine Gilde von " + other.getColor() + other.getName() + "§c getrennt§7!");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

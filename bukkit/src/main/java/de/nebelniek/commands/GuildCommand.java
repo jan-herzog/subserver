@@ -3,6 +3,7 @@ package de.nebelniek.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import de.nebelniek.configuration.BukkitConfiguration;
+import de.nebelniek.configuration.Prices;
 import de.nebelniek.content.guild.BalanceAction;
 import de.nebelniek.content.guild.GuildContentService;
 import de.nebelniek.content.guild.chat.GuildChatService;
@@ -18,6 +19,7 @@ import de.nebelniek.inventory.guild.NoGuildMenu;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -79,6 +81,8 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "Nenne deine Gilde um | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §achangeprefix§2 [prefix]");
                 sender.sendMessage(Prefix.GUILD + "Setzt den Prefix | Kosten: §e15k");
+                sender.sendMessage(Prefix.GUILD + "/guild §achangecolor§2 [colorcode]");
+                sender.sendMessage(Prefix.GUILD + "Setzt die Farbe | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §achat§2 [Nachricht]");
                 sender.sendMessage(Prefix.GUILD + "Alias: §a/gc");
                 sender.sendMessage(Prefix.GUILD + "Sende deinen Kollegen eine Nachricht");
@@ -89,17 +93,12 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "/guild §asethome");
                 sender.sendMessage(Prefix.GUILD + "Setzte deiner Gilde einen Homepunkt | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §ahome");
-                sender.sendMessage(Prefix.GUILD + "Teleportiert dich nach Hause | Kosten: §e500");
+                sender.sendMessage(Prefix.GUILD + "Teleportiert dich nach Hause | Kosten: §e" + Prices.GUILD_TP_HOME.getPrice());
                 sender.sendMessage(Prefix.GUILD + "/guild §aclaim");
                 sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §akick§2 [Spieler]");
                 sender.sendMessage(Prefix.GUILD + "Kicke ein Mitglied");
-                sender.sendMessage(Prefix.GUILD + "/guild §aally invite§2 [Gilde]");
-                sender.sendMessage(Prefix.GUILD + "Stelle einen Verbündungsantrag");
-                sender.sendMessage(Prefix.GUILD + "/guild §aally accept§2 [Gilde]");
-                sender.sendMessage(Prefix.GUILD + "Nehme einen Verbündungsantrag an");
-                sender.sendMessage(Prefix.GUILD + "/guild §aally deny§2 [Gilde]");
-                sender.sendMessage(Prefix.GUILD + "Lehne einen Verbündungsantrag ab");
+                ally(sender);
             }
         });
     }
@@ -112,6 +111,10 @@ public class GuildCommand extends BaseCommand {
         sender.sendMessage(Prefix.GUILD + "Nehme einen Verbündungsantrag an");
         sender.sendMessage(Prefix.GUILD + "/guild §aally deny§2 [Gilde]");
         sender.sendMessage(Prefix.GUILD + "Lehne einen Verbündungsantrag ab");
+        sender.sendMessage(Prefix.GUILD + "/guild §aally disconnect§2 [Gilde]");
+        sender.sendMessage(Prefix.GUILD + "Trenne dich von einer Gilde");
+        sender.sendMessage(Prefix.GUILD + "/guild §aally list");
+        sender.sendMessage(Prefix.GUILD + "Sehe mit wem du Verbündet bist.");
     }
 
     @Subcommand("create")
@@ -136,6 +139,20 @@ public class GuildCommand extends BaseCommand {
     @Syntax("§7[§eprefix§7]")
     public void changePrefix(Player sender, String text) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changePrefix(cloudUser, text))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("changecolor")
+    @Syntax("§7[§ecolorcode§7]")
+    public void changeColor(Player sender, @Single String colorcode) {
+        ChatColor chatColor = ChatColor.getByChar(colorcode);
+        if (chatColor == null || !chatColor.isColor()) {
+            sender.sendMessage(Prefix.GUILD + "§cDies ist kein valider §aColorcode§c!§7 Eine Liste mit validen Codes findest du im Wiki: §ahttps://subserver.nebelniek.de/wiki§7.");
+            return;
+        }
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changeColor(cloudUser, "§" + colorcode))).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });
@@ -337,6 +354,31 @@ public class GuildCommand extends BaseCommand {
         }
         IGuild other = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(guildName)).findAny().orElse(null);
         sendResponse(sender, guildInviteAllyService.deny(other, guild));
+    }
+
+    @Subcommand("ally disconnect")
+    @Syntax("§7[§eguild§7]")
+    public void allyDisconnect(Player sender, @Single String guildName) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild other = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(guildName)).findAny().orElse(null);
+        sendResponse(sender, guildInviteAllyService.disconnectAlly(cloudUser, other));
+    }
+
+    @Subcommand("ally list")
+    public void allyList(Player sender) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
+        IGuild guild = cloudUser.getGuild();
+        if (guild == null) {
+            sender.sendMessage(Prefix.GUILD + "§cDu bist in keiner Gilde!");
+            return;
+        }
+        if (guild.getAllies().size() == 0) {
+            sender.sendMessage(Prefix.GUILD + "Du hast keine §aVerbündeten§7!");
+            return;
+        }
+        sender.sendMessage(Prefix.GUILD + "Deine §aVerbündeten§7:");
+        for (IGuild ally : guild.getAllies())
+            sender.sendMessage(Prefix.GUILD + " - " + ally.getColor() + ally.getName());
     }
 
     private void sendResponse(Player player, GuildContentResponse response) {

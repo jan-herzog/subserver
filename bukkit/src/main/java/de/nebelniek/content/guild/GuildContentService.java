@@ -110,6 +110,11 @@ public class GuildContentService {
         IGuild guild = cloudUser.getGuild();
         String guildName = guild.getColor() + guild.getName();
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + "§c hat die Gilde " + guildName + "§c gelöscht§7!");
+        for (IGuild ally : guild.getAllies()) {
+            ally.getAllies().remove(guild);
+            chatService.sendAnnouncement(ally, "Die §aVerbündung §7mit " + guildName + " wurde §caufgelöst§7, da sie §4gelöscht§7 wurde.");
+            ally.saveAsync();
+        }
         guildManagingService.deleteGuild(guild);
         cloudUser.setGuildRole(null);
         cloudUser.getGuild().getMember().remove(cloudUser);
@@ -259,9 +264,9 @@ public class GuildContentService {
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (guild.getHome() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat keinen Home-Point!");
-        if (cloudUser.getCoins() < 500)
+        if (cloudUser.getCoins() < Prices.GUILD_TP_HOME.getPrice())
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du leider zu wenig Geld!");
-        coinsContentService.removeCoins(cloudUser, 500);
+        coinsContentService.removeCoins(cloudUser, Prices.GUILD_TP_HOME.getPrice());
         Bukkit.getScheduler().runTask(bukkitConfiguration.getPlugin(), () -> player.teleport(
                 new Location(
                         Bukkit.getWorld(guild.getHome().world()),
