@@ -27,9 +27,9 @@ public class InfoCommand extends BaseCommand {
     @Default
     @CatchUnknown
     public void onHelp(ProxiedPlayer sender) {
-        sender.sendMessage(Prefix.LINK + "Hilfe für §c/info§7:");
-        sender.sendMessage(Prefix.LINK + "/info §c[User]");
-        sender.sendMessage(Prefix.LINK + "Information über einen bestimmten §cCloudUser");
+        sender.sendMessage(Prefix.PROXY + "Hilfe für §c/info§7:");
+        sender.sendMessage(Prefix.PROXY + "/info §c[User]");
+        sender.sendMessage(Prefix.PROXY + "Information über einen bestimmten §cCloudUser");
     }
 
     @Default

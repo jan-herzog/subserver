@@ -4,6 +4,7 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import de.nebelniek.database.guild.model.GuildModel;
+import de.nebelniek.database.user.ban.model.BanModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,6 +40,8 @@ public class CloudUserModel {
     private String guildRole;
     @DatabaseField(columnName = "guild_id", foreign = true, foreignAutoRefresh = true)
     private GuildModel guildModel;
+    @DatabaseField(columnName = "ban_id", foreign = true, foreignAutoRefresh = true)
+    private BanModel ban;
     @DatabaseField(dataType = DataType.LONG_STRING)
     private String textureHash;
 
@@ -51,5 +54,6 @@ public class CloudUserModel {
         this.subbed = false;
         this.guildModel = null;
         this.textureHash = null;
+        this.ban = null;
     }
 }

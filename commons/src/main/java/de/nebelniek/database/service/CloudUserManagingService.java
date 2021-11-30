@@ -2,15 +2,19 @@ package de.nebelniek.database.service;
 
 import de.nebelniek.database.DatabaseProvider;
 import de.nebelniek.database.user.CloudUser;
+import de.nebelniek.database.user.ban.Ban;
+import de.nebelniek.database.user.ban.BanType;
+import de.nebelniek.database.user.ban.interfaces.IBan;
+import de.nebelniek.database.user.ban.model.BanModel;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.database.user.model.CloudUserModel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -187,5 +191,24 @@ public class CloudUserManagingService {
         cloudUsers.put(cloudUser.getUuid(), cloudUser);
         return cloudUser;
     }
+
+
+    @SneakyThrows
+    public IBan createBanSync(ICloudUser cloudUser, BanType banType, String reason, Date endDate) {
+        BanModel model = new BanModel(cloudUser.getModel(), banType.name(), reason, endDate);
+        this.databaseProvider.getBanDao().create(model);
+        Ban ban = new Ban(this, model.getId());
+        cloudUser.setBan(ban);
+        cloudUser.saveAsync();
+        return ban;
+    }
+
+    public CompletableFuture<? extends IBan> createBan(ICloudUser cloudUser, BanType banType, String reason, Date endDate) {
+        return CompletableFuture.supplyAsync(() -> createBanSync(cloudUser, banType, reason, endDate)).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
 
 }

@@ -4,11 +4,15 @@ import de.nebelniek.database.guild.Guild;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.service.CloudUserManagingService;
+import de.nebelniek.database.user.ban.Ban;
+import de.nebelniek.database.user.ban.interfaces.IBan;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.database.user.model.CloudUserModel;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -46,6 +50,9 @@ public class CloudUser implements ICloudUser {
     private IGuild guild;
     @Getter
     @Setter
+    private IBan ban;
+    @Getter
+    @Setter
     private String textureHash;
 
     @Getter
@@ -78,6 +85,10 @@ public class CloudUser implements ICloudUser {
         this.coins = this.model.getCoins();
         this.guildRole = this.model.getGuildRole() != null ? GuildRole.valueOf(this.model.getGuildRole()) : null;
         this.guild = service.getGuildManagingService().getGuildByUser(this);
+        if (this.model.getBan() == null)
+            return;
+        this.ban = new Ban(this.service, this.model.getBan().getId());
+        this.ban.loadAsync();
     }
 
 
@@ -98,6 +109,9 @@ public class CloudUser implements ICloudUser {
         this.model.setCoins(this.coins);
         this.model.setGuildRole(this.guildRole == null ? null : this.guildRole.name());
         this.model.setGuildModel(this.guild == null ? null : this.guild.getModel());
+        this.model.setBan(this.ban == null ? null : this.ban.getModel());
+        if (this.ban != null)
+            this.ban.saveAsync();
         this.service.getDatabaseProvider().getPlayerDao().update(this.model);
     }
 }
