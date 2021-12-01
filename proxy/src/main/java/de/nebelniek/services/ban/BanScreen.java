@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class BanScreen {
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd 'um' HH:mm");
+    public static final SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd 'um' HH:mm");
 
     public static String perma(String reason) {
         return time(null, reason);

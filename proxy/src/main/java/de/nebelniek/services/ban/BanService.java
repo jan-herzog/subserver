@@ -6,8 +6,15 @@ import de.nebelniek.database.user.ban.interfaces.IBan;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.PreLoginEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,18 +24,23 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class BanService {
+public class BanService implements Listener {
 
     private final CloudUserManagingService cloudUserManagingService;
-
 
     public CompletableFuture<? extends IBan> createBan(ICloudUser cloudUser, BanType banType, String duration, String reason) {
         Date date = date(duration);
         return cloudUserManagingService.createBan(cloudUser, banType, reason, date);
     }
 
+    public boolean isMute(ICloudUser cloudUser) {
+        if (cloudUser.getBan() == null)
+            return false;
+        return cloudUser.getBan().getBanType() == BanType.MUTE;
+    }
+
     public boolean unban(ICloudUser cloudUser) {
-        if(cloudUser.getBan() == null)
+        if (cloudUser.getBan() == null)
             return false;
         cloudUser.setBan(null);
         cloudUser.saveAsync();
@@ -59,6 +71,39 @@ public class BanService {
             if (!player.hasPermission("proxy.ban.broadcasts"))
                 continue;
             player.sendMessage(message);
+        }
+    }
+
+    @SneakyThrows
+    @EventHandler
+    public void onPreLogin(PreLoginEvent event) {
+        cloudUserManagingService.loadUserByName(event.getConnection().getName()).thenAccept(cloudUser -> {
+            if (cloudUser.getBan() == null)
+                return;
+            if (cloudUser.getBan().getBanType().equals(BanType.PROXY_BAN)) {
+                event.setCancelReason(BanScreen.timeLeft(cloudUser.getBan().getEndDate(), cloudUser.getBan().getReason()));
+                event.setCancelled(true);
+            }
+        });
+    }
+
+    @EventHandler
+    public void onChat(ChatEvent event) {
+        Connection sender = event.getSender();
+        if (!(sender instanceof ProxiedPlayer))
+            return;
+        ProxiedPlayer player = (ProxiedPlayer) sender;
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
+        if (cloudUser.getBan() == null)
+            return;
+        if (cloudUser.getBan().getBanType().equals(BanType.MUTE)) {
+            player.sendMessage(Prefix.BAN + "Du bist §cgemutet§7!");
+            player.sendMessage("""
+                    %s  ➥ §eGrund §7➞ %s
+                    %s  ➥ §eZeit §7➞ %s
+                    """.formatted(Prefix.BAN, cloudUser.getBan().getReason(), Prefix.BAN, cloudUser.getBan().getEndDate() == null ? "§cPermanent" : BanScreen.format.format(cloudUser.getBan().getEndDate()))
+            );
+            event.setCancelled(true);
         }
     }
 

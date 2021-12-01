@@ -25,6 +25,11 @@
 
     <repositories>
         <repository>
+            <id>ossrh</id>
+            <name>Commy Repository</name>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -41,6 +46,13 @@
     </repositories>
 
     <dependencies>
+        <!-- Use this for any BungeeCord plugin -->
+        <dependency>
+            <groupId>com.github.expdev07</groupId>
+            <artifactId>commy-bungee</artifactId>
+            <version>1.4</version>
+        </dependency>
+
         <!-- Spark Java -->
         <dependency>
             <groupId>com.sparkjava</groupId>

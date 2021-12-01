@@ -9,10 +9,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 public class Ban implements IBan {
+
+    public static final SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd 'um' HH:mm");
 
     @Getter
     @Setter
@@ -75,8 +78,9 @@ public class Ban implements IBan {
         return """
                 %s  ➥ §eCloudUser §7➞ %s
                 %s  ➥ §eTyp §7➞ %s
-                %s  ➥ §eReason §7➞ %s
+                %s  ➥ §eGrund §7➞ %s
+                %s  ➥ §eZeit §7➞ %s
                 %s  ➥ §eTeammitglied §7➞ %s
-                """.formatted(Prefix.BAN, cloudUser.getLastUserName(), Prefix.BAN, banType.name(), Prefix.BAN, reason, Prefix.BAN, banner);
+                """.formatted(Prefix.BAN, cloudUser.getLastUserName(), Prefix.BAN, banType.name(), Prefix.BAN, reason, Prefix.BAN, format.format(endDate), Prefix.BAN, banner);
     }
 }
