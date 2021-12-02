@@ -1,6 +1,7 @@
 package de.nebelniek;
 
 import co.aikar.commands.BungeeCommandManager;
+import com.github.expdev07.commy.bungee.BungeeCommy;
 import com.github.philippheuer.credentialmanager.CredentialManager;
 import com.github.philippheuer.credentialmanager.CredentialManagerBuilder;
 import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
@@ -48,6 +49,7 @@ public class ProxyConfiguration {
         context.getBean(DiscordVerifyController.class).setupRoutes();
         context.getBean(HomeController.class).setupRoutes();
         this.adventure = BungeeAudiences.create(plugin);
+        this.commy = new BungeeCommy(plugin);
     }
 
     @Setter
@@ -56,6 +58,10 @@ public class ProxyConfiguration {
     @Setter
     @Getter
     private static LuckPerms luckPerms;
+
+    @Setter
+    @Getter
+    private BungeeCommy commy;
 
 
     @SneakyThrows
@@ -72,8 +78,6 @@ public class ProxyConfiguration {
                 .withCredentialManager(credentialManager)
                 .build();
     }
-
-
 
     @Bean
     public OAuth2IdentityProvider buildOAuth2IdentityProvider() {

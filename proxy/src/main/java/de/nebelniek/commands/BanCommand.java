@@ -42,6 +42,8 @@ public class BanCommand extends BaseCommand {
                 sender.sendMessage(Prefix.BAN + "§cDieser CloudUser ist nicht in der Datenbank eingetragen!");
                 return;
             }
+            if (cloudUser.getBan() != null)
+                sender.sendMessage(Prefix.BAN + "§aBan für §e" + cloudUser.getLastUserName() + " §awird geupdated!");
             banService.createBan(cloudUser, BanType.PROXY_BAN, null, reason);
             sender.sendMessage(Prefix.BAN + "Du hast §e" + cloudUser.getLastUserName() + " §cpermanent §7gebannt.");
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer(cloudUser.getUuid());
@@ -68,7 +70,8 @@ public class BanCommand extends BaseCommand {
         });
     }
 
-    @Default
+    @Subcommand("unban")
+    @CommandAlias("unban")
     @CommandCompletion("@players @nothing")
     public void onUnban(ProxiedPlayer sender, @Single String target) {
         cloudUserManagingService.loadUserByName(target).thenAccept(cloudUser -> {

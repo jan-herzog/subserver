@@ -58,6 +58,7 @@
             <groupId>com.github.expdev07</groupId>
             <artifactId>commy-spigot</artifactId>
             <version>1.4</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

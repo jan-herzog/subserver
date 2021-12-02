@@ -1,6 +1,7 @@
 package de.nebelniek.configuration;
 
 import co.aikar.commands.PaperCommandManager;
+import com.github.expdev07.commy.spigot.SpigotCommy;
 import com.github.philippheuer.credentialmanager.CredentialManager;
 import com.github.philippheuer.credentialmanager.CredentialManagerBuilder;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
@@ -8,6 +9,7 @@ import com.github.philippheuer.credentialmanager.identityprovider.OAuth2Identity
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
+import de.nebelniek.components.discord.DiscordIdUpdateHandler;
 import de.nebelniek.registration.event.BukkitPluginEnableEvent;
 import de.notecho.inventory.InventoryManager;
 import lombok.Getter;
@@ -45,10 +47,15 @@ public class BukkitConfiguration {
     @Getter
     private static Guild mainGuild;
 
+    @Getter
+    private SpigotCommy commy;
+
     public void startBukkitPlugin(ApplicationContext context, JavaPlugin plugin) {
         mainGuild = context.getBean(JDA.class).getGuildById("911963860242673734");
         this.plugin = plugin;
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
+        this.commy = new SpigotCommy(plugin);
+        this.commy.addHandler("discordudpate", new DiscordIdUpdateHandler());
     }
 
     @Setter

@@ -5,7 +5,9 @@ import co.aikar.commands.annotation.CatchUnknown;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
+import de.nebelniek.ProxyConfiguration;
 import de.nebelniek.database.service.CloudUserManagingService;
+import de.nebelniek.message.DiscordIdUpdatePacket;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Component;
 public class UnlinkCommand extends BaseCommand {
 
     private final CloudUserManagingService cloudUserManagingService;
+
+    private final ProxyConfiguration proxyConfiguration;
 
     @Default
     @CatchUnknown
@@ -59,7 +63,7 @@ public class UnlinkCommand extends BaseCommand {
             cloudUser.saveAsync();
 
             //TODO: SEND PLUGIN MESSAGE TO BUKKIT -> DISCORD REMOVE ROLE
-
+            proxyConfiguration.getCommy().getConnection(ProxyServer.getInstance().getServerInfo("Subserver-1")).sendMessage("discordupdate", new DiscordIdUpdatePacket(sender.getUniqueId()));
             sender.sendMessage(Prefix.LINK + "Dein §9Discord§7-Account wurde von deinem Minecraft Account §cgetrennt§7!");
         });
     }

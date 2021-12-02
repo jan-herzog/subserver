@@ -26,7 +26,7 @@ public class BanScreen {
                     §7Grund: §8%s
                                                 
                     §7-------------------------
-                    """.formatted(reason);
+                    """.formatted(reason == null ? "Nicht angegeben!" : reason);
         return """
                 §7-------------------------
                                             
@@ -37,7 +37,7 @@ public class BanScreen {
                 §7Grund: §8%s
                                             
                 §7-------------------------
-                """.formatted(reason);
+                """.formatted(duration, reason == null ? "Nicht angegeben!" : reason);
     }
 
     public static String timeLeft(Date date, String reason) {
@@ -52,7 +52,7 @@ public class BanScreen {
                 §7Grund: §8%s
                                             
                 §7-------------------------
-                """.formatted(format.format(date), reason);
+                """.formatted(format.format(date), reason == null ? "Nicht angegeben!" : reason);
     }
 
     public static String ingameKick(String duration, String reason) {

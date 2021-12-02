@@ -195,9 +195,17 @@ public class CloudUserManagingService {
 
     @SneakyThrows
     public IBan createBanSync(ICloudUser cloudUser, BanType banType, String reason, Date endDate) {
+        if(cloudUser.getBan() != null) {
+            IBan ban = cloudUser.getBan();
+            ban.setBanType(banType);
+            ban.setEndDate(endDate);
+            ban.saveAsync();
+            return ban;
+        }
         BanModel model = new BanModel(cloudUser.getModel(), banType.name(), reason, endDate);
         this.databaseProvider.getBanDao().create(model);
         Ban ban = new Ban(this, model.getId());
+        ban.loadAsync();
         cloudUser.setBan(ban);
         cloudUser.saveAsync();
         return ban;

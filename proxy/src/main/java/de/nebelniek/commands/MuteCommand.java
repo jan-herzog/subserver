@@ -70,7 +70,8 @@ public class MuteCommand extends BaseCommand {
         });
     }
 
-    @Default
+    @Subcommand("unmute")
+    @CommandAlias("unmute")
     @CommandCompletion("@players @nothing")
     public void onUnmute(ProxiedPlayer sender, @Single String target) {
         cloudUserManagingService.loadUserByName(target).thenAccept(cloudUser -> {
