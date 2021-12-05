@@ -31,7 +31,7 @@ public class DatabaseProvider {
 
     @SneakyThrows
     public DatabaseProvider() {
-        ConnectionSource connectionSource = new JdbcPooledConnectionSource("jdbc:mariadb://alpha.server.notecho.de:3306/backend?autoReconnect=true", "out", "polen1hzg");
+        ConnectionSource connectionSource = new JdbcPooledConnectionSource("jdbc:mariadb://localhost:3306/backend?autoReconnect=true", "root", "$kU*vvHe^oj#yZsHND6uxt$nZKsnA9j!");
         this.playerDao = DaoManager.createDao(connectionSource, CloudUserModel.class);
         TableUtils.createTableIfNotExists(connectionSource, CloudUserModel.class);
         this.banDao = DaoManager.createDao(connectionSource, BanModel.class);

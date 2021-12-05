@@ -54,8 +54,8 @@ public class BukkitConfiguration {
         mainGuild = context.getBean(JDA.class).getGuildById("911963860242673734");
         this.plugin = plugin;
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
-        this.commy = new SpigotCommy(plugin);
-        this.commy.addHandler("discordudpate", new DiscordIdUpdateHandler());
+        //this.commy = new SpigotCommy(plugin);
+        //this.commy.addHandler("discord:update", new DiscordIdUpdateHandler());
     }
 
     @Setter

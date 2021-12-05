@@ -61,6 +61,11 @@
   </build>
   <repositories>
     <repository>
+      <id>ossrh</id>
+      <name>Commy Repository</name>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
+    </repository>
+    <repository>
       <id>dv8tion</id>
       <name>m2-dv8tion</name>
       <url>https://m2.dv8tion.net/releases</url>
@@ -89,6 +94,12 @@
     </pluginRepository>
   </pluginRepositories>
   <dependencies>
+    <dependency>
+      <groupId>com.github.expdev07</groupId>
+      <artifactId>commy-spigot</artifactId>
+      <version>1.4</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.mojang</groupId>
       <artifactId>authlib</artifactId>

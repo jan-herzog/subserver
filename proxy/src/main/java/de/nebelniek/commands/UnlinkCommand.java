@@ -63,7 +63,7 @@ public class UnlinkCommand extends BaseCommand {
             cloudUser.saveAsync();
 
             //TODO: SEND PLUGIN MESSAGE TO BUKKIT -> DISCORD REMOVE ROLE
-            proxyConfiguration.getCommy().getConnection(ProxyServer.getInstance().getServerInfo("Subserver-1")).sendMessage("discordupdate", new DiscordIdUpdatePacket(sender.getUniqueId()));
+            //proxyConfiguration.getCommy().getConnection(ProxyServer.getInstance().getServerInfo("Subserver-1")).sendMessage("discord:update", new DiscordIdUpdatePacket(sender.getUniqueId()));
             sender.sendMessage(Prefix.LINK + "Dein §9Discord§7-Account wurde von deinem Minecraft Account §cgetrennt§7!");
         });
     }

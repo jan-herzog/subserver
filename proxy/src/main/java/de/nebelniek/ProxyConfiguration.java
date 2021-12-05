@@ -49,7 +49,7 @@ public class ProxyConfiguration {
         context.getBean(DiscordVerifyController.class).setupRoutes();
         context.getBean(HomeController.class).setupRoutes();
         this.adventure = BungeeAudiences.create(plugin);
-        this.commy = new BungeeCommy(plugin);
+        //this.commy = new BungeeCommy(plugin);
     }
 
     @Setter

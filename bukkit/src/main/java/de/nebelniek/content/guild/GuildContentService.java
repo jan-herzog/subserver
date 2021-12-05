@@ -13,7 +13,6 @@ import de.nebelniek.database.guild.util.Direction;
 import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.guild.util.HomePoint;
 import de.nebelniek.database.service.GuildManagingService;
-import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.components.discord.DiscordGuildChannelService;
 import de.nebelniek.inventory.util.ItemColors;

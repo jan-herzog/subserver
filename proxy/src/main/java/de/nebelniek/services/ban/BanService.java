@@ -93,6 +93,8 @@ public class BanService implements Listener {
         if (!(sender instanceof ProxiedPlayer))
             return;
         ProxiedPlayer player = (ProxiedPlayer) sender;
+        if(event.getMessage().charAt(0) == '/')
+            return;
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
         if (cloudUser.getBan() == null)
             return;
@@ -101,7 +103,7 @@ public class BanService implements Listener {
             player.sendMessage("""
                     %s  ➥ §eGrund §7➞ %s
                     %s  ➥ §eZeit §7➞ %s
-                    """.formatted(Prefix.BAN, cloudUser.getBan().getReason(), Prefix.BAN, cloudUser.getBan().getEndDate() == null ? "§cPermanent" : BanScreen.format.format(cloudUser.getBan().getEndDate()))
+                    """.formatted(Prefix.BAN, cloudUser.getBan().getReason() == null ? "Kein Grund angegeben!" : cloudUser.getBan().getReason(), Prefix.BAN, cloudUser.getBan().getEndDate() == null ? "§cPermanent" : BanScreen.format.format(cloudUser.getBan().getEndDate()))
             );
             event.setCancelled(true);
         }
