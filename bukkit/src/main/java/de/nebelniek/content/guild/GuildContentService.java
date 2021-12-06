@@ -12,6 +12,7 @@ import de.nebelniek.database.guild.interfaces.IRegion;
 import de.nebelniek.database.guild.util.Direction;
 import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.guild.util.HomePoint;
+import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.components.discord.DiscordGuildChannelService;
@@ -25,14 +26,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class GuildContentService {
+public class GuildContentService implements Listener {
 
     private final GuildManagingService guildManagingService;
+
+    private final CloudUserManagingService cloudUserManagingService;
 
     private final CoinsContentService coinsContentService;
 
@@ -132,8 +139,18 @@ public class GuildContentService {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
     }
 
+    public GuildContentResponse listGuildMember(ICloudUser cloudUser) {
+        if (cloudUser.getGuild() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        IGuild guild = cloudUser.getGuild();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ICloudUser iCloudUser : guild.getMember())
+            stringBuilder.append("\n").append("§7 - ").append(iCloudUser.getGuildRole().getColor()).append(iCloudUser.getLastUserName());
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Deine Gilde " + guild.getColor() + guild.getName() + "§7:" + stringBuilder.toString());
+    }
+
     public GuildContentResponse kickMember(ICloudUser cloudUser, ICloudUser kicker) {
-        if (kicker.getGuild() == null)
+        if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (!cloudUser.getGuild().equals(kicker.getGuild()))
             return new GuildContentResponse(GuildResponseState.ERROR, "Dieser Spieler ist nicht in deiner Gilde!");
@@ -422,6 +439,24 @@ public class GuildContentService {
         if (player != null)
             player.sendMessage(Prefix.GUILD + "Du wurdest zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast " + cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + " zum " + cloudUser.getGuildRole().getPrettyName() + " §cdegradiert§7!");
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
+            if (cloudUser.getGuild() == null)
+                return;
+            chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 ist nun §aonline§7!");
+        });
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        cloudUserManagingService.loadUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
+            if (cloudUser.getGuild() == null)
+                return;
+            chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 ist nun §coffline§7!");
+        });
     }
 
     public long getPrice(IRegion region, Direction direction) {

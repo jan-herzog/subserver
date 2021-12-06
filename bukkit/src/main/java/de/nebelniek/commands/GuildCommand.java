@@ -101,6 +101,8 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "Setzte deiner Gilde einen Homepunkt | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §ahome");
                 sender.sendMessage(Prefix.GUILD + "Teleportiert dich nach Hause | Kosten: §e" + Prices.GUILD_TP_HOME.getPrice());
+                sender.sendMessage(Prefix.GUILD + "/guild §alist");
+                sender.sendMessage(Prefix.GUILD + "Zeigt die Mitglieder deiner Gilde");
                 sender.sendMessage(Prefix.GUILD + "/guild §aclaim");
                 sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: §e5k");
                 sender.sendMessage(Prefix.GUILD + "/guild §akick§2 [Spieler]");
@@ -185,6 +187,14 @@ public class GuildCommand extends BaseCommand {
     @Subcommand("bank")
     public void bank(Player sender) {
         cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.showBalance(cloudUser))).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Subcommand("list")
+    public void list(Player sender) {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.listGuildMember(cloudUser))).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });

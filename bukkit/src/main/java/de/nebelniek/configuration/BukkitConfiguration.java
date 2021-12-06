@@ -47,11 +47,8 @@ public class BukkitConfiguration {
     @Getter
     private static Guild mainGuild;
 
-    @Getter
-    private SpigotCommy commy;
-
     public void startBukkitPlugin(ApplicationContext context, JavaPlugin plugin) {
-        mainGuild = context.getBean(JDA.class).getGuildById("911963860242673734");
+        mainGuild = context.getBean(JDA.class).getGuildById("782571463370080266");
         this.plugin = plugin;
         this.eventPublisher.publishEvent(new BukkitPluginEnableEvent(context, plugin));
         //this.commy = new SpigotCommy(plugin);
