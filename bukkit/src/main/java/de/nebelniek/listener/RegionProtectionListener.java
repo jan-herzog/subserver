@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,12 @@ public class RegionProtectionListener implements Listener {
                 event.setCancelled(true);
     }
 
+    @EventHandler
+    public void onFloat(BlockFromToEvent event) {
+        if (isForbidden(event.getToBlock().getLocation(), event.getToBlock().getLocation()))
+            event.setCancelled(true);
+    }
+
     private boolean isForbidden(Player player, Location location) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
         IGuild guild = guildManagingService.getGuildAt(location.getX(), location.getZ());
@@ -48,12 +55,18 @@ public class RegionProtectionListener implements Listener {
                     return true;
                 }
             } else {
-                if(combatLogService.isInFight(cloudUser)) {
+                if (combatLogService.isInFight(cloudUser)) {
                     player.sendMessage(Prefix.COMBAT + "§cDu bist im Kampf! §7Du darfst nur außerhalb deines Grundstückes interagieren.");
                     return true;
                 }
             }
         return false;
+    }
+
+    private boolean isForbidden(Location from, Location to) {
+        IGuild fromGuild = guildManagingService.getGuildAt(from.getX(), from.getZ());
+        IGuild toGuild = guildManagingService.getGuildAt(to.getX(), to.getZ());
+        return toGuild != null && fromGuild == null;
     }
 
 }

@@ -67,20 +67,26 @@ public class ScoreboardManagementService implements Listener {
     }
 
     public void updateCoins(ICloudUser cloudUser) {
-        System.out.println(fastBoards);
-        System.out.println(cloudUser);
+        if (fastBoards.get(cloudUser) == null)
+            return;
         fastBoards.get(cloudUser).updateLine(5, " §7➥ " + cloudUser.getCoins() + "$");
     }
 
     public void updateProfile(ICloudUser cloudUser) {
+        if (fastBoards.get(cloudUser) == null)
+            return;
         fastBoards.get(cloudUser).updateLine(2, " §7➥ " + (cloudUser.getGuildRole() != null ? cloudUser.getGuildRole().getColor() : "§7") + cloudUser.getLastUserName());
     }
 
     public void updateRegion(ICloudUser cloudUser, IGuild guild) {
+        if (fastBoards.get(cloudUser) == null)
+            return;
         fastBoards.get(cloudUser).updateLine(11, " §7➥ " + (guild == null ? "§2Wildnis" : guild.getColor() + guild.getName()));
     }
 
     public void updateGuild(ICloudUser cloudUser) {
+        if (fastBoards.get(cloudUser) == null)
+            return;
         fastBoards.get(cloudUser).updateLine(8, " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde"));
     }
 

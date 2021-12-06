@@ -153,27 +153,26 @@ public class CloudUserManagingService {
     }
 
     public CompletableFuture<? extends ICloudUser> loadUserByName(String name) {
-        return CompletableFuture.supplyAsync(new Supplier<ICloudUser>() {
-            @SneakyThrows
-            @Override
-            public ICloudUser get() {
-                if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getLastUserName().equals(name))) {
-                    ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getLastUserName().equals(name)).findAny().get().getValue();
-                    cloudUser.load();
-                    return cloudUser;
-                }
-                CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("lastUserName", name).queryForFirst();
-                if (model == null)
-                    return null;
-                CloudUser cloudUser = new CloudUser(CloudUserManagingService.this, model.getId());
-                cloudUser.load();
-                cloudUsers.put(cloudUser.getUuid(), cloudUser);
-                return cloudUser;
-            }
-        }).exceptionally(throwable -> {
+        return CompletableFuture.supplyAsync(() -> loadUserByNameSync(name)).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });
+    }
+
+    @SneakyThrows
+    public ICloudUser loadUserByNameSync(String name) {
+        if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getLastUserName().equals(name))) {
+            ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getLastUserName().equals(name)).findAny().get().getValue();
+            cloudUser.load();
+            return cloudUser;
+        }
+        CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("lastUserName", name).queryForFirst();
+        if (model == null)
+            return null;
+        CloudUser cloudUser = new CloudUser(CloudUserManagingService.this, model.getId());
+        cloudUser.load();
+        cloudUsers.put(cloudUser.getUuid(), cloudUser);
+        return cloudUser;
     }
 
     @SneakyThrows
@@ -195,7 +194,7 @@ public class CloudUserManagingService {
 
     @SneakyThrows
     public IBan createBanSync(ICloudUser cloudUser, BanType banType, String reason, Date endDate) {
-        if(cloudUser.getBan() != null) {
+        if (cloudUser.getBan() != null) {
             IBan ban = cloudUser.getBan();
             ban.setBanType(banType);
             ban.setEndDate(endDate);

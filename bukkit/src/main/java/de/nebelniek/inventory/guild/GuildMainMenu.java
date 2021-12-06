@@ -33,7 +33,7 @@ public class GuildMainMenu extends GuildInventory {
         addClickOption(new ClickOption(4, ItemBuilder.item(Material.RAW_GOLD_BLOCK)
                 .setDisplayName("§8» " + ItemColors.BANK.getPrimary() + "§lBank §r§8«")
                 .setLore(
-                        "§7Rufe dein " + ItemColors.BANK.getAccent() + "Guthaben §7ab, was in der §" + ItemColors.BANK.getAccent() + "Gilden-Bank§7 gespeichert ist.",
+                        "§7Rufe dein " + ItemColors.BANK.getAccent() + "Guthaben §7ab, was in der " + ItemColors.BANK.getAccent() + "Gilden-Bank§7 gespeichert ist.",
                         " §7➥ §aLinksklick§7 ➞ Geld §alagern",
                         " §7➥ §cRechtsklick§7 ➞ Geld §cabheben"
                 )

@@ -63,6 +63,7 @@ public class ChannelPointRedemtionService {
             cloudUserManagingService.loadUserByTwitchId(userId).thenAccept(cloudUser -> {
                 if (cloudUser == null) {
                     twitchClient.getChat().sendPrivateMessage(redeemedEvent.getRedemption().getUser().getLogin(), "Du musst zuerst deinen Twitch Account mit Hilfe von [/verify twitch] auf dem Minecraft-Server nebelniek.de verlinken, um Coins einlösen zu können! Wenn du jemanden deine Coins schenken willst, kannst du das dann auf dem Subserver machen.");
+                    System.out.println("Invalid Twitch ID " + userId + " -> cancel");
                     setRedemptionStatus(redeemedEvent, RedemptionStatus.CANCELED);
                     return;
                 }

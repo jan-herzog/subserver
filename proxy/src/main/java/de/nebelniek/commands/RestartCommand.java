@@ -32,8 +32,10 @@ public class RestartCommand extends BaseCommand {
         task = ProxyServer.getInstance().getScheduler().schedule(configuration.getCommandManager().getPlugin(), () -> {
             if(secondsInt.get() == 10 || secondsInt.get() == 5)
                 ProxyServer.getInstance().broadcast(Prefix.PROXY + "Das komplette Netzwerk startet in §a" + secondsInt + "§7 neu...");
-            if(secondsInt.get() == 0)
+            if(secondsInt.get() == 0) {
                 ProxyServer.getInstance().broadcast(Prefix.PROXY + "Das komplette Netzwerk startet neu...");
+                ProxyServer.getInstance().stop();
+            }
             secondsInt.getAndDecrement();
         }, 1, 1, TimeUnit.SECONDS);
     }

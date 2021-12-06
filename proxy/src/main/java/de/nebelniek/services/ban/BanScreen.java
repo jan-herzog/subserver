@@ -32,7 +32,7 @@ public class BanScreen {
                                             
                 §e§lNebelniek Subserver
                                             
-                Du wurdest für §c%s §7vom Server §cgesperrt§7!
+                §r§7Du wurdest für §c%s §7vom Server §cgesperrt§7!
                                             
                 §7Grund: §8%s
                                             

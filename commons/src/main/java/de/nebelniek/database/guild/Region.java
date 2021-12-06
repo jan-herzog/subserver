@@ -6,6 +6,8 @@ import de.nebelniek.database.guild.util.Direction;
 import de.nebelniek.database.service.GuildManagingService;
 import lombok.*;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.concurrent.CompletableFuture;
 
 @Builder
@@ -58,13 +60,51 @@ public class Region implements IRegion {
     }
 
     public boolean doesCollide(Region other) {
-        if (aX == bX || aZ == bZ || other.aX == other.bX || other.aZ == other.bZ)
-            return false;
-        if (aX >= other.bX || other.aX >= bX)
-            return false;
-        if (bZ >= other.aZ || other.bZ >= aZ)
-            return false;
-        return true;
+        return getBounds(this).intersects(getBounds(other));
+    }
+
+    public boolean doesCollide(double aX, double aZ, double bX, double bZ) {
+        return getBounds(this).intersects(getBounds(aX, aZ, bX, bZ));
+    }
+
+    private static Rectangle2D getBounds(double aX, double aZ, double bX, double bZ) {
+        double x, w;
+        if (aX < bX) {
+            x = aX;
+            w = bX - aX;
+        } else {
+            x = bX;
+            w = aX - bX;
+        }
+        double y, h;
+        if (aZ < bZ) {
+            y = aZ;
+            h = bZ - aZ;
+        } else {
+            y = bZ;
+            h = aZ - bZ;
+        }
+        return new Rectangle2D.Double(x, y, w, h);
+    }
+
+    private static Rectangle2D getBounds(Region r) {
+        double x, w;
+        if (r.aX < r.bX) {
+            x = r.aX;
+            w = r.bX - r.aX;
+        } else {
+            x = r.bX;
+            w = r.aX - r.bX;
+        }
+        double y, h;
+        if (r.aZ < r.bZ) {
+            y = r.aZ;
+            h = r.bZ - r.aZ;
+        } else {
+            y = r.bZ;
+            h = r.aZ - r.bZ;
+        }
+        return new Rectangle2D.Double(x, y, w, h);
     }
 
     public CompletableFuture<Void> loadAsync() {
@@ -93,5 +133,15 @@ public class Region implements IRegion {
         this.model.setBX(this.bX);
         this.model.setBZ(this.bZ);
         this.service.getDatabaseProvider().getRegionDao().update(this.model);
+    }
+
+    @Override
+    public String toString() {
+        return "Region{" +
+                "aX=" + aX +
+                ", aZ=" + aZ +
+                ", bX=" + bX +
+                ", bZ=" + bZ +
+                '}';
     }
 }

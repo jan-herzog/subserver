@@ -25,7 +25,6 @@ public class RegionExpandMenu extends GuildInventory {
 
     @Override
     public void setup() {
-        //4,20,24,40
         update();
         addClickOption(new ClickOption(4, ItemBuilder.item(Material.PLAYER_HEAD)
                 .setDisplayName("§8» " + ItemColors.REGION.getPrimary() + "§lNorden §r§8«")
@@ -68,7 +67,7 @@ public class RegionExpandMenu extends GuildInventory {
     @OptionHandler(4)
     public void onNorth(OptionClickEvent event) {
         sendResponse(event.getPlayer(), guildContentService.expandRegion(opener, Direction.NORTH));
-        update();
+        new RegionExpandMenu(guild, opener).open(event.getPlayer());
     }
 
     @OptionHandler(20)

@@ -20,6 +20,7 @@ import de.nebelniek.inventory.util.ItemColors;
 import de.nebelniek.components.scoreboard.ScoreboardManagementService;
 import de.nebelniek.components.tablistchat.TablistServiceSubserver;
 import de.nebelniek.utils.Prefix;
+import de.notecho.inventory.animation.AnimationTypePresets;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
@@ -146,7 +147,7 @@ public class GuildContentService implements Listener {
         StringBuilder stringBuilder = new StringBuilder();
         for (ICloudUser iCloudUser : guild.getMember())
             stringBuilder.append("\n").append("§7 - ").append(iCloudUser.getGuildRole().getColor()).append(iCloudUser.getLastUserName());
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Deine Gilde " + guild.getColor() + guild.getName() + "§7:" + stringBuilder.toString());
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Mitglieder deiner Gilde " + guild.getColor() + guild.getName() + "§7:" + stringBuilder.toString());
     }
 
     public GuildContentResponse kickMember(ICloudUser cloudUser, ICloudUser kicker) {
@@ -342,8 +343,9 @@ public class GuildContentService implements Listener {
         Region clone = new Region(guild.getRegion());
         clone.expand(10, direction);
         for (IGuild iGuild : guildManagingService.getGuilds())
-            if (iGuild.getRegion().doesCollide(clone))
-                return new GuildContentResponse(GuildResponseState.ERROR, "In diese Richtung ist kein Platz für deine Gilde!");
+            if (iGuild.getRegion() != null)
+                if (iGuild.getRegion().doesCollide(clone))
+                    return new GuildContentResponse(GuildResponseState.ERROR, "In diese Richtung ist kein Platz für deine Gilde!");
         guild.getRegion().expand(10, direction);
         guild.setBalance(guild.getBalance() - getPrice(guild.getRegion(), direction));
         guild.saveAsync();
@@ -375,6 +377,10 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
         if (guild.getRegion() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat bereits eine Region beansprucht!");
+        for (IGuild iGuild : guildManagingService.getGuilds())
+            if (iGuild.getRegion() != null)
+                if (iGuild.getRegion().doesCollide(location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20))
+                    return new GuildContentResponse(GuildResponseState.ERROR, "Hier ist leider kein Platz für deine Gilde!");
         guildManagingService.createRegion(location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20).thenAccept(region -> {
             guild.setBalance(guild.getBalance() - Prices.GUILD_CLAIM_REGION.getPrice());
             guild.setRegion(region);

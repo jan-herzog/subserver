@@ -39,9 +39,11 @@ public class BanService implements Listener {
         return cloudUser.getBan().getBanType() == BanType.MUTE;
     }
 
+    @SneakyThrows
     public boolean unban(ICloudUser cloudUser) {
         if (cloudUser.getBan() == null)
             return false;
+        cloudUserManagingService.getDatabaseProvider().getBanDao().delete(cloudUser.getBan().getModel());
         cloudUser.setBan(null);
         cloudUser.saveAsync();
         return true;
@@ -77,14 +79,17 @@ public class BanService implements Listener {
     @SneakyThrows
     @EventHandler
     public void onPreLogin(PreLoginEvent event) {
-        cloudUserManagingService.loadUserByName(event.getConnection().getName()).thenAccept(cloudUser -> {
-            if (cloudUser.getBan() == null)
-                return;
-            if (cloudUser.getBan().getBanType().equals(BanType.PROXY_BAN)) {
-                event.setCancelReason(BanScreen.timeLeft(cloudUser.getBan().getEndDate(), cloudUser.getBan().getReason()));
-                event.setCancelled(true);
-            }
-        });
+        ICloudUser cloudUser = cloudUserManagingService.loadUserByNameSync(event.getConnection().getName());
+        if (cloudUser == null || cloudUser.getTwitchId() == null) {
+            event.setCancelReason("§c§lGesperrt!");
+            event.setCancelled(true);
+        }
+        if (cloudUser.getBan() == null)
+            return;
+        if (cloudUser.getBan().getBanType().equals(BanType.PROXY_BAN)) {
+            event.setCancelReason(BanScreen.timeLeft(cloudUser.getBan().getEndDate(), cloudUser.getBan().getReason()));
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -93,7 +98,7 @@ public class BanService implements Listener {
         if (!(sender instanceof ProxiedPlayer))
             return;
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        if(event.getMessage().charAt(0) == '/')
+        if (event.getMessage().charAt(0) == '/')
             return;
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
         if (cloudUser.getBan() == null)

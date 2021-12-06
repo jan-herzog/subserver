@@ -29,6 +29,8 @@ public interface IRegion extends Loadable, Saveable {
 
     boolean doesCollide(Region other);
 
+    boolean doesCollide(double aX, double aZ, double bX, double bZ);
+
     RegionModel getModel();
 
 }

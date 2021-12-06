@@ -12,7 +12,6 @@ public class PlayerDeathListener implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-        Player player = event.getPlayer();
         event.setDeathMessage(Prefix.SUBSERVER + event.getDeathMessage());
     }
 

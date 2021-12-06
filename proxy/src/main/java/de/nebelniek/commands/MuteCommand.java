@@ -66,7 +66,6 @@ public class MuteCommand extends BaseCommand {
             if (player == null)
                 return;
             player.sendMessage(Prefix.BAN + "Du wurdest für §e" + duration + "§c gemutet§7! " + (reason != null ? "Grund: §8" + reason : ""));
-            player.disconnect(new TextComponent(BanScreen.time(duration, reason)));
         });
     }
 

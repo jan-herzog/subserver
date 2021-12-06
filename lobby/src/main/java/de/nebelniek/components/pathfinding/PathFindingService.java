@@ -9,7 +9,7 @@ public class PathFindingService {
 
     private final PathFindingPoint[] points = {
             new PathFindingPoint(95, 7, 110),
-            new PathFindingPoint(94, 6.5, 110),
+            new PathFindingPoint(94, 6.5, 111),
             new PathFindingPoint(93, 6, 112),
             new PathFindingPoint(92, 6, 113),
             new PathFindingPoint(91, 6, 114),
