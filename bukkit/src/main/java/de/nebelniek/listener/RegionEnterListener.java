@@ -59,6 +59,9 @@ public class RegionEnterListener implements Listener {
             lastRegions.put(cloudUser, guild.getRegion());
             displayTitle(guild, player);
             scoreboardManagementService.updateRegion(cloudUser, guild);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 

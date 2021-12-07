@@ -6,6 +6,7 @@ import com.github.twitch4j.helix.domain.User;
 import de.nebelniek.ProxyConfiguration;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.services.hashcode.TwitchHashcodeService;
+import de.nebelniek.services.permission.RankUpdateService;
 import de.nebelniek.services.twitch.TwitchSubscriptionService;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;

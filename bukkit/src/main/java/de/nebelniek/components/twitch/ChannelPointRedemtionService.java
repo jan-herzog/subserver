@@ -32,7 +32,7 @@ public class ChannelPointRedemtionService {
         this.twitchClient = twitchClient;
         this.cloudUserManagingService = cloudUserManagingService;
         this.coinsContentService = coinsContentService;
-        startListener();
+        //startListener();
     }
 
     private void startListener() {

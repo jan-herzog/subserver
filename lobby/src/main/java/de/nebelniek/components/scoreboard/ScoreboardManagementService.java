@@ -53,10 +53,10 @@ public class ScoreboardManagementService implements Listener {
                 " §7➥ " + (cloudUser.getGuildRole() != null ? cloudUser.getGuildRole().getColor() : "§7") + player.getName(),
                 "",
                 "§8● §dCoins",
-                " §7➥ " + cloudUser.getCoins() + "$",
+                " §7➥ " + cloudUser.getCoins() + "$"/*,
                 "",
                 "§8● §dGilde",
-                " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde")
+                " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde")*/
         );
         return board;
     }

@@ -22,7 +22,7 @@ public class ProxyPingListener implements Listener {
     public void onPing(ProxyPingEvent event) {
         ServerPing serverPing = event.getResponse();
         serverPing.setDescription(
-                hexColors.main() + "§l          Nebelniek Subserver §7[" + hexColors.accent() + "1§7." + hexColors.accent() + "17§7." + hexColors.accent() + "1§7]§r\n" +
+                hexColors.main() + "§l            Nebelniek Subserver §7[" + hexColors.accent() + "1§7." + hexColors.accent() + "18§7]§r\n" +
                         "                   §5twitch.tv/nebelniek"
         );
         event.setResponse(serverPing);

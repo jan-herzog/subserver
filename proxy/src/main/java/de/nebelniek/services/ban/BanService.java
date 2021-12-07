@@ -83,6 +83,7 @@ public class BanService implements Listener {
         if (cloudUser == null || cloudUser.getTwitchId() == null) {
             event.setCancelReason("§c§lGesperrt!");
             event.setCancelled(true);
+            return;
         }
         if (cloudUser.getBan() == null)
             return;

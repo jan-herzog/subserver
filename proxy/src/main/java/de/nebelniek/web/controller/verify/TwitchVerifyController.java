@@ -7,9 +7,12 @@ import com.github.twitch4j.helix.domain.User;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.services.hashcode.TwitchHashcodeService;
+import de.nebelniek.services.permission.RankUpdateService;
 import de.nebelniek.services.verify.TwitchVerifyService;
 import de.nebelniek.services.verify.VerifyService;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -29,6 +32,8 @@ public class TwitchVerifyController extends VerifyController {
 
     private final OAuth2IdentityProvider oAuth2IdentityProvider;
 
+    private final RankUpdateService rankUpdateService;
+
     public void setupRoutes() {
         get("/twitch/auth", (request, response) -> {
             String hash = request.queryParams("hash");
@@ -36,7 +41,7 @@ public class TwitchVerifyController extends VerifyController {
                 response.redirect("/error");
                 return "";
             }
-            response.cookie("/callback/twitch","res", hash, 1000, true);
+            response.cookie("/callback/twitch", "res", hash, 1000, true);
             response.redirect("https://id.twitch.tv/oauth2/authorize?client_id=7suv1m3ae2vbiqjpbn5n2ovlnta440&redirect_uri=https://verify.nebelniek.de/callback/twitch&response_type=code&scope=user:read:email");
             return "";
         });
@@ -55,6 +60,9 @@ public class TwitchVerifyController extends VerifyController {
             User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null, null).execute().getUsers().get(0);
             cloudUser.setTwitchId(twitchUser.getId());
             cloudUser.save();
+            ProxiedPlayer player = ProxyServer.getInstance().getPlayer(cloudUser.getUuid());
+            if (player != null)
+                rankUpdateService.check(cloudUser, player);
             verifyService.notifyPlayerIfOnline(cloudUser.getUuid(), credential);
             response.redirect("/?ref=success&name=" + twitchUser.getLogin());
             return "";
