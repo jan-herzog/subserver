@@ -133,8 +133,7 @@ public class GuildContentService implements Listener {
         }
         cloudUser.setGuild(null);
         cloudUser.saveAsync();
-        scoreboardManagementService.updateProfile(cloudUser);
-        scoreboardManagementService.updateGuild(cloudUser);
+        updateGuildMembersScoreboard(guild);
         tablistServiceSubserver.update();
         discordGuildChannelService.disposeGuildChannels(guild);
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Gilde " + guildName + " §cgelöscht§7!");
@@ -206,7 +205,7 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Der alte und der neue Name sind identisch!");
         guild.setName(name);
         guild.setBalance(guild.getBalance() - Prices.GUILD_RENAME.getPrice());
-        scoreboardManagementService.updateGuild(cloudUser);
+        updateGuildMembersScoreboard(guild);
         discordGuildChannelService.updateChannels(guild);
         guild.saveAsync();
         chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat den Namen der Gilde zu " + guild.getColor() + guild.getName() + "§7 geändert!");
@@ -225,7 +224,7 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Die alte und die neue Farbe sind identisch!");
         guild.setColor(color);
         guild.setBalance(guild.getBalance() - Prices.GUILD_CHANGE_COLOR.getPrice());
-        scoreboardManagementService.updateGuild(cloudUser);
+        updateGuildMembersScoreboard(guild);
         guild.saveAsync();
         chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat die Farbe der Gilde zu " + guild.getColor() + guild.getName() + "§7 geändert!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Farbe §aerfolgreich §7geändert!");
@@ -295,6 +294,19 @@ public class GuildContentService implements Listener {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest §aerfolgreich §7nach Hause teleportiert!");
     }
 
+    public GuildContentResponse tpSpawn(ICloudUser cloudUser, Player player) {
+        IGuild guild = cloudUser.getGuild();
+        if (cloudUser.getGuild() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (guild.getHome() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat keinen Home-Point!");
+        if (cloudUser.getCoins() < Prices.GUILD_TP_HOME.getPrice())
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du leider zu wenig Geld!");
+        coinsContentService.removeCoins(cloudUser, Prices.GUILD_TP_HOME.getPrice());
+        Bukkit.getScheduler().runTask(bukkitConfiguration.getPlugin(), () -> player.teleport(Bukkit.getWorld("world").getSpawnLocation()));
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest §aerfolgreich §7zum Spawn teleportiert!");
+    }
+
     public GuildContentResponse changeBalance(ICloudUser cloudUser, long value, BalanceAction action) {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
@@ -343,9 +355,10 @@ public class GuildContentService implements Listener {
         Region clone = new Region(guild.getRegion());
         clone.expand(10, direction);
         for (IGuild iGuild : guildManagingService.getGuilds())
-            if (iGuild.getRegion() != null)
-                if (iGuild.getRegion().doesCollide(clone))
-                    return new GuildContentResponse(GuildResponseState.ERROR, "In diese Richtung ist kein Platz für deine Gilde!");
+            if (guild != iGuild)
+                if (iGuild.getRegion() != null)
+                    if (iGuild.getRegion().doesCollide(clone))
+                        return new GuildContentResponse(GuildResponseState.ERROR, "In diese Richtung ist kein Platz für deine Gilde!");
         guild.getRegion().expand(10, direction);
         guild.setBalance(guild.getBalance() - getPrice(guild.getRegion(), direction));
         guild.saveAsync();
@@ -469,6 +482,16 @@ public class GuildContentService implements Listener {
         return (long) Prices.GUILD_EXPAND_REGION_BLOCK.getPrice() * direction.getBlocks(region, 10);
     }
 
+
+    private void updateGuildMembersScoreboard(IGuild guild) {
+        for (ICloudUser cloudUser : guild.getMember()) {
+            Player player = Bukkit.getPlayer(cloudUser.getUuid());
+            if(player != null) {
+                scoreboardManagementService.updateGuild(cloudUser);
+                scoreboardManagementService.updateProfile(cloudUser);
+            }
+        }
+    }
 
     private ICloudUser getNextLeader(IGuild guild) {
         for (GuildRole value : GuildRole.values()) {

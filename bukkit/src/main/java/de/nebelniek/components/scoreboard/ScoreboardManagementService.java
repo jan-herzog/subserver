@@ -61,7 +61,7 @@ public class ScoreboardManagementService implements Listener {
                 " §7➥ " + (cloudUser.getGuild() != null ? cloudUser.getGuild().getColor() + cloudUser.getGuild().getName() : "§7Keine Gilde"),
                 "",
                 "§8● §dGebiet",
-                " §7➥ Wird geladen..."
+                " §7➥ §2Wildnis"
         );
         return board;
     }

@@ -34,14 +34,13 @@ public class TablistServiceSubserver implements Listener {
     private int i = 0;
 
     public void createTeams() {
-        if (scoreboard.getTeam(i + "Player") == null)
-            scoreboard.registerNewTeam(i + "Player").setPrefix(SubserverRank.DEFAULT.getPrefix() + " ");
+        if (scoreboard.getTeam("99999Player") == null)
+            scoreboard.registerNewTeam("99999Player").setPrefix(SubserverRank.DEFAULT.getPrefix() + " ");
         for (IGuild guild : guildManagingService.getGuilds()) {
             newGuild(guild);
         }
         for (Team team : scoreboard.getTeams())
             team.setColor(ChatColor.GRAY);
-        System.out.println(scoreboard.getTeams());
         update();
     }
 
