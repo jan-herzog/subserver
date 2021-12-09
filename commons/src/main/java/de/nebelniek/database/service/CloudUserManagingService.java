@@ -104,27 +104,26 @@ public class CloudUserManagingService {
     }
 
     public CompletableFuture<? extends ICloudUser> loadUserByTwitchId(String twitchId) {
-        return CompletableFuture.supplyAsync(new Supplier<ICloudUser>() {
-            @SneakyThrows
-            @Override
-            public ICloudUser get() {
-                if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getTwitchId().equals(twitchId))) {
-                    ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId().equals(twitchId)).findAny().get().getValue();
-                    cloudUser.load();
-                    return cloudUser;
-                }
-                CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("twitchId", twitchId).queryForFirst();
-                if (model == null)
-                    return null;
-                CloudUser cloudUser = new CloudUser(CloudUserManagingService.this, model.getId());
-                cloudUser.load();
-                cloudUsers.put(cloudUser.getUuid(), cloudUser);
-                return cloudUser;
-            }
-        }).exceptionally(throwable -> {
+        return CompletableFuture.supplyAsync(() -> loadUserByTwitchIdSync(twitchId)).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });
+    }
+
+    @SneakyThrows
+    public ICloudUser loadUserByTwitchIdSync(String twitchId) {
+        if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getTwitchId() != null && entry.getValue().getTwitchId().equals(twitchId))) {
+            ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId().equals(twitchId)).findAny().get().getValue();
+            cloudUser.load();
+            return cloudUser;
+        }
+        CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("twitchId", twitchId).queryForFirst();
+        if (model == null)
+            return null;
+        CloudUser cloudUser = new CloudUser(CloudUserManagingService.this, model.getId());
+        cloudUser.load();
+        cloudUsers.put(cloudUser.getUuid(), cloudUser);
+        return cloudUser;
     }
 
     public CompletableFuture<? extends ICloudUser> loadUserByDiscordId(String discordId) {

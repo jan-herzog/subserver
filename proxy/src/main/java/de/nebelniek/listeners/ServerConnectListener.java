@@ -2,6 +2,8 @@ package de.nebelniek.listeners;
 
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
+import de.nebelniek.services.maintenance.MaintenanceKey;
+import de.nebelniek.services.maintenance.MaintenanceService;
 import de.nebelniek.utils.ClickCooldown;
 import de.nebelniek.utils.HexColors;
 import de.nebelniek.utils.Prefix;
@@ -23,10 +25,18 @@ public class ServerConnectListener implements Listener {
 
     private final CloudUserManagingService cloudUserManagingService;
 
+    private final MaintenanceService maintenanceService;
+
     @EventHandler
     public void onServerSwitch(ServerConnectEvent event) {
         ProxiedPlayer player = event.getPlayer();
         ServerInfo serverInfo = event.getTarget();
+        for (MaintenanceKey value : MaintenanceKey.values())
+            if (serverInfo.getName().contains(value.getGroup()))
+                if (maintenanceService.get(value)) {
+                    event.setCancelled(true);
+                    return;
+                }
         if (serverInfo.getName().contains("Subserver")) {
             if (!ClickCooldown.isAbleToClick(player.getUniqueId())) {
                 player.sendMessage(Prefix.PROXY + "Bitte warte noch " + ClickCooldown.getCooldown(player.getUniqueId()) + " Sekunden...");

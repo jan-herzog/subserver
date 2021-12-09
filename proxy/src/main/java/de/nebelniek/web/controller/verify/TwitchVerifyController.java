@@ -58,6 +58,11 @@ public class TwitchVerifyController extends VerifyController {
             ICloudUser cloudUser = repository.loadUserSync(hashcodeService.deleteHash(hash));
             OAuth2Credential credential = oAuth2IdentityProvider.getCredentialByCode(code);
             User twitchUser = twitchClient.getHelix().getUsers(credential.getAccessToken(), null, null).execute().getUsers().get(0);
+            ICloudUser existing = repository.loadUserByTwitchIdSync(twitchUser.getId());
+            if(existing != null) {
+                response.redirect("/error");
+                return "";
+            }
             cloudUser.setTwitchId(twitchUser.getId());
             cloudUser.save();
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer(cloudUser.getUuid());

@@ -5,6 +5,7 @@ import de.nebelniek.utils.Prefix;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 @Service
-public class SleepService {
+public class SleepService implements Listener {
 
     private final ArrayList<Player> sleeping = new ArrayList<>();
 

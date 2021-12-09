@@ -72,7 +72,7 @@ public class GuildCommand extends BaseCommand {
             sender.sendMessage(Prefix.GUILD + "/guild");
             sender.sendMessage(Prefix.GUILD + "Öffnet das Guild-Menu");
             sender.sendMessage(Prefix.GUILD + "/guild §acreate§2 [name]");
-            sender.sendMessage(Prefix.GUILD + "Erstellt eine Gilde | Kosten: §e10k");
+            sender.sendMessage(Prefix.GUILD + "Erstellt eine Gilde | Kosten: §e50k");
             sender.sendMessage(Prefix.GUILD + "/guild §aleave§2 [name]");
             sender.sendMessage(Prefix.GUILD + "Verlasse deine Gilde");
             sender.sendMessage(Prefix.GUILD + "/guild §adelete§2 [name]");
@@ -85,7 +85,7 @@ public class GuildCommand extends BaseCommand {
             sender.sendMessage(Prefix.GUILD + "Lehne eine Einladung ab");
             if (cloudUser.getGuild() != null) {
                 sender.sendMessage(Prefix.GUILD + "/guild §arename§2 [name]");
-                sender.sendMessage(Prefix.GUILD + "Nenne deine Gilde um | Kosten: §e5k");
+                sender.sendMessage(Prefix.GUILD + "Nenne deine Gilde um | Kosten: §e10k");
                 sender.sendMessage(Prefix.GUILD + "/guild §achangeprefix§2 [prefix]");
                 sender.sendMessage(Prefix.GUILD + "Setzt den Prefix | Kosten: §e15k");
                 sender.sendMessage(Prefix.GUILD + "/guild §achangecolor§2 [colorcode]");
@@ -104,7 +104,7 @@ public class GuildCommand extends BaseCommand {
                 sender.sendMessage(Prefix.GUILD + "/guild §alist");
                 sender.sendMessage(Prefix.GUILD + "Zeigt die Mitglieder deiner Gilde");
                 sender.sendMessage(Prefix.GUILD + "/guild §aclaim");
-                sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: §e5k");
+                sender.sendMessage(Prefix.GUILD + "Beanspruche eine Region für deine Gilde | Kosten: §e20k");
                 sender.sendMessage(Prefix.GUILD + "/guild §akick§2 [Spieler]");
                 sender.sendMessage(Prefix.GUILD + "Kicke ein Mitglied");
                 ally(sender);
@@ -155,6 +155,7 @@ public class GuildCommand extends BaseCommand {
 
     @Subcommand("changecolor")
     @Syntax("§7[§ecolorcode§7]")
+    @CommandCompletion("1|2|3|4|5|6|7|8|9|0|a|b|c|d|e")
     public void changeColor(Player sender, @Single String colorcode) {
         ChatColor chatColor = ChatColor.getByChar(colorcode.charAt(0));
         if (chatColor == null || !chatColor.isColor()) {

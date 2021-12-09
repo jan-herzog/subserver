@@ -79,12 +79,11 @@ public class BanService implements Listener {
     @SneakyThrows
     @EventHandler
     public void onPreLogin(PreLoginEvent event) {
-        ICloudUser cloudUser = cloudUserManagingService.loadUserByNameSync(event.getConnection().getName());
-        if (cloudUser == null || cloudUser.getTwitchId() == null) {
-            event.setCancelReason("§c§lGesperrt!");
-            event.setCancelled(true);
+        if (event.getConnection().getName().equalsIgnoreCase("Kexesser"))
             return;
-        }
+        ICloudUser cloudUser = cloudUserManagingService.loadUserByNameSync(event.getConnection().getName());
+        if (cloudUser == null)
+            return;
         if (cloudUser.getBan() == null)
             return;
         if (cloudUser.getBan().getBanType().equals(BanType.PROXY_BAN)) {

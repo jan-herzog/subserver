@@ -25,15 +25,11 @@ public class RankUpdateService {
 
     private final TwitchSubscriptionService twitchSubscriptionService;
 
-    private final TwitchVerifyService verifyService;
-
     private final TwitchClient twitchClient;
 
     public void check(ICloudUser cloudUser, ProxiedPlayer player) {
         LuckPerms luckPerms = ProxyConfiguration.getLuckPerms();
         twitchSubscriptionService.checkIfSubbed(cloudUser).thenAccept(is -> {
-            if (cloudUser.getTwitchId() == null)
-                verifyService.showVerifySuggestion(player);
             if (luckPerms.getUserManager().getUser(cloudUser.getUuid()).getPrimaryGroup().equalsIgnoreCase("administrator"))
                 return;
             if (luckPerms.getUserManager().getUser(cloudUser.getUuid()).getPrimaryGroup().equalsIgnoreCase("team"))

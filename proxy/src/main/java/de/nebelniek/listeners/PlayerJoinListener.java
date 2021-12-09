@@ -34,12 +34,16 @@ public class PlayerJoinListener implements Listener {
 
     private final RankUpdateService rankUpdateService;
 
+    private final TwitchVerifyService verifyService;
+
     @EventHandler
     public void onPlayerJoin(PostLoginEvent event) {
         ProxiedPlayer player = event.getPlayer();
         cloudUserRepository.createUserIfNotExists(player.getUniqueId(), player.getName()).thenAccept(cloudUser -> {
             cloudUser.setLastLogin(new Date());
             cloudUser.saveAsync();
+            if (cloudUser.getTwitchId() == null)
+                verifyService.showVerifySuggestion(player);
             rankUpdateService.check(cloudUser, player);
         }).exceptionally(throwable -> {
             throwable.printStackTrace();

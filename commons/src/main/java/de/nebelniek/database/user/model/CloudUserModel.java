@@ -50,7 +50,7 @@ public class CloudUserModel {
         this.lastUserName = lastUserName;
         this.lastLogin = new Date();
         this.twitchId = null;
-        this.coins = 0;
+        this.coins = 100000L;
         this.subbed = false;
         this.guildModel = null;
         this.textureHash = null;

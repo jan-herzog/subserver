@@ -8,6 +8,7 @@ import co.aikar.commands.annotation.Subcommand;
 import de.nebelniek.ProxyConfiguration;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.message.DiscordIdUpdatePacket;
+import de.nebelniek.services.permission.RankUpdateService;
 import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
@@ -22,7 +23,7 @@ public class UnlinkCommand extends BaseCommand {
 
     private final CloudUserManagingService cloudUserManagingService;
 
-    private final ProxyConfiguration proxyConfiguration;
+    private final RankUpdateService rankUpdateService;
 
     @Default
     @CatchUnknown
@@ -48,6 +49,7 @@ public class UnlinkCommand extends BaseCommand {
             cloudUser.setTwitchId(null);
             cloudUser.setSubbed(false);
             cloudUser.saveAsync();
+            rankUpdateService.check(cloudUser, sender);
             sender.sendMessage(Prefix.LINK + "Dein §5Twitch§7-Account wurde von deinem Minecraft Account §cgetrennt§7!");
         });
     }

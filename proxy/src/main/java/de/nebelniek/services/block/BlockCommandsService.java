@@ -17,6 +17,7 @@ public class BlockCommandsService implements Listener {
             "help",
             "version",
             "ver",
+            "me",
             "purpur",
             "bungee",
             "cloud",
@@ -24,11 +25,8 @@ public class BlockCommandsService implements Listener {
 
     @EventHandler
     public void onChat(ChatEvent event) {
-        if (!(event.getSender() instanceof ProxiedPlayer)) {
-
+        if (!(event.getSender() instanceof ProxiedPlayer))
             return;
-        }
-
         ProxiedPlayer sender = (ProxiedPlayer) event.getSender();
         String message = event.getMessage();
         if (!message.startsWith("/"))
@@ -49,7 +47,7 @@ public class BlockCommandsService implements Listener {
         }
 
         for (String s : array) {
-            if (firstArg.toLowerCase().contains(s)) {
+            if (firstArg.toLowerCase().equalsIgnoreCase(s)) {
                 sender.sendMessage(Prefix.PROXY + "§cDu darfst diesen Command nicht benutzen.");
                 event.setCancelled(true);
                 return;
