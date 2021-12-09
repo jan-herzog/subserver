@@ -1,5 +1,6 @@
 package de.nebelniek.content.guild;
 
+import de.nebelniek.components.spawnprotection.SpawnProtectionService;
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.configuration.Prices;
 import de.nebelniek.content.coins.CoinsContentService;
@@ -55,6 +56,8 @@ public class GuildContentService implements Listener {
     private final DiscordGuildChannelService discordGuildChannelService;
 
     private final GuildPrefixNameFilter guildPrefixNameFilter;
+
+    private final SpawnProtectionService spawnProtectionService;
 
     public GuildContentResponse createGuild(ICloudUser creator, String name) {
         if (creator.getGuild() != null)
@@ -390,6 +393,8 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
         if (guild.getRegion() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat bereits eine Region beansprucht!");
+        if(spawnProtectionService.isNearSpawn(location))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Entferne dich noch etwas vom Spawn!");
         for (IGuild iGuild : guildManagingService.getGuilds())
             if (iGuild.getRegion() != null)
                 if (iGuild.getRegion().doesCollide(location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20))

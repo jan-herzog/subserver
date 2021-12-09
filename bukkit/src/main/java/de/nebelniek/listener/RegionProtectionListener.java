@@ -1,6 +1,7 @@
 package de.nebelniek.listener;
 
 import de.nebelniek.components.combatlog.CombatLogService;
+import de.nebelniek.components.spawnprotection.SpawnProtectionService;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
@@ -30,11 +31,23 @@ public class RegionProtectionListener implements Listener {
 
     private final CloudUserManagingService cloudUserManagingService;
 
+    private final SpawnProtectionService spawnProtectionService;
+
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (event.getClickedBlock() != null && !event.getClickedBlock().getType().equals(Material.AIR))
             if (isForbidden(event.getPlayer(), event.getClickedBlock().getLocation()))
                 event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlaceSpawn(BlockPlaceEvent event) {
+        Material material = event.getBlock().getType();
+        if (material == Material.WATER || material == Material.LAVA)
+            if (spawnProtectionService.isInSpawn(event.getBlock().getLocation())) {
+                event.getPlayer().sendMessage(Prefix.SUBSERVER + "Du darfst am Spawn §ckeine§7 Flüssigkeiten platzieren.");
+                event.setCancelled(true);
+            }
     }
 
     @EventHandler

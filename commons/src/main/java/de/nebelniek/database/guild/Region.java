@@ -50,6 +50,15 @@ public class Region implements IRegion {
         this.bZ = region.getBZ();
     }
 
+    public Region(double aX, double aZ, double bX, double bZ) {
+        this.service = null;
+        this.model = null;
+        this.aX = aX;
+        this.aZ = aZ;
+        this.bX = bX;
+        this.bZ = bZ;
+    }
+
     public void expand(int blocks, Direction direction) {
         switch (direction) {
             case NORTH -> this.aZ -= blocks;
@@ -65,6 +74,10 @@ public class Region implements IRegion {
 
     public boolean doesCollide(double aX, double aZ, double bX, double bZ) {
         return getBounds(this).intersects(getBounds(aX, aZ, bX, bZ));
+    }
+
+    public boolean isIn(double x, double z) {
+        return x > aX && x < bX && z > aZ && z < bZ;
     }
 
     private static Rectangle2D getBounds(double aX, double aZ, double bX, double bZ) {

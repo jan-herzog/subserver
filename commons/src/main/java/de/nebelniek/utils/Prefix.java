@@ -18,6 +18,7 @@ public enum Prefix {
     COMBAT("§bCombat §8» §7"),
     SUBSERVER("§5Subserver §8» §7"),
     BAN("§4Ban §8» §7"),
+    BROADCAST("§6Broadcast §8» §7"),
     ;
 
     private String prefix;
