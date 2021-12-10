@@ -41,6 +41,7 @@ public class PlayerJoinListener implements Listener {
         ProxiedPlayer player = event.getPlayer();
         cloudUserRepository.createUserIfNotExists(player.getUniqueId(), player.getName()).thenAccept(cloudUser -> {
             cloudUser.setLastLogin(new Date());
+            cloudUser.setLastUserName(player.getName());
             cloudUser.saveAsync();
             if (cloudUser.getTwitchId() == null)
                 verifyService.showVerifySuggestion(player);

@@ -32,7 +32,7 @@ public class ChannelPointRedemtionService {
         this.twitchClient = twitchClient;
         this.cloudUserManagingService = cloudUserManagingService;
         this.coinsContentService = coinsContentService;
-        //startListener();
+        startListener();
     }
 
     private void startListener() {
@@ -45,7 +45,7 @@ public class ChannelPointRedemtionService {
                 twitchClient.getHelix().createCustomReward(
                         TwitchTokens.NEBELNIEK.getToken(),
                         TwitchTokens.NEBELNIEK.getChannelId(),
-                        CustomReward.builder().title(value.getName()).cost(value.getPrice()).shouldRedemptionsSkipRequestQueue(false).prompt("Du kannst diese Belohnung erst einlösen, wenn du auf dem Subserver verifiziert bist. (/verify auf nebelniek.de)").isUserInputRequired(false).build()
+                        CustomReward.builder().title(value.getName()).cost(value.getPrice()).shouldRedemptionsSkipRequestQueue(false).prompt("Wenn du nicht weißt was das ist: !subserver | Du kannst diese Belohnung erst einlösen, wenn du auf dem Subserver verifiziert bist. (/verify twitch)").isUserInputRequired(false).build()
                 ).execute();
         }
     }

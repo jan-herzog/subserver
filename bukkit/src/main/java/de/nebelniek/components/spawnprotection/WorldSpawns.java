@@ -9,7 +9,7 @@ import org.bukkit.Location;
 @Getter
 public enum WorldSpawns {
 
-    OVERWORLD(new Region(0,0,0,0)),
+    OVERWORLD(new Region(40,40,-40,-40)),
     NETHER(new Region(0,0,0,0)),
     END(new Region(0,0,0,0)),
     ;

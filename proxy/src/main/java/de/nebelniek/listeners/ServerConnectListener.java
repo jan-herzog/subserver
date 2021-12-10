@@ -34,7 +34,8 @@ public class ServerConnectListener implements Listener {
         for (MaintenanceKey value : MaintenanceKey.values())
             if (serverInfo.getName().contains(value.getGroup()))
                 if (maintenanceService.get(value)) {
-                    event.setCancelled(true);
+                    if (!player.hasPermission("proxy.maintenance.bypass"))
+                        event.setCancelled(true);
                     return;
                 }
         if (serverInfo.getName().contains("Subserver")) {

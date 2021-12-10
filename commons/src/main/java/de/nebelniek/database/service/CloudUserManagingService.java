@@ -115,7 +115,8 @@ public class CloudUserManagingService {
         if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getTwitchId() != null && entry.getValue().getTwitchId().equals(twitchId))) {
             ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId().equals(twitchId)).findAny().get().getValue();
             cloudUser.load();
-            return cloudUser;
+            if (cloudUser.getTwitchId() != null && cloudUser.getTwitchId().equalsIgnoreCase(twitchId))
+                return cloudUser;
         }
         CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("twitchId", twitchId).queryForFirst();
         if (model == null)
