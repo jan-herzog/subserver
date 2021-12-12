@@ -52,7 +52,7 @@ public class BanScreen {
                 §7Grund: §8%s
                                             
                 §7-------------------------
-                """.formatted(format.format(date), reason == null ? "Nicht angegeben!" : reason);
+                """.formatted(date == null ? "§cPermanent" : format.format(date), reason == null ? "Nicht angegeben!" : reason);
     }
 
     public static String ingameKick(String duration, String reason) {

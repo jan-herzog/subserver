@@ -106,7 +106,7 @@ public class GuildMainMenu extends GuildInventory {
 
     @OptionHandler(22)
     public void onHome(OptionClickEvent event) {
-        sendResponse(event.getPlayer(), guildContentService.tpHome(opener, event.getPlayer()));
+        sendResponse(event.getPlayer(), guildContentService.tpHome(opener, event.getPlayer(), null));
     }
 
 

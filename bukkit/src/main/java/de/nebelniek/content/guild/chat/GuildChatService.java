@@ -45,7 +45,17 @@ public class GuildChatService {
             Player player = Bukkit.getPlayer(iCloudUser.getUuid());
             if (player == null)
                 continue;
-            player.sendMessage(Prefix.GUILDCHAT + sender.getGuildRole().getColor() + sender.getLastUserName() + "§7: " + message);
+            player.sendMessage(Prefix.GUILDCHAT + sender.getGuildRole().getColor() + sender.getLastUserName() + (guild.getAllies().size() == 0 ? " " : "§7(" + guild.getColor() + guild.getName() + "§7) ") + ": " + message);
+        }
+        if (guild.getAllies().size() != 0) {
+            for (IGuild ally : guild.getAllies()) {
+                for (ICloudUser iCloudUser : ally.getMember()) {
+                    Player player = Bukkit.getPlayer(iCloudUser.getUuid());
+                    if (player == null)
+                        continue;
+                    player.sendMessage(Prefix.GUILDCHAT + sender.getGuildRole().getColor() + sender.getLastUserName() + "§7(" + guild.getColor() + guild.getName() + "§7) " + ": " + message);
+                }
+            }
         }
     }
 

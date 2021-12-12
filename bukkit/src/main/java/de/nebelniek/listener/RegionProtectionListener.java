@@ -1,5 +1,6 @@
 package de.nebelniek.listener;
 
+import com.destroystokyo.paper.event.entity.CreeperIgniteEvent;
 import de.nebelniek.components.combatlog.CombatLogService;
 import de.nebelniek.components.spawnprotection.SpawnProtectionService;
 import de.nebelniek.database.guild.interfaces.IGuild;
@@ -10,6 +11,7 @@ import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +19,11 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,27 +44,48 @@ public class RegionProtectionListener implements Listener {
         if (event.getClickedBlock() != null && !event.getClickedBlock().getType().equals(Material.AIR))
             if (isForbidden(event.getPlayer(), event.getClickedBlock().getLocation()))
                 event.setCancelled(true);
+        if (event.getItem() != null && (event.getItem().getType().equals(Material.SPLASH_POTION) || event.getItem().getType().equals(Material.LINGERING_POTION)))
+            if (isForbidden(event.getPlayer(), event.getClickedBlock().getLocation()))
+                event.setCancelled(true);
     }
 
     @EventHandler
-    public void onPlaceSpawn(BlockPlaceEvent event) {
-        Material material = event.getBlock().getType();
-        if (material == Material.WATER || material == Material.LAVA)
-            if (spawnProtectionService.isInSpawn(event.getBlock().getLocation())) {
-                event.getPlayer().sendMessage(Prefix.SUBSERVER + "Du darfst am Spawn §ckeine§7 Flüssigkeiten platzieren.");
-                event.setCancelled(true);
-            }
+    public void onDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player))
+            return;
+        if (!(event.getDamager() instanceof Arrow arrow))
+            return;
+        if (!(arrow.getShooter() instanceof Player player))
+            return;
+        if (isForbidden(player, arrow.getLocation()))
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onCreeper(EntityExplodeEvent event) {
+        Location location = event.getEntity().getLocation();
+        IGuild guild = guildManagingService.getGuildAt(location.getWorld().getName(), location.getX(), location.getZ());
+        if (guild != null)
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlaceSpawn(PlayerBucketEmptyEvent event) {
+        if (spawnProtectionService.isInSpawn(event.getBlock().getLocation())) {
+            event.getPlayer().sendMessage(Prefix.SUBSERVER + "Du darfst am Spawn §ckeine§7 Flüssigkeiten platzieren.");
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onFloat(BlockFromToEvent event) {
-        if (isForbidden(event.getToBlock().getLocation(), event.getToBlock().getLocation()))
+        if (isForbidden(event.getBlock().getLocation(), event.getToBlock().getLocation()))
             event.setCancelled(true);
     }
 
     private boolean isForbidden(Player player, Location location) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(player.getUniqueId());
-        IGuild guild = guildManagingService.getGuildAt(location.getX(), location.getZ());
+        IGuild guild = guildManagingService.getGuildAt(location.getWorld().getName(), location.getX(), location.getZ());
         if (guild != null)
             if (cloudUser.getGuild() != guild) {
                 if (cloudUser.getGuild() == null || (cloudUser.getGuild() != null && !cloudUser.getGuild().getAllies().contains(guild))) {
@@ -76,9 +103,10 @@ public class RegionProtectionListener implements Listener {
         return false;
     }
 
+
     private boolean isForbidden(Location from, Location to) {
-        IGuild fromGuild = guildManagingService.getGuildAt(from.getX(), from.getZ());
-        IGuild toGuild = guildManagingService.getGuildAt(to.getX(), to.getZ());
+        IGuild fromGuild = guildManagingService.getGuildAt(from.getWorld().getName(), from.getX(), from.getZ());
+        IGuild toGuild = guildManagingService.getGuildAt(to.getWorld().getName(), to.getX(), to.getZ());
         return toGuild != null && fromGuild == null;
     }
 

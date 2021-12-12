@@ -20,6 +20,9 @@ public class RegionModel {
     private long id;
 
     @DatabaseField
+    private String world;
+
+    @DatabaseField
     private double aX;
 
     @DatabaseField
@@ -31,7 +34,8 @@ public class RegionModel {
     @DatabaseField
     private double bZ;
 
-    public RegionModel(double aX, double aZ, double bX, double bZ) {
+    public RegionModel(String world, double aX, double aZ, double bX, double bZ) {
+        this.world = world;
         this.aX = aX;
         this.aZ = aZ;
         this.bX = bX;

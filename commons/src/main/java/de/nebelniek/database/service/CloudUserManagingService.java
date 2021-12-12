@@ -1,6 +1,7 @@
 package de.nebelniek.database.service;
 
 import de.nebelniek.database.DatabaseProvider;
+import de.nebelniek.database.guild.util.GuildRole;
 import de.nebelniek.database.user.CloudUser;
 import de.nebelniek.database.user.ban.Ban;
 import de.nebelniek.database.user.ban.BanType;
@@ -92,6 +93,10 @@ public class CloudUserManagingService {
         if (cloudUsers.containsKey(uuid)) {
             ICloudUser cloudUser = cloudUsers.get(uuid);
             cloudUser.load();
+            if(cloudUser.getGuild() != null && cloudUser.getGuildRole() == null) {
+                cloudUser.setGuildRole(GuildRole.LEADER);
+                cloudUser.saveAsync();
+            }
             return cloudUser;
         }
         CloudUserModel model = databaseProvider.getPlayerDao().queryBuilder().where().eq("uuid", uuid).queryForFirst();
@@ -99,6 +104,10 @@ public class CloudUserManagingService {
             return null;
         CloudUser cloudUser = new CloudUser(CloudUserManagingService.this, model.getId());
         cloudUser.load();
+        if(cloudUser.getGuild() != null && cloudUser.getGuildRole() == null) {
+            cloudUser.setGuildRole(GuildRole.LEADER);
+            cloudUser.saveAsync();
+        }
         cloudUsers.put(uuid, cloudUser);
         return cloudUser;
     }
@@ -113,7 +122,7 @@ public class CloudUserManagingService {
     @SneakyThrows
     public ICloudUser loadUserByTwitchIdSync(String twitchId) {
         if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getTwitchId() != null && entry.getValue().getTwitchId().equals(twitchId))) {
-            ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId().equals(twitchId)).findAny().get().getValue();
+            ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId() != null && entry.getValue().getTwitchId().equals(twitchId)).findAny().get().getValue();
             cloudUser.load();
             if (cloudUser.getTwitchId() != null && cloudUser.getTwitchId().equalsIgnoreCase(twitchId))
                 return cloudUser;
@@ -133,7 +142,7 @@ public class CloudUserManagingService {
             @Override
             public ICloudUser get() {
                 if (cloudUsers.entrySet().stream().anyMatch(entry -> entry.getValue().getDiscordId() != null && entry.getValue().getDiscordId().equals(discordId))) {
-                    ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getTwitchId().equals(discordId)).findAny().get().getValue();
+                    ICloudUser cloudUser = cloudUsers.entrySet().stream().filter(entry -> entry.getValue().getDiscordId() != null && entry.getValue().getDiscordId().equals(discordId)).findAny().get().getValue();
                     cloudUser.load();
                     if (cloudUser.getDiscordId().equals(discordId))
                         return cloudUser;

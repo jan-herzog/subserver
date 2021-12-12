@@ -45,7 +45,7 @@ public class ChannelPointRedemtionService {
                 twitchClient.getHelix().createCustomReward(
                         TwitchTokens.NEBELNIEK.getToken(),
                         TwitchTokens.NEBELNIEK.getChannelId(),
-                        CustomReward.builder().title(value.getName()).cost(value.getPrice()).shouldRedemptionsSkipRequestQueue(false).prompt("Wenn du nicht weißt was das ist: !subserver | Du kannst diese Belohnung erst einlösen, wenn du auf dem Subserver verifiziert bist. (/verify twitch)").isUserInputRequired(false).build()
+                        CustomReward.builder().title(value.getName()).cost(value.getPrice()).backgroundColor("#0F0F0F").shouldRedemptionsSkipRequestQueue(false).prompt("Wenn du nicht weißt was das ist: !subserver | Du kannst diese Belohnung erst einlösen, wenn du auf dem Subserver verifiziert bist. (/verify twitch)").isUserInputRequired(false).build()
                 ).execute();
         }
     }

@@ -49,4 +49,6 @@ public interface IGuild extends Loadable, Saveable {
 
     GuildModel getModel();
 
+    void loadAllies();
+
 }

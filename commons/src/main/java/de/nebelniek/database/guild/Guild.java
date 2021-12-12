@@ -113,6 +113,9 @@ public class Guild implements IGuild {
         else
             this.owner = this.member.stream().filter(cloudUser -> cloudUser.getGuildRole() != null && cloudUser.getGuildRole().equals(GuildRole.LEADER)).findFirst().orElse(null);
         this.allies = new ArrayList<>();
+    }
+
+    public void loadAllies() {
         if (this.model.getAllies() != null)
             if (!this.model.getAllies().equals(""))
                 for (String id : this.model.getAllies().split(";")) {

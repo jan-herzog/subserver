@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import de.nebelniek.utils.Prefix;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class BroadcastCommand extends BaseCommand {
 
     @Default
     public void onDefault(ProxiedPlayer sender, String text) {
-        ProxyServer.getInstance().broadcast(Prefix.BROADCAST + text);
+        ProxyServer.getInstance().broadcast(Prefix.BROADCAST + ChatColor.translateAlternateColorCodes('&', text));
     }
 
     @Default

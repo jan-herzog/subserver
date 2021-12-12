@@ -16,6 +16,10 @@ public class Region implements IRegion {
 
     @Getter
     @Setter
+    private String world;
+
+    @Getter
+    @Setter
     private double aX;
 
     @Getter
@@ -44,15 +48,17 @@ public class Region implements IRegion {
     public Region(IRegion region) {
         this.service = null;
         this.model = null;
+        this.world = region.getWorld();
         this.aX = region.getAX();
         this.aZ = region.getAZ();
         this.bX = region.getBX();
         this.bZ = region.getBZ();
     }
 
-    public Region(double aX, double aZ, double bX, double bZ) {
+    public Region(String world, double aX, double aZ, double bX, double bZ) {
         this.service = null;
         this.model = null;
+        this.world = world;
         this.aX = aX;
         this.aZ = aZ;
         this.bX = bX;
@@ -69,15 +75,21 @@ public class Region implements IRegion {
     }
 
     public boolean doesCollide(Region other) {
-        return getBounds(this).intersects(getBounds(other));
+        if (this.getWorld().equals(other.getWorld()))
+            return getBounds(this).intersects(getBounds(other));
+        return false;
     }
 
-    public boolean doesCollide(double aX, double aZ, double bX, double bZ) {
-        return getBounds(this).intersects(getBounds(aX, aZ, bX, bZ));
+    public boolean doesCollide(String world, double aX, double aZ, double bX, double bZ) {
+        if (this.getWorld().equals(world))
+            return getBounds(this).intersects(getBounds(aX, aZ, bX, bZ));
+        return false;
     }
 
-    public boolean isIn(double x, double z) {
-        return x > aX && x < bX && z > aZ && z < bZ;
+    public boolean isIn(String world, double x, double z) {
+        if (this.getWorld().equals(world))
+            return x > aX && x < bX && z > aZ && z < bZ;
+        return false;
     }
 
     private static Rectangle2D getBounds(double aX, double aZ, double bX, double bZ) {
@@ -128,6 +140,7 @@ public class Region implements IRegion {
     @Override
     public void load() {
         this.service.getDatabaseProvider().getRegionDao().refresh(this.model);
+        this.world = this.model.getWorld();
         this.aX = this.model.getAX();
         this.aZ = this.model.getAZ();
         this.bX = this.model.getBX();
@@ -141,6 +154,7 @@ public class Region implements IRegion {
     @SneakyThrows
     @Override
     public void save() {
+        this.model.setWorld(this.world);
         this.model.setAX(this.aX);
         this.model.setAZ(this.aZ);
         this.model.setBX(this.bX);

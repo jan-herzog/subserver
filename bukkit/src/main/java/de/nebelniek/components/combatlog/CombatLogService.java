@@ -2,6 +2,7 @@ package de.nebelniek.components.combatlog;
 
 import de.nebelniek.components.tablistchat.utils.NameUtils;
 import de.nebelniek.configuration.BukkitConfiguration;
+import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,14 +65,25 @@ public class CombatLogService implements Listener {
         ICloudUser cRevceiver = cloudUserManagingService.getCloudUsers().get(reciever.getUniqueId());
         ICloudUser cDamager = cloudUserManagingService.getCloudUsers().get(damager.getUniqueId());
         if (!isInFight(cRevceiver))
-            if (cDamager.getGuild() != cRevceiver.getGuild())
-                if (guildManagingService.getGuildAt(reciever.getLocation().getX(), reciever.getLocation().getZ()).equals(cRevceiver.getGuild())) {
+            if (cDamager.getGuild() != cRevceiver.getGuild()) {
+                IGuild guild = guildManagingService.getGuildAt(reciever.getLocation().getWorld().getName(), reciever.getLocation().getX(), reciever.getLocation().getZ());
+                if (guild != null && (guild.equals(cRevceiver.getGuild()) || guild.getAllies().stream().anyMatch(other -> other.equals(cRevceiver.getGuild())))) {
                     damager.sendMessage(Prefix.COMBAT + "§cDieser Spieler steht auf seinem Grundstück! Du kannst ihn nicht angreifen!");
                     event.setCancelled(true);
                     return;
                 }
+            }
+        if (cDamager.getGuild() != null)
+            if (cDamager.getGuild().getMember().contains(cRevceiver))
+                return;
         updatePlayer(reciever);
         updatePlayer(damager);
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(event.getPlayer().getUniqueId());
+        cache.remove(cloudUser);
     }
 
     private void updatePlayer(Player player) {

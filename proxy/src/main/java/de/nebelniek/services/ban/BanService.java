@@ -86,6 +86,8 @@ public class BanService implements Listener {
             return;
         if (cloudUser.getBan() == null)
             return;
+        System.out.println(cloudUser.getBan());
+        System.out.println(cloudUser.getBan().getBanType());
         if (cloudUser.getBan().getBanType().equals(BanType.PROXY_BAN)) {
             event.setCancelReason(BanScreen.timeLeft(cloudUser.getBan().getEndDate(), cloudUser.getBan().getReason()));
             event.setCancelled(true);

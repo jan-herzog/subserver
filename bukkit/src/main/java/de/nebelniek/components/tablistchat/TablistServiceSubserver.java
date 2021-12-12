@@ -48,16 +48,17 @@ public class TablistServiceSubserver implements Listener {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(onlinePlayer.getUniqueId());
             Team team;
+            IGuild guild = cloudUser.getGuild();
             if (cloudUser.getGuild() == null)
                 team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains("Player")).findAny().orElseThrow();
             else {
-                team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains(cloudUser.getGuild().getName())).findAny().orElse(null);
+                team = scoreboard.getTeams().stream().filter(team1 -> team1.getName().contains(guild.getName())).findAny().orElse(null);
                 if (team == null) {
                     team = scoreboard.registerNewTeam(i + cloudUser.getGuild().getName());
                     i++;
                 }
-                team.setPrefix(cloudUser.getGuild().getPrefix() + " ");
-                team.setColor(ChatColor.GRAY);
+                team.setPrefix(guild.getPrefix() + " ");
+                team.setColor(guild.getColor() == null ? ChatColor.GRAY : ChatColor.getByChar(guild.getColor().replace("§", "")));
             }
             if (!team.getPlayers().contains(onlinePlayer)) {
                 if (scoreboard.getPlayerTeam(onlinePlayer) != null)
@@ -86,7 +87,7 @@ public class TablistServiceSubserver implements Listener {
         Team team = scoreboard.registerNewTeam(i + guild.getName());
         if (guild.getPrefix() != null)
             team.setPrefix(guild.getPrefix() + " ");
-        team.setColor(ChatColor.GRAY);
+        team.setColor(guild.getColor() == null ? ChatColor.GRAY : ChatColor.getByChar(guild.getColor().replace("§", "")));
         update();
         i++;
     }

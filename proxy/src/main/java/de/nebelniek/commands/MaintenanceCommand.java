@@ -2,6 +2,7 @@ package de.nebelniek.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import de.nebelniek.services.maintenance.MaintenanceKey;
@@ -28,10 +29,11 @@ public class MaintenanceCommand extends BaseCommand {
     }
 
     @Default
+    @CommandCompletion("SUBSERVER")
     public void onToggle(ProxiedPlayer sender, String type) {
         MaintenanceKey key = MaintenanceKey.valueOf(type);
         maintenanceService.toggle(key);
-        sender.sendMessage(Prefix.PROXY + "§eMaintenance§7 für §6" + type + "§7 umgeschaltet! (" + (maintenanceService.get(key) ? "§atrue" : "§cfalse") + ")");
+        sender.sendMessage(Prefix.PROXY + "§eMaintenance§7 für §6" + type + "§7 umgeschaltet! (" + (maintenanceService.get(key) ? "§atrue" : "§cfalse") + "§7)");
     }
 
 }

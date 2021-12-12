@@ -34,8 +34,10 @@ public class ServerConnectListener implements Listener {
         for (MaintenanceKey value : MaintenanceKey.values())
             if (serverInfo.getName().contains(value.getGroup()))
                 if (maintenanceService.get(value)) {
-                    if (!player.hasPermission("proxy.maintenance.bypass"))
+                    if (!player.hasPermission("proxy.maintenance.bypass")) {
+                        player.sendMessage(Prefix.PROXY + "Du darfst diesen Server noch §cnicht §7betreten!");
                         event.setCancelled(true);
+                    }
                     return;
                 }
         if (serverInfo.getName().contains("Subserver")) {
@@ -46,7 +48,7 @@ public class ServerConnectListener implements Listener {
             }
             ICloudUser cloudUser = cloudUserManagingService.loadUserSync(player.getUniqueId());
             ClickCooldown.registerClick(event.getPlayer().getUniqueId());
-            if (!cloudUser.isSubbed()) {
+            if (!cloudUser.isSubbed() && !player.hasPermission("proxy.sub.bypass")) {
                 player.sendMessage(Prefix.PROXY + "Du bist kein §5Twitch§7-Subscriber, weshalb du diesen Server §cnicht§7 betreten darfst.");
                 event.setCancelled(true);
                 return;

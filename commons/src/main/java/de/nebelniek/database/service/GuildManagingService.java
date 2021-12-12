@@ -57,6 +57,8 @@ public class GuildManagingService {
                     guild.load();
                     guilds.add(guild);
                 }
+                for (IGuild guild : this.guilds)
+                    guild.loadAllies();
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
             }
@@ -96,23 +98,24 @@ public class GuildManagingService {
     }
 
 
-    public IGuild getGuildAt(double x, double z) {
+    public IGuild getGuildAt(String world, double x, double z) {
         for (IGuild guild : guilds) {
             IRegion region = guild.getRegion();
             if (region != null) {
-                if (x > region.getAX() && x < region.getBX() && z > region.getAZ() && z < region.getBZ())
-                    return guild;
+                if (region.getWorld().equalsIgnoreCase(world))
+                    if (x >= region.getAX() && x <= region.getBX() && z >= region.getAZ() && z <= region.getBZ())
+                        return guild;
             }
         }
         return null;
     }
 
-    public CompletableFuture<IRegion> createRegion(double aX, double aZ, double bX, double bZ) {
+    public CompletableFuture<IRegion> createRegion(String world, double aX, double aZ, double bX, double bZ) {
         return CompletableFuture.supplyAsync(new Supplier<IRegion>() {
             @SneakyThrows
             @Override
             public IRegion get() {
-                RegionModel model = new RegionModel(aX, aZ, bX, bZ);
+                RegionModel model = new RegionModel(world, aX, aZ, bX, bZ);
                 databaseProvider.getRegionDao().create(model);
                 databaseProvider.getRegionDao().refresh(model);
                 Region region = new Region(GuildManagingService.this, model);

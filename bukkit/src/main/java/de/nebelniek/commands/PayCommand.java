@@ -52,7 +52,7 @@ public class PayCommand extends BaseCommand {
                 }
                 coinsContentService.removeCoins(cloudUser, amount);
                 coinsContentService.addCoins(targetUser, amount);
-                Player targetPlayer = Bukkit.getPlayer(cloudUser.getUuid());
+                Player targetPlayer = Bukkit.getPlayer(targetUser.getUuid());
                 if (targetPlayer != null)
                     targetPlayer.sendMessage(Prefix.COINS + "Du hast §e" + amount + "§7 Coins von §5" + cloudUser.getLastUserName() + "§7 erhalten!");
                 sender.sendMessage(Prefix.COINS + "Du hast §5" + targetUser.getLastUserName() + " §e" + amount + "§7 Coins geschickt!");

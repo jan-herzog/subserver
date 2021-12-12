@@ -9,20 +9,24 @@ import org.bukkit.Location;
 @Getter
 public enum WorldSpawns {
 
-    OVERWORLD(new Region(40,40,-40,-40)),
-    NETHER(new Region(0,0,0,0)),
-    END(new Region(0,0,0,0)),
+    OVERWORLD(new Region("world", 40, 40, -40, -40)),
+    NETHER(new Region("world_nether", 0, 0, 0, 0)),
+    END(new Region("world_the_end", -74, 74, 140, -120)),
     ;
 
     private final Region region;
 
     public static WorldSpawns getByLocation(Location location) {
-        switch (location.getWorld().getName()) {
+        return getByName(location.getWorld().getName());
+    }
+
+    public static WorldSpawns getByName(String name) {
+        switch (name) {
             case "world" -> {
                 return OVERWORLD;
             }
             case "world_nether" -> {
-                return NETHER;
+                return null;
             }
             case "world_the_end" -> {
                 return END;

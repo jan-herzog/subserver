@@ -17,6 +17,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -34,13 +36,14 @@ public class RankUpdateService {
                 return;
             if (luckPerms.getUserManager().getUser(cloudUser.getUuid()).getPrimaryGroup().equalsIgnoreCase("team"))
                 return;
-            if (cloudUser.getTwitchId() != null)
-                if (twitchClient.getHelix().getModerators(TwitchTokens.NEBELNIEK.getToken(), TwitchTokens.NEBELNIEK.getChannelId(), null, null).execute().getModerators().stream().anyMatch(moderator -> moderator.getUserId().equalsIgnoreCase(cloudUser.getTwitchId()))) {
+            if (cloudUser.getTwitchId() != null) {
+                if ((long) twitchClient.getHelix().getModerators(TwitchTokens.NEBELNIEK.getToken(), TwitchTokens.NEBELNIEK.getChannelId(), Collections.singletonList(cloudUser.getTwitchId()), null, 1).execute().getModerators().size() == 1) {
                     Group group = luckPerms.getGroupManager().getGroup("mod");
                     setGroup(group, cloudUser);
                     System.out.println(cloudUser.getTwitchId() + " mod");
                     return;
                 }
+            }
             if (is) {
                 Group group = luckPerms.getGroupManager().getGroup("sub");
                 setGroup(group, cloudUser);

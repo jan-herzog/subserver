@@ -8,12 +8,16 @@ import org.springframework.stereotype.Service;
 public class SpawnProtectionService {
 
     public boolean isNearSpawn(Location location) {
-        Region region = WorldSpawns.getByLocation(location).getRegion();
-        return region.doesCollide(location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20);
+        WorldSpawns worldSpawns = WorldSpawns.getByLocation(location);
+        if(worldSpawns == null)
+            return false;
+        return worldSpawns.getRegion().doesCollide(location.getWorld().getName(), location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20);
     }
 
     public boolean isInSpawn(Location location) {
-        Region region = WorldSpawns.getByLocation(location).getRegion();
-        return region.isIn(location.getX(), location.getZ());
+        WorldSpawns worldSpawns = WorldSpawns.getByLocation(location);
+        if(worldSpawns == null)
+            return false;
+        return worldSpawns.getRegion().isIn(location.getWorld().getName(), location.getX(), location.getZ());
     }
 }

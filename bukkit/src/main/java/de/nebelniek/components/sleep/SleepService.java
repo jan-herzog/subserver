@@ -24,7 +24,7 @@ public class SleepService implements Listener {
         if (!event.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK))
             return;
         sleeping.add(player);
-        Bukkit.broadcastMessage(Prefix.SUBSERVER + NameUtils.getColoredName(player.getUniqueId(), player.getName()) + " §7schläft nun! §8(§6" + getPercent() + "§7%/25%§8)");
+        //Bukkit.broadcastMessage(Prefix.SUBSERVER + NameUtils.getColoredName(player.getUniqueId(), player.getName()) + " §7schläft nun! §8(§6" + getPercent() + "§7%/25%§8)");
         if (getPercent() >= 25) {
             Bukkit.broadcastMessage(Prefix.SUBSERVER + "§7Die Nacht wurde §aübersprungen§7!");
             Bukkit.getWorld("world").setTime(0L);
@@ -35,8 +35,11 @@ public class SleepService implements Listener {
     public void on(PlayerBedLeaveEvent event) {
         Player player = event.getPlayer();
         sleeping.remove(player);
-        if (!(Bukkit.getWorld("world").getTime() <= 10L))
-            Bukkit.broadcastMessage(Prefix.SUBSERVER + NameUtils.getColoredName(player.getUniqueId(), player.getName()) + " §7schläft nun §cnicht mehr§7! §8(§6" + getPercent() + "§7%/25%§8)");
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            onlinePlayer.sendActionBar("§e" + sleeping.size() + "§7/" + Bukkit.getOnlinePlayers().size() + " schlafen  §8(§6" + getPercent() + "§7%/25%§8)");
+        }
+        //if (!(Bukkit.getWorld("world").getTime() <= 10L))
+            //Bukkit.broadcastMessage(Prefix.SUBSERVER + NameUtils.getColoredName(player.getUniqueId(), player.getName()) + " §7schläft nun §cnicht mehr§7! §8(§6" + getPercent() + "§7%/25%§8)");
     }
 
     @EventHandler

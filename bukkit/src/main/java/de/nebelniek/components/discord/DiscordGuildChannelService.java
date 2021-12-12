@@ -82,7 +82,12 @@ public class DiscordGuildChannelService {
                 addRole(cloudUser, member, role, subserverGuild);
                 continue;
             }
-            subserverGuild.retrieveMemberById(cloudUser.getDiscordId()).queue(member1 -> addRole(cloudUser, member1, role, subserverGuild));
+            try {
+                subserverGuild.retrieveMemberById(cloudUser.getDiscordId()).queue(member1 -> addRole(cloudUser, member1, role, subserverGuild));
+            } catch (Exception e) {
+                cloudUser.setDiscordId(null);
+                cloudUser.saveAsync();
+            }
         }
     }
 
@@ -111,7 +116,6 @@ public class DiscordGuildChannelService {
         if (!member.getRoles().contains(role))
             subserverGuild.addRoleToMember(cloudUser.getDiscordId(), role).queue();
     }
-
 
 
 }

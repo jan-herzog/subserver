@@ -9,6 +9,8 @@ import de.nebelniek.database.interfaces.Saveable;
 public interface IRegion extends Loadable, Saveable {
 
 
+    String getWorld();
+
     double getAX();
 
     double getAZ();
@@ -16,6 +18,8 @@ public interface IRegion extends Loadable, Saveable {
     double getBX();
 
     double getBZ();
+
+    void setWorld(String world);
 
     void setAX(double aX);
 
@@ -29,7 +33,7 @@ public interface IRegion extends Loadable, Saveable {
 
     boolean doesCollide(Region other);
 
-    boolean doesCollide(double aX, double aZ, double bX, double bZ);
+    boolean doesCollide(String world, double aX, double aZ, double bX, double bZ);
 
     RegionModel getModel();
 

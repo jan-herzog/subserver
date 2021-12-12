@@ -1,6 +1,8 @@
 package de.nebelniek.content.guild;
 
+import de.nebelniek.components.combatlog.CombatLogService;
 import de.nebelniek.components.spawnprotection.SpawnProtectionService;
+import de.nebelniek.components.spawnprotection.WorldSpawns;
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.configuration.Prices;
 import de.nebelniek.content.coins.CoinsContentService;
@@ -59,6 +61,8 @@ public class GuildContentService implements Listener {
 
     private final SpawnProtectionService spawnProtectionService;
 
+    private final CombatLogService combatLogService;
+
     public GuildContentResponse createGuild(ICloudUser creator, String name) {
         if (creator.getGuild() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist bereits in einer Gilde!");
@@ -72,7 +76,7 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Es ist bereits eine Gilde mit diesem Namen vorhanden!");
         coinsContentService.removeCoins(creator, Prices.GUILD_CREATE.getPrice());
         creator.setGuildRole(GuildRole.LEADER);
-        creator.save();
+        creator.saveAsync();
         guildManagingService.createGuild(creator, name).thenAccept(guild -> {
             creator.setGuild(guild);
             creator.save();
@@ -119,6 +123,8 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         IGuild guild = cloudUser.getGuild();
         String guildName = guild.getColor() + guild.getName();
+        if (guild.getRegion() != null)
+            coinsContentService.addCoins(cloudUser, Prices.GUILD_CLAIM_REGION.getPrice());
         chatService.sendAnnouncement(cloudUser.getGuild(), cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§c hat die Gilde " + guildName + "§c gelöscht§7!");
         for (IGuild ally : guild.getAllies()) {
             ally.getAllies().remove(guild);
@@ -126,16 +132,17 @@ public class GuildContentService implements Listener {
             ally.saveAsync();
         }
         guildManagingService.deleteGuild(guild);
-        cloudUser.setGuildRole(null);
-        cloudUser.getGuild().getMember().remove(cloudUser);
-        if (cloudUser.getGuild().getBalance() > 0) {
+        if (guild.getBalance() > 0) {
             coinsContentService.addCoins(cloudUser, cloudUser.getGuild().getBalance());
             Player player = Bukkit.getPlayer(cloudUser.getUuid());
             if (player != null)
                 player.sendMessage(Prefix.COINS + "Dir wurden die restlichen §e" + cloudUser.getGuild().getBalance() + " §6Coins §7von deiner Gilde §aüberwiesen§7.");
         }
-        cloudUser.setGuild(null);
-        cloudUser.saveAsync();
+        for (ICloudUser member : guild.getMember()) {
+            member.setGuildRole(null);
+            member.setGuild(null);
+            member.saveAsync();
+        }
         updateGuildMembersScoreboard(guild);
         tablistServiceSubserver.update();
         discordGuildChannelService.disposeGuildChannels(guild);
@@ -228,6 +235,7 @@ public class GuildContentService implements Listener {
         guild.setColor(color);
         guild.setBalance(guild.getBalance() - Prices.GUILD_CHANGE_COLOR.getPrice());
         updateGuildMembersScoreboard(guild);
+        tablistServiceSubserver.update();
         guild.saveAsync();
         chatService.sendAnnouncement(guild, cloudUser.getGuildRole().getColor() + cloudUser.getLastUserName() + "§7 hat die Farbe der Gilde zu " + guild.getColor() + guild.getName() + "§7 geändert!");
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast die Farbe §aerfolgreich §7geändert!");
@@ -277,24 +285,33 @@ public class GuildContentService implements Listener {
         return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast den Homepunkt §aerfolgreich §7geändert!");
     }
 
-    public GuildContentResponse tpHome(ICloudUser cloudUser, Player player) {
+    public GuildContentResponse tpHome(ICloudUser cloudUser, Player player, String guildName) {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
-        if (guild.getHome() == null)
+        if (combatLogService.isInFight(cloudUser))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist im Fight");
+        if (guildName == null && guild.getHome() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat keinen Home-Point!");
         if (cloudUser.getCoins() < Prices.GUILD_TP_HOME.getPrice())
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du leider zu wenig Geld!");
+        if (guildName != null)
+            guild = guildManagingService.getGuilds().stream().filter(g -> g.getName().equalsIgnoreCase(guildName)).findAny().orElse(null);
+        if (guild == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Diese Gilde existiert nicht!");
+        if (!cloudUser.getGuild().equals(guild) && !guild.getAllies().contains(cloudUser.getGuild()))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Mit dieser Gilde bist du nicht verbündet!");
         coinsContentService.removeCoins(cloudUser, Prices.GUILD_TP_HOME.getPrice());
+        IGuild finalGuild = guild;
         Bukkit.getScheduler().runTask(bukkitConfiguration.getPlugin(), () -> player.teleport(
                 new Location(
-                        Bukkit.getWorld(guild.getHome().world()),
-                        guild.getHome().x(),
-                        guild.getHome().y(),
-                        guild.getHome().z()
+                        Bukkit.getWorld(finalGuild.getHome().world()),
+                        finalGuild.getHome().x(),
+                        finalGuild.getHome().y(),
+                        finalGuild.getHome().z()
                 )
         ));
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest §aerfolgreich §7nach Hause teleportiert!");
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du wurdest §aerfolgreich §7nach Hause " + (guildName != null ? "§7von " + guild.getColor() + guild.getName() + " " : "") + "§7teleportiert!");
     }
 
     public GuildContentResponse tpSpawn(ICloudUser cloudUser, Player player) {
@@ -303,6 +320,8 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
         if (guild.getHome() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat keinen Home-Point!");
+        if (combatLogService.isInFight(cloudUser))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Du bist im Fight");
         if (cloudUser.getCoins() < Prices.GUILD_TP_HOME.getPrice())
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du leider zu wenig Geld!");
         coinsContentService.removeCoins(cloudUser, Prices.GUILD_TP_HOME.getPrice());
@@ -314,6 +333,8 @@ public class GuildContentService implements Listener {
         IGuild guild = cloudUser.getGuild();
         if (cloudUser.getGuild() == null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Du bist in keiner Gilde!");
+        if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageBankAccountRole()) && action.equals(BalanceAction.WITHDRAW))
+            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         switch (action) {
             case DEPOSIT -> {
                 if (cloudUser.getCoins() < value)
@@ -326,8 +347,6 @@ public class GuildContentService implements Listener {
                 coinsContentService.addCoins(cloudUser, value);
             }
         }
-        if (!cloudUser.getGuildRole().isHigherOrEquals(guild.getSettings().getManageBankAccountRole()))
-            return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hast du keine Rechte!");
         switch (action) {
             case DEPOSIT -> guild.setBalance(guild.getBalance() + value);
             case WITHDRAW -> guild.setBalance(guild.getBalance() - value);
@@ -357,6 +376,9 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat noch keine Region beansprucht!");
         Region clone = new Region(guild.getRegion());
         clone.expand(10, direction);
+        if (WorldSpawns.getByName(clone.getWorld()) != null)
+            if (clone.doesCollide(WorldSpawns.getByName(clone.getWorld()).getRegion()))
+                return new GuildContentResponse(GuildResponseState.ERROR, "In diese Richtung ist kein Platz für deine Gilde!");
         for (IGuild iGuild : guildManagingService.getGuilds())
             if (guild != iGuild)
                 if (iGuild.getRegion() != null)
@@ -380,7 +402,8 @@ public class GuildContentService implements Listener {
         guildManagingService.getDatabaseProvider().getRegionDao().delete(guild.getRegion().getModel());
         guild.setRegion(null);
         guild.saveAsync();
-        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast §aerfolgreich §7die Region deiner Gilde §cgelöscht§7!");
+        coinsContentService.addCoins(cloudUser, Prices.GUILD_CLAIM_REGION.getPrice());
+        return new GuildContentResponse(GuildResponseState.SUCCESS, "Du hast §aerfolgreich §7die Region deiner Gilde §cgelöscht§7! Dir wurden §e" + Prices.GUILD_CLAIM_REGION.getPrice() + "§7 gutgeschrieben.");
     }
 
     public GuildContentResponse claimRegion(ICloudUser cloudUser, Location location) {
@@ -393,13 +416,16 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Dazu hat deine Gilde zu wenig Geld!");
         if (guild.getRegion() != null)
             return new GuildContentResponse(GuildResponseState.ERROR, "Deine Gilde hat bereits eine Region beansprucht!");
-        if(spawnProtectionService.isNearSpawn(location))
+        if (spawnProtectionService.isNearSpawn(location))
             return new GuildContentResponse(GuildResponseState.ERROR, "Entferne dich noch etwas vom Spawn!");
+        if (WorldSpawns.getByLocation(location) != null)
+            if (WorldSpawns.getByLocation(location).getRegion().doesCollide(location.getWorld().getName(), location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20))
+                return new GuildContentResponse(GuildResponseState.ERROR, "Hier ist leider kein Platz für deine Gilde!");
         for (IGuild iGuild : guildManagingService.getGuilds())
             if (iGuild.getRegion() != null)
-                if (iGuild.getRegion().doesCollide(location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20))
+                if (iGuild.getRegion().doesCollide(location.getWorld().getName(), location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20))
                     return new GuildContentResponse(GuildResponseState.ERROR, "Hier ist leider kein Platz für deine Gilde!");
-        guildManagingService.createRegion(location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20).thenAccept(region -> {
+        guildManagingService.createRegion(location.getWorld().getName(), location.getX() - 20, location.getZ() - 20, location.getX() + 20, location.getZ() + 20).thenAccept(region -> {
             guild.setBalance(guild.getBalance() - Prices.GUILD_CLAIM_REGION.getPrice());
             guild.setRegion(region);
             guild.saveAsync();
@@ -491,7 +517,7 @@ public class GuildContentService implements Listener {
     private void updateGuildMembersScoreboard(IGuild guild) {
         for (ICloudUser cloudUser : guild.getMember()) {
             Player player = Bukkit.getPlayer(cloudUser.getUuid());
-            if(player != null) {
+            if (player != null) {
                 scoreboardManagementService.updateGuild(cloudUser);
                 scoreboardManagementService.updateProfile(cloudUser);
             }

@@ -34,7 +34,7 @@ public class RegionEnterListener implements Listener {
         Player player = event.getPlayer();
         if (lastRegions.entrySet().stream().anyMatch(entry -> entry.getKey().getUuid().equals(player.getUniqueId()))) {
             ICloudUser cloudUser = lastRegions.entrySet().stream().filter(entry -> entry.getKey().getUuid().equals(player.getUniqueId())).findAny().get().getKey();
-            IGuild guild = guildManagingService.getGuildAt(player.getLocation().getX(), player.getLocation().getZ());
+            IGuild guild = guildManagingService.getGuildAt(player.getLocation().getWorld().getName(), player.getLocation().getX(), player.getLocation().getZ());
             if (guild == null && lastRegions.get(cloudUser) != null) {
                 scoreboardManagementService.updateRegion(cloudUser, null);
                 lastRegions.replace(cloudUser, null);
@@ -50,7 +50,7 @@ public class RegionEnterListener implements Listener {
             return;
         }
         cloudUserManagingService.loadUser(player.getUniqueId()).thenAccept(cloudUser -> {
-            IGuild guild = guildManagingService.getGuildAt(player.getLocation().getX(), player.getLocation().getZ());
+            IGuild guild = guildManagingService.getGuildAt(player.getLocation().getWorld().getName(), player.getLocation().getX(), player.getLocation().getZ());
             if (guild == null) {
                 lastRegions.put(cloudUser, null);
                 scoreboardManagementService.updateRegion(cloudUser, null);

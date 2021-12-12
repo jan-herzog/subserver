@@ -169,7 +169,7 @@ public class GuildCommand extends BaseCommand {
             );
             return;
         }
-        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changeColor(cloudUser, "§" + colorcode))).exceptionally(throwable -> {
+        cloudUserManagingService.loadUser(sender.getUniqueId()).thenAccept(cloudUser -> sendResponse(sender, service.changeColor(cloudUser, "§" + chatColor.getChar()))).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         });
@@ -252,9 +252,9 @@ public class GuildCommand extends BaseCommand {
     }
 
     @Subcommand("home")
-    public void home(Player sender) {
+    public void home(Player sender, @Optional String guild) {
         ICloudUser cloudUser = cloudUserManagingService.getCloudUsers().get(sender.getUniqueId());
-        sendResponse(sender, service.tpHome(cloudUser, sender));
+        sendResponse(sender, service.tpHome(cloudUser, sender, guild));
     }
 
     @Subcommand("kick")
