@@ -51,6 +51,8 @@ public class GuildInviteAllyService implements Listener {
             pendingInvites.put(other, new ArrayList<>());
         if (pendingInvites.get(other).stream().anyMatch(inviteEntry -> inviteEntry.guild().equals(guild)))
             return new GuildContentResponse(GuildResponseState.ERROR, "Zu diesem Spieler steht bereits eine Einladung offen!");
+        if (pendingInvites.get(guild).stream().anyMatch(entry -> entry.guild().equals(other)))
+            return accept(other, guild);
         pendingInvites.get(other).add(new InviteEntry(guild, inviter));
         if (guildChatService.someoneOnline(other)) {
             guildChatService.sendAnnouncementToRole(other, GuildRole.ADMIN, "Deiner Gilde wurde von §e" + inviter.getLastUserName() + "§7 ein Verbündungsantrag mit der Gilde " + guild.getColor() + guild.getName() + " §7gestellt!");

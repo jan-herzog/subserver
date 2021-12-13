@@ -26,7 +26,6 @@ public class ChatService implements Listener {
             message = ChatColor.translateAlternateColorCodes('&', message);
         String finalMessage = message;
         cloudUserManagingService.getUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
-            System.out.println(cloudUser.getGuild());
             if (cloudUser.getGuild() != null)
                 if (cloudUser.getGuild().getPrefix() != null) {
                     Bukkit.broadcastMessage("§7" + cloudUser.getGuild().getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);

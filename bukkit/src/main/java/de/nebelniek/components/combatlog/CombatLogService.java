@@ -10,6 +10,7 @@ import de.nebelniek.utils.Prefix;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -58,14 +59,13 @@ public class CombatLogService implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player) || !(event.getEntity() instanceof Player))
+        if (!(event.getEntity() instanceof Player reciever))
             return;
-        Player reciever = (Player) event.getEntity();
-        Player damager = (Player) event.getDamager();
+        Player damager = event.getDamager() instanceof Projectile && ((Projectile) event.getDamager()).getShooter() instanceof Player ? ((Player) ((Projectile) event.getDamager()).getShooter()) : (Player) event.getDamager();
         ICloudUser cRevceiver = cloudUserManagingService.getCloudUsers().get(reciever.getUniqueId());
         ICloudUser cDamager = cloudUserManagingService.getCloudUsers().get(damager.getUniqueId());
         if (!isInFight(cRevceiver))
-            if (cDamager.getGuild() != cRevceiver.getGuild()) {
+            if (cDamager.getGuild() != cRevceiver.getGuild() && (cRevceiver.getGuild() != null && !cRevceiver.getGuild().getAllies().contains(cDamager.getGuild()))) {
                 IGuild guild = guildManagingService.getGuildAt(reciever.getLocation().getWorld().getName(), reciever.getLocation().getX(), reciever.getLocation().getZ());
                 if (guild != null && (guild.equals(cRevceiver.getGuild()) || guild.getAllies().stream().anyMatch(other -> other.equals(cRevceiver.getGuild())))) {
                     damager.sendMessage(Prefix.COMBAT + "§cDieser Spieler steht auf seinem Grundstück! Du kannst ihn nicht angreifen!");
@@ -74,7 +74,7 @@ public class CombatLogService implements Listener {
                 }
             }
         if (cDamager.getGuild() != null)
-            if (cDamager.getGuild().getMember().contains(cRevceiver))
+            if (cDamager.getGuild().getMember().contains(cRevceiver) || cDamager.getGuild().getAllies().stream().anyMatch(ally -> ally.getMember().contains(cRevceiver)))
                 return;
         updatePlayer(reciever);
         updatePlayer(damager);
