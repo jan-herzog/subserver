@@ -2,7 +2,8 @@ package de.nebelniek.registration;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
-import de.nebelniek.BukkitConfiguration;
+import de.nebelniek.configuration.BukkitConfiguration;
+import de.nebelniek.registration.event.BukkitPluginEnableEvent;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ public class CommandRegistry {
 
     @EventListener
     public void loadOnEnable(BukkitPluginEnableEvent event) {
-        bukkitConfiguration.setCommandManager(new PaperCommandManager(event.getJavaPlugin()));
+        bukkitConfiguration.setCommandManager(new PaperCommandManager(event.getPlugin()));
         event.getApplicationContext().getBeansOfType(BaseCommand.class).forEach((s, command) -> {
             bukkitConfiguration.getCommandManager().registerCommand(command);
             LOGGER.info("Command of bean " + s + " has been enabled!");

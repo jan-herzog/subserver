@@ -1,0 +1,11 @@
+name: Subserver-tabchat
+version: 1.0
+author: Kexesser
+main: de.nebelniek.TabChat
+api-version: 1.17
+
+depend:
+  - LuckPerms
+
+softdepend:
+  - Subserver-bukkit
