@@ -3,10 +3,12 @@ package de.nebelniek.components.scoreboard;
 import de.nebelniek.configuration.BukkitConfiguration;
 import de.nebelniek.database.guild.interfaces.IGuild;
 import de.nebelniek.database.service.CloudUserManagingService;
+import de.nebelniek.database.service.GuildManagingService;
 import de.nebelniek.database.user.interfaces.ICloudUser;
 import fr.mrmicky.fastboard.FastBoard;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class ScoreboardManagementService implements Listener {
 
     private final CloudUserManagingService cloudUserManagingService;
+    private final GuildManagingService guildManagingService;
     private final BukkitConfiguration bukkitConfiguration;
 
     private final Map<ICloudUser, FastBoard> fastBoards = new HashMap<>();
@@ -48,6 +51,7 @@ public class ScoreboardManagementService implements Listener {
 
     private FastBoard createBoard(ICloudUser cloudUser, Player player) {
         FastBoard board = new FastBoard(player);
+        Location location = player.getLocation();
         board.updateTitle("§5§lSubserver");
         board.updateLines(
                 "",
@@ -63,6 +67,8 @@ public class ScoreboardManagementService implements Listener {
                 "§8● §dGebiet",
                 " §7➥ §2Wildnis"
         );
+        IGuild guildAt = guildManagingService.getGuildAt(location.getWorld().getName(), location.getX(), location.getZ());
+        updateRegion(cloudUser, guildAt);
         return board;
     }
 

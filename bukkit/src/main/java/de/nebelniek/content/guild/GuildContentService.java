@@ -301,6 +301,8 @@ public class GuildContentService implements Listener {
             return new GuildContentResponse(GuildResponseState.ERROR, "Diese Gilde existiert nicht!");
         if (!cloudUser.getGuild().equals(guild) && !guild.getAllies().contains(cloudUser.getGuild()))
             return new GuildContentResponse(GuildResponseState.ERROR, "Mit dieser Gilde bist du nicht verbündet!");
+        if (guild.getHome() == null)
+            return new GuildContentResponse(GuildResponseState.ERROR, "Diese Gilde hat keinen Home-Point!");
         coinsContentService.removeCoins(cloudUser, Prices.GUILD_TP_HOME.getPrice());
         IGuild finalGuild = guild;
         Bukkit.getScheduler().runTask(bukkitConfiguration.getPlugin(), () -> player.teleport(
