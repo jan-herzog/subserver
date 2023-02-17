@@ -42,6 +42,8 @@ public class CloudUserModel {
     private GuildModel guildModel;
     @DatabaseField(columnName = "ban_id", foreign = true, foreignAutoRefresh = true)
     private BanModel ban;
+    @DatabaseField
+    private String ignored;
     @DatabaseField(dataType = DataType.LONG_STRING)
     private String textureHash;
 

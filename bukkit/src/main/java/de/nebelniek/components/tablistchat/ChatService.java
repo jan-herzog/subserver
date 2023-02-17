@@ -2,10 +2,12 @@ package de.nebelniek.components.tablistchat;
 
 import de.nebelniek.database.service.CloudUserManagingService;
 import de.nebelniek.components.tablistchat.rank.Rank;
+import de.nebelniek.database.user.interfaces.ICloudUser;
 import de.nebelniek.utils.SubserverRank;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -26,12 +28,18 @@ public class ChatService implements Listener {
             message = ChatColor.translateAlternateColorCodes('&', message);
         String finalMessage = message;
         cloudUserManagingService.getUser(event.getPlayer().getUniqueId()).thenAccept(cloudUser -> {
+            String messageToBroadcast = finalMessage;
             if (cloudUser.getGuild() != null)
                 if (cloudUser.getGuild().getPrefix() != null) {
-                    Bukkit.broadcastMessage("§7" + cloudUser.getGuild().getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);
+                    messageToBroadcast = "§7" + cloudUser.getGuild().getPrefix() + " " + cloudUser.getGuild().getColor() + event.getPlayer().getName() + " §8»§7 " + finalMessage;
                     return;
                 }
-            Bukkit.broadcastMessage(SubserverRank.DEFAULT.getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage);
+            messageToBroadcast = SubserverRank.DEFAULT.getPrefix() + " §7" + event.getPlayer().getName() + " §8»§7 " + finalMessage;
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                ICloudUser onlineCloudUser = cloudUserManagingService.getCloudUsers().get(onlinePlayer.getUniqueId());
+                if (!onlineCloudUser.getIgnored().contains(cloudUser))
+                    onlinePlayer.sendMessage(messageToBroadcast);
+            }
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

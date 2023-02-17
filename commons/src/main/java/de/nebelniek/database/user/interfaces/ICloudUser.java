@@ -35,6 +35,8 @@ public interface ICloudUser extends Loadable, Saveable {
 
     String getTextureHash();
 
+    List<ICloudUser> getIgnored();
+
     IBan getBan();
 
     CloudUserModel getModel();

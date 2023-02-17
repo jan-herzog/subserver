@@ -53,6 +53,9 @@ public class CloudUser implements ICloudUser {
     private IBan ban;
     @Getter
     @Setter
+    private List<ICloudUser> ignored;
+    @Getter
+    @Setter
     private String textureHash;
 
     @Getter
@@ -87,6 +90,9 @@ public class CloudUser implements ICloudUser {
         this.guild = service.getGuildManagingService().getGuildByUser(this);
         if (this.model.getBan() == null)
             return;
+        this.ignored = new ArrayList<>();
+        for (String s : this.model.getIgnored().split(";"))
+            this.ignored.add(this.service.loadUserByIdSync(Long.parseLong(s)));
         this.ban = new Ban(this.service, this.model.getBan().getId());
         this.ban.loadAsync();
     }
@@ -112,6 +118,13 @@ public class CloudUser implements ICloudUser {
         this.model.setBan(this.ban == null ? null : this.ban.getModel());
         if (this.ban != null)
             this.ban.saveAsync();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ICloudUser iCloudUser : this.ignored) {
+            if (!stringBuilder.isEmpty())
+                stringBuilder.append(";");
+            stringBuilder.append(iCloudUser.getModel().getId());
+        }
+        this.model.setIgnored(stringBuilder.toString());
         this.service.getDatabaseProvider().getPlayerDao().update(this.model);
     }
 }
